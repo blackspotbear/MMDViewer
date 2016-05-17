@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		AB076EA21C67059D00E22F03 /* VMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB076EA11C67059D00E22F03 /* VMD.swift */; };
+		AB0D8CD31CEB4E8300444CBE /* RigidBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0D8CD21CEB4E8300444CBE /* RigidBody.swift */; };
+		AB0D8CD51CEB4E9100444CBE /* Joint.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0D8CD41CEB4E9100444CBE /* Joint.swift */; };
 		AB307C471CAF97FD007C4343 /* IKSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C461CAF97FD007C4343 /* IKSolver.swift */; };
 		AB307C491CB0D698007C4343 /* GLKQuaternion+MMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C481CB0D698007C4343 /* GLKQuaternion+MMD.swift */; };
 		AB307C4B1CB0D93B007C4343 /* GLKVector4+MMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C4A1CB0D93B007C4343 /* GLKVector4+MMD.swift */; };
@@ -63,6 +65,8 @@
 
 /* Begin PBXFileReference section */
 		AB076EA11C67059D00E22F03 /* VMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMD.swift; sourceTree = "<group>"; };
+		AB0D8CD21CEB4E8300444CBE /* RigidBody.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RigidBody.swift; sourceTree = "<group>"; };
+		AB0D8CD41CEB4E9100444CBE /* Joint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Joint.swift; sourceTree = "<group>"; };
 		AB307C461CAF97FD007C4343 /* IKSolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IKSolver.swift; sourceTree = "<group>"; };
 		AB307C481CB0D698007C4343 /* GLKQuaternion+MMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GLKQuaternion+MMD.swift"; sourceTree = "<group>"; };
 		AB307C4A1CB0D93B007C4343 /* GLKVector4+MMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GLKVector4+MMD.swift"; sourceTree = "<group>"; };
@@ -203,6 +207,8 @@
 				ABE075A71C365AF200213CB4 /* Material.swift */,
 				ABCE463E1C60E6170024167E /* Bone.swift */,
 				AB5288181CD6D632007B2BEA /* Morph.swift */,
+				AB0D8CD21CEB4E8300444CBE /* RigidBody.swift */,
+				AB0D8CD41CEB4E9100444CBE /* Joint.swift */,
 				AB076EA11C67059D00E22F03 /* VMD.swift */,
 				AB307C501CB1E506007C4343 /* FKSolver.swift */,
 				AB307C461CAF97FD007C4343 /* IKSolver.swift */,
@@ -299,7 +305,7 @@
 		AB8230E51C2FE34D008691E0 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0720;
+				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "🍣";
 				TargetAttributes = {

@@ -309,7 +309,7 @@ private func LoadPMXMorphElement(type: MorphType, _ pmx: PMX, _ reader: DataRead
     }
 }
 
-private func LoadPMXMorph(pmx: PMX, _ reader: DataReader) {
+private func LoadPMXMorphs(pmx: PMX, _ reader: DataReader) {
     let morphCount = reader.readIntN(4);
 
     for _ in 0 ..< morphCount {
@@ -324,6 +324,44 @@ private func LoadPMXMorph(pmx: PMX, _ reader: DataReader) {
     }
 }
 
+private func Skip(pmx: PMX, _ reader: DataReader) {
+    let rigidCount = reader.readIntN(4);
+    
+    for _ in 0 ..< rigidCount {
+        reader.readString()!
+        reader.readString()!
+        reader.read() as UInt8
+        let n = reader.readIntN(4)
+        for _ in 0 ..< n {
+            if reader.read() as UInt8 == 0 {
+                reader.readIntN(pmx.meta.boneIndexSize)
+            } else {
+                reader.readIntN(pmx.meta.morphIndexSize)
+            }
+        }
+    }
+}
+
+private func LoadRigidBodies(pmx: PMX, _ reader: DataReader) {
+    let rigidCount = reader.readIntN(4);
+    
+    for _ in 0 ..< rigidCount {
+        let rigidBody = RigidBody(name: reader.readString()!, nameE: reader.readString()!, boneIndex: reader.readIntN(pmx.meta.boneIndexSize), group: reader.read(), groupFlag: reader.read(), shape: reader.read(), size: GLKVector3Make(reader.read(), reader.read(), reader.read()), pos: GLKVector3Make(reader.read(), reader.read(), reader.read()), rot: GLKVector3Make(reader.read(), reader.read(), reader.read()), mass: reader.read(), tdump: reader.read(), rdump: reader.read(), e: reader.read(), u: reader.read(), objType: reader.read())
+        pmx.rigidBodies.append(rigidBody)
+        print(rigidBody.name)
+        print(rigidBody.nameE)
+    }
+}
+
+private func LoadJoints(pmx: PMX, _ reader: DataReader) {
+    let jointCount = reader.readIntN(4);
+    
+    for _ in 0 ..< jointCount {
+        let joint = Joint(name: reader.readString()!, nameE: reader.readString()!, type: reader.read(), rigidAIndex: reader.readIntN(pmx.meta.rigidBodyIndexSize), rigidBIndex: reader.readIntN(pmx.meta.rigidBodyIndexSize), pos: GLKVector3Make(reader.read(), reader.read(), reader.read()), rot: GLKVector3Make(reader.read(), reader.read(), reader.read()), linearLowerLimit: reader.read(), linearUpperLimit: reader.read(), angularLowerLimit: reader.read(), angularUpperLimit: reader.read(), linearSpringStiffness: GLKVector3Make(reader.read(), reader.read(), reader.read()), angularSpringStiffness: GLKVector3Make(reader.read(), reader.read(), reader.read()))
+        pmx.joints.append(joint)
+    }
+}
+
 class PMX {
     var meta = PMXMeta()
     var vertices: [PMXVertex] = []
@@ -332,6 +370,8 @@ class PMX {
     var materials: [Material] = []
     var bones: [Bone] = []
     var morphs: [String:Morph] = [:]
+    var rigidBodies: [RigidBody] = []
+    var joints: [Joint] = []
     
     init(data: NSData) {
         let reader = DataReader(data: data)
@@ -342,6 +382,9 @@ class PMX {
         LoadPMXTexturePaths(self, reader)
         LoadPMXMaterials(self, reader)
         LoadPMXBones(self, reader)
-        LoadPMXMorph(self, reader)
+        LoadPMXMorphs(self, reader)
+        Skip(self, reader)
+        LoadRigidBodies(self, reader)
+        LoadJoints(self, reader)
     }
 }
