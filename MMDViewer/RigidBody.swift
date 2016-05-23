@@ -44,7 +44,7 @@ public class RigidBodyWrapper: NSObject {
     var u: Float { return rigidBody.u }
     var objType: UInt8 { return rigidBody.objType }
     
-    init(rigidBody: RigidBody) {
+    init(_ rigidBody: RigidBody) {
         self.rigidBody = rigidBody
     }
 }

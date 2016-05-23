@@ -10,6 +10,8 @@
 		AB076EA21C67059D00E22F03 /* VMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB076EA11C67059D00E22F03 /* VMD.swift */; };
 		AB0D8CD31CEB4E8300444CBE /* RigidBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0D8CD21CEB4E8300444CBE /* RigidBody.swift */; };
 		AB0D8CD51CEB4E9100444CBE /* Joint.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0D8CD41CEB4E9100444CBE /* Joint.swift */; };
+		AB0D8CD71CF31EDA00444CBE /* PhysicsSolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0D8CD61CF31EDA00444CBE /* PhysicsSolving.swift */; };
+		AB0D8CD91CF3248A00444CBE /* PhysicsSolver.m in Sources */ = {isa = PBXBuildFile; fileRef = AB0D8CD81CF3248A00444CBE /* PhysicsSolver.m */; };
 		AB307C471CAF97FD007C4343 /* IKSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C461CAF97FD007C4343 /* IKSolver.swift */; };
 		AB307C491CB0D698007C4343 /* GLKQuaternion+MMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C481CB0D698007C4343 /* GLKQuaternion+MMD.swift */; };
 		AB307C4B1CB0D93B007C4343 /* GLKVector4+MMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C4A1CB0D93B007C4343 /* GLKVector4+MMD.swift */; };
@@ -215,6 +217,9 @@
 		AB076EA11C67059D00E22F03 /* VMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMD.swift; sourceTree = "<group>"; };
 		AB0D8CD21CEB4E8300444CBE /* RigidBody.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RigidBody.swift; sourceTree = "<group>"; };
 		AB0D8CD41CEB4E9100444CBE /* Joint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Joint.swift; sourceTree = "<group>"; };
+		AB0D8CD61CF31EDA00444CBE /* PhysicsSolving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhysicsSolving.swift; sourceTree = "<group>"; };
+		AB0D8CD81CF3248A00444CBE /* PhysicsSolver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhysicsSolver.m; sourceTree = "<group>"; };
+		AB0D8CDA1CF324AC00444CBE /* PhysicsSolver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PhysicsSolver.h; sourceTree = "<group>"; };
 		AB307C461CAF97FD007C4343 /* IKSolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IKSolver.swift; sourceTree = "<group>"; };
 		AB307C481CB0D698007C4343 /* GLKQuaternion+MMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GLKQuaternion+MMD.swift"; sourceTree = "<group>"; };
 		AB307C4A1CB0D93B007C4343 /* GLKVector4+MMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GLKVector4+MMD.swift"; sourceTree = "<group>"; };
@@ -736,6 +741,7 @@
 				AB307C461CAF97FD007C4343 /* IKSolver.swift */,
 				AB307C4E1CB143CF007C4343 /* GrantSolver.swift */,
 				ABF3BE901CCC73CF0099329D /* Utils.swift */,
+				AB0D8CD61CF31EDA00444CBE /* PhysicsSolving.swift */,
 			);
 			name = PMX;
 			sourceTree = "<group>";
@@ -790,6 +796,8 @@
 				ABDB8B681CE8747300BD28AD /* BulletTest.h */,
 				ABDB8B661CE8744F00BD28AD /* BulletTest.mm */,
 				ABDB8B651CE8744E00BD28AD /* MMDViewer-Bridging-Header.h */,
+				AB0D8CD81CF3248A00444CBE /* PhysicsSolver.m */,
+				AB0D8CDA1CF324AC00444CBE /* PhysicsSolver.h */,
 			);
 			name = bullet;
 			sourceTree = "<group>";
@@ -1451,6 +1459,7 @@
 				AB307C4B1CB0D93B007C4343 /* GLKVector4+MMD.swift in Sources */,
 				ABDB8D461CE87DD600BD28AD /* btContactProcessing.cpp in Sources */,
 				AB8231291C2FE6F4008691E0 /* Shader.metal in Sources */,
+				AB0D8CD71CF31EDA00444CBE /* PhysicsSolving.swift in Sources */,
 				ABDB8D731CE87DD600BD28AD /* btMultiBody.cpp in Sources */,
 				ABDB8D201CE87DD600BD28AD /* btUnionFind.cpp in Sources */,
 				ABDB8D281CE87DD600BD28AD /* btConcaveShape.cpp in Sources */,
@@ -1507,6 +1516,7 @@
 				ABDB8D7F1CE87DD600BD28AD /* btWheelInfo.cpp in Sources */,
 				ABDB8D481CE87DD600BD28AD /* btGImpactBvh.cpp in Sources */,
 				ABDB8D511CE87DD600BD28AD /* btContinuousConvexCollision.cpp in Sources */,
+				AB0D8CD91CF3248A00444CBE /* PhysicsSolver.m in Sources */,
 				ABDB8D101CE87DD600BD28AD /* btCompoundCollisionAlgorithm.cpp in Sources */,
 				ABDB8D3B1CE87DD600BD28AD /* btSphereShape.cpp in Sources */,
 				ABDB8D6C1CE87DD600BD28AD /* btSliderConstraint.cpp in Sources */,

@@ -386,5 +386,18 @@ class PMX {
         Skip(self, reader)
         LoadRigidBodies(self, reader)
         LoadJoints(self, reader)
+        
+        var wrappedRigidBodies: [RigidBodyWrapper] = []
+        for rigidBody in rigidBodies {
+            wrappedRigidBodies.append(RigidBodyWrapper(rigidBody))
+        }
+        
+        var wrappedJoints: [JointWrapper] = []
+        for joint in joints {
+            wrappedJoints.append(JointWrapper(joint))
+        }
+        
+        let solver: PhysicsSolving = PhysicsSolverMake() as! PhysicsSolving
+        solver.build(wrappedRigidBodies, joints: wrappedJoints)
     }
 }

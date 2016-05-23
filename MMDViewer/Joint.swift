@@ -40,7 +40,7 @@ public class JointWrapper: NSObject {
     var linearSpringStiffness: GLKVector3 { return joint.linearSpringStiffness }
     var angularSpringStiffness: GLKVector3 { return joint.angularSpringStiffness }
     
-    init(joint: Joint) {
+    init(_ joint: Joint) {
         self.joint = joint
     }
 }
