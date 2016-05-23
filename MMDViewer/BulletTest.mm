@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
+#import "MMDViewer-Swift.h"
 #import "BulletTest.h"
+
 #include "btBulletDynamicsCommon.h"
 
 void bt_main()

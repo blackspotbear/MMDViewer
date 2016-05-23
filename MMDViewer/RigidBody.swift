@@ -24,3 +24,27 @@ struct RigidBody {
     
     var objType: UInt8
 }
+
+public class RigidBodyWrapper: NSObject {
+    private let rigidBody: RigidBody
+    
+    var name: String { return rigidBody.name }
+    var nameE: String { return rigidBody.nameE }
+    var boneIndex: Int { return rigidBody.boneIndex }
+    var group: UInt8 { return rigidBody.group }
+    var groupFlag: UInt16 { return rigidBody.groupFlag }
+    var shape: UInt8 { return rigidBody.shape }
+    var size: GLKVector3 { return rigidBody.size }
+    var pos: GLKVector3 { return rigidBody.pos }
+    var rot: GLKVector3 { return rigidBody.rot }
+    var mass: Float { return rigidBody.mass }
+    var tdump: Float { return rigidBody.tdump }
+    var rdump: Float { return rigidBody.rdump }
+    var e: Float { return rigidBody.e }
+    var u: Float { return rigidBody.u }
+    var objType: UInt8 { return rigidBody.objType }
+    
+    init(rigidBody: RigidBody) {
+        self.rigidBody = rigidBody
+    }
+}
