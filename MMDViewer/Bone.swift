@@ -26,7 +26,7 @@ struct IKLink {
     var angularLimitMax: GLKVector3
 }
 
-struct Bone {
+class Bone: NSObject {
     var name: String
     var nameE: String
     
@@ -53,4 +53,25 @@ struct Bone {
     var ikLoopCount: Int32
     var ikAngularLimit: Float
     var ikLinks: [IKLink]
+    
+    init(name: String, nameE: String, pos: GLKVector3, parentBoneIndex: Int, deformLayer: Int32, bitFlag: BoneFlag, childOffset: GLKVector3, childBoneIndex: Int, affectingParentBoneIndex: Int, affectingRate: Float, fixAxis: GLKVector3, xAxis: GLKVector3, zAxis: GLKVector3, key: Int32, ikTargetBoneIndex: Int, ikLoopCount: Int32, ikAngularLimit: Float, ikLinks: [IKLink]) {
+        self.name = name
+        self.nameE = nameE
+        self.pos = pos
+        self.parentBoneIndex = parentBoneIndex
+        self.deformLayer = deformLayer
+        self.bitFlag = bitFlag
+        self.childOffset = childOffset
+        self.childBoneIndex = childBoneIndex
+        self.affectingParentBoneIndex = affectingParentBoneIndex
+        self.affectingRate = affectingRate
+        self.fixAxis = fixAxis
+        self.xAxis = xAxis
+        self.zAxis = zAxis
+        self.key = key
+        self.ikTargetBoneIndex = ikTargetBoneIndex
+        self.ikLoopCount = ikLoopCount
+        self.ikAngularLimit = ikAngularLimit
+        self.ikLinks = ikLinks
+    }
 }

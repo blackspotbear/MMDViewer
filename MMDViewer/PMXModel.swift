@@ -163,6 +163,14 @@ private struct ShaderMaterial {
     }
 }
 
+private func PhysicsSolverMake(pmx: PMX) -> PhysicsSolving {
+    let solver = PhysicsSolverMake() as! PhysicsSolving
+    
+    solver.build(pmx.rigidBodies, constraints: pmx.constraints, bones: pmx.bones)
+    
+    return solver
+}
+
 class PMXModel {
     var device: MTLDevice
     var pmx: PMX
@@ -190,6 +198,8 @@ class PMXModel {
     lazy var samplerState: MTLSamplerState = PMXModel.defaultSampler(self.device)
     
     let counter: AnimationCounter
+    
+    let solver: PhysicsSolving
     
     var postures: [Posture] = []
     
@@ -296,6 +306,8 @@ class PMXModel {
         counter = NormalCounter(beginFrameNum: 0, endFrameNum: vmd.meta.frameCount)
         //counter = DebugCounter(beginFrameNum: 160, endFrameNum: vmd.frameCount)
         
+        solver = PhysicsSolverMake(pmx)
+        
         initPipelineState(device)
     }
     
@@ -307,6 +319,8 @@ class PMXModel {
         for posture in postures {
             posture.updateTransformMatrix(postures)
         }
+
+        PhysicsSolver(postures, physicsSolving: solver)
         
         currentVertexBuffer = vertexBufferProvider.nextBuffer()
         memcpy(currentVertexBuffer!.contents(), vertexData.bytes, vertexData.length)
@@ -339,9 +353,6 @@ class PMXModel {
         if let ms = morphs.left {
             for vm in ms {
                 if let pm = pmx.morphs[vm.name] {
-                    if pm.type != .Vertex {
-                        print("mumumu!")
-                    }
                     switch pm.type {
                     case .Vertex: updateVertex(pm, vm.weight * (1 - t))
                     case .Group: break
@@ -355,9 +366,6 @@ class PMXModel {
         if let ms = morphs.right {
             for vm in ms {
                 if let pm = pmx.morphs[vm.name] {
-                    if pm.type != .Vertex {
-                        print("mumumu!")
-                    }
                     switch(pm.type) {
                     case .Vertex: updateVertex(pm, vm.weight * t)
                     case .Group: break

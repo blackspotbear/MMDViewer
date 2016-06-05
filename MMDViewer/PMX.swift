@@ -27,26 +27,10 @@ private func LoadPMXMeta(pmx: PMX, _ reader: DataReader) {
         reader.skip(remain)
     }
     
-    print("data format:",
-          pmx.meta.encoding,
-          pmx.meta.additionalUVCount,
-          pmx.meta.vertexIndexSize,
-          pmx.meta.textureIndexSize,
-          pmx.meta.materialIndexSize,
-          pmx.meta.boneIndexSize,
-          pmx.meta.morphIndexSize,
-          pmx.meta.rigidBodyIndexSize)
-    print("skipped:", remain)
-    
     pmx.meta.modelName = reader.readString()!
     pmx.meta.modelNameE = reader.readString()!
     pmx.meta.comment = reader.readString()!
     pmx.meta.commentE = reader.readString()!
-    
-    print("model name:", pmx.meta.modelName)
-    print("model name E:", pmx.meta.modelNameE)
-    print("comment:", pmx.meta.comment)
-    print("comment E:", pmx.meta.commentE)
     
     pmx.meta.vertexCount = reader.readIntN(4)
 }
@@ -309,7 +293,7 @@ private func LoadPMXMorphElement(type: MorphType, _ pmx: PMX, _ reader: DataRead
     }
 }
 
-private func LoadPMXMorph(pmx: PMX, _ reader: DataReader) {
+private func LoadPMXMorphs(pmx: PMX, _ reader: DataReader) {
     let morphCount = reader.readIntN(4);
 
     for _ in 0 ..< morphCount {
@@ -324,6 +308,42 @@ private func LoadPMXMorph(pmx: PMX, _ reader: DataReader) {
     }
 }
 
+private func Skip(pmx: PMX, _ reader: DataReader) {
+    let rigidCount = reader.readIntN(4);
+    
+    for _ in 0 ..< rigidCount {
+        reader.readString()!
+        reader.readString()!
+        reader.read() as UInt8
+        let n = reader.readIntN(4)
+        for _ in 0 ..< n {
+            if reader.read() as UInt8 == 0 {
+                reader.readIntN(pmx.meta.boneIndexSize)
+            } else {
+                reader.readIntN(pmx.meta.morphIndexSize)
+            }
+        }
+    }
+}
+
+private func LoadRigidBodies(pmx: PMX, _ reader: DataReader) {
+    let rigidCount = reader.readIntN(4);
+    
+    for _ in 0 ..< rigidCount {
+        let rigidBody = RigidBody(name: reader.readString()!, nameE: reader.readString()!, boneIndex: reader.readIntN(pmx.meta.boneIndexSize), groupID: reader.read(), groupFlag: reader.read(), shapeType: reader.read(), size: GLKVector3Make(reader.read(), reader.read(), reader.read()), pos: GLKVector3Make(reader.read(), reader.read(), -reader.read()), rot: GLKVector3Make(reader.read(), reader.read(), reader.read()), mass: reader.read(), linearDamping: reader.read(), angularDamping: reader.read(), restitution: reader.read(), friction: reader.read(), type: reader.read())
+        pmx.rigidBodies.append(rigidBody)
+    }
+}
+
+private func LoadConstraints(pmx: PMX, _ reader: DataReader) {
+    let constraintCount = reader.readIntN(4);
+    
+    for _ in 0 ..< constraintCount {
+        let constraint = Constraint(name: reader.readString()!, nameE: reader.readString()!, type: reader.read(), rigidAIndex: reader.readIntN(pmx.meta.rigidBodyIndexSize), rigidBIndex: reader.readIntN(pmx.meta.rigidBodyIndexSize), pos: GLKVector3Make(reader.read(), reader.read(), -reader.read()), rot: GLKVector3Make(reader.read(), reader.read(), reader.read()), linearLowerLimit: GLKVector3Make(reader.read(), reader.read(), reader.read()), linearUpperLimit: GLKVector3Make(reader.read(), reader.read(), reader.read()), angularLowerLimit: GLKVector3Make(reader.read(), reader.read(), reader.read()), angularUpperLimit: GLKVector3Make(reader.read(), reader.read(), reader.read()), linearSpringStiffness: GLKVector3Make(reader.read(), reader.read(), reader.read()), angularSpringStiffness: GLKVector3Make(reader.read(), reader.read(), reader.read()))
+        pmx.constraints.append(constraint)
+    }
+}
+
 class PMX {
     var meta = PMXMeta()
     var vertices: [PMXVertex] = []
@@ -332,6 +352,8 @@ class PMX {
     var materials: [Material] = []
     var bones: [Bone] = []
     var morphs: [String:Morph] = [:]
+    var rigidBodies: [RigidBody] = []
+    var constraints: [Constraint] = []
     
     init(data: NSData) {
         let reader = DataReader(data: data)
@@ -342,6 +364,9 @@ class PMX {
         LoadPMXTexturePaths(self, reader)
         LoadPMXMaterials(self, reader)
         LoadPMXBones(self, reader)
-        LoadPMXMorph(self, reader)
+        LoadPMXMorphs(self, reader)
+        Skip(self, reader)
+        LoadRigidBodies(self, reader)
+        LoadConstraints(self, reader)
     }
 }
