@@ -11,6 +11,7 @@
 - (void) build:(NSArray<RigidBodyWrapper*>*)rigidBodies joints:(NSArray<JointWrapper*>*)joints
 {
     NSLog(@"%lu, %lu", (unsigned long)rigidBodies.count, (unsigned long)joints.count);
+    
 }
 
 @end

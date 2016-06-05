@@ -26,7 +26,7 @@ struct IKLink {
     var angularLimitMax: GLKVector3
 }
 
-struct Bone {
+class Bone: NSObject {
     var name: String
     var nameE: String
     
