@@ -1,50 +1,44 @@
 import Foundation
 import GLKit
 
-struct RigidBody {
+class RigidBody: NSObject {
     var name: String
     var nameE: String
     
     var boneIndex: Int
     
-    var group: UInt8
+    var groupID: UInt8
     var groupFlag: UInt16
     
-    var shape: UInt8
+    var shapeType: UInt8
     var size: GLKVector3
     
     var pos: GLKVector3
     var rot: GLKVector3
     
     var mass: Float
-    var tdump: Float
-    var rdump: Float
-    var e: Float
-    var u: Float
+    var linearDamping: Float
+    var angularDamping: Float
+    var restitution: Float
+    var friction: Float
     
-    var objType: UInt8
-}
-
-public class RigidBodyWrapper: NSObject {
-    private let rigidBody: RigidBody
+    var type: UInt8
     
-    var name: String { return rigidBody.name }
-    var nameE: String { return rigidBody.nameE }
-    var boneIndex: Int { return rigidBody.boneIndex }
-    var group: UInt8 { return rigidBody.group }
-    var groupFlag: UInt16 { return rigidBody.groupFlag }
-    var shape: UInt8 { return rigidBody.shape }
-    var size: GLKVector3 { return rigidBody.size }
-    var pos: GLKVector3 { return rigidBody.pos }
-    var rot: GLKVector3 { return rigidBody.rot }
-    var mass: Float { return rigidBody.mass }
-    var tdump: Float { return rigidBody.tdump }
-    var rdump: Float { return rigidBody.rdump }
-    var e: Float { return rigidBody.e }
-    var u: Float { return rigidBody.u }
-    var objType: UInt8 { return rigidBody.objType }
-    
-    init(_ rigidBody: RigidBody) {
-        self.rigidBody = rigidBody
+    init(name: String, nameE: String, boneIndex: Int, groupID: UInt8, groupFlag: UInt16, shapeType: UInt8, size: GLKVector3, pos: GLKVector3, rot: GLKVector3, mass: Float, linearDamping: Float, angularDamping: Float, restitution: Float, friction: Float, type: UInt8) {
+        self.name = name
+        self.nameE = nameE
+        self.boneIndex = boneIndex
+        self.groupID = groupID
+        self.groupFlag = groupFlag
+        self.shapeType = shapeType
+        self.size = size
+        self.pos = pos
+        self.rot = rot
+        self.mass = mass
+        self.linearDamping = linearDamping
+        self.angularDamping = angularDamping
+        self.restitution = restitution
+        self.friction = friction
+        self.type = type
     }
 }

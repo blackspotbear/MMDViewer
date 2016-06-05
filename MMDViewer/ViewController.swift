@@ -6,9 +6,6 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let bt = BulletTest()
-        bt.doIt(10, withYou: 20)
     }
     
     override func didReceiveMemoryWarning() {

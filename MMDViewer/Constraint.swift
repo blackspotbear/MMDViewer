@@ -1,7 +1,7 @@
 import Foundation
 import GLKit
 
-class Joint: NSObject {
+class Constraint: NSObject {
     var name: String
     var nameE: String
     
