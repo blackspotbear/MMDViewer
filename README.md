@@ -6,7 +6,7 @@ MMDViewer is an MMD Viewer written in Swift using Metal.
   * [ ] Support shadow
 * animation
   * [ ] Support bone morph
-  * [ ] Support physics
+  * [x] Support physics
   * [ ] Support camera motion
 
 and more.
