@@ -18,7 +18,7 @@ struct BezierSegment {
     var controlPoint = [GLKVector2](count: 2, repeatedValue: GLKVector2Make(0, 0))
 }
 
-class KeyFrame {
+struct KeyFrame {
     var frameNum: Int
     var segments = [BezierSegment](count: BoneAttr.count, repeatedValue: BezierSegment())
     var noTranslate: Bool {
