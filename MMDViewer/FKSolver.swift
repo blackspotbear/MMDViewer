@@ -16,7 +16,7 @@ func FKSolver(postures: [Posture], vmd: VMD, frameNum: Int) {
 
 func FKSolver(postures: [Posture], curveTies: [CurveTie], frameNum: Int) {
     for i in 0..<postures.count {
-        let q_and_pos = InterpolateKeyFrame(curveTies[i], frameNum: frameNum)
+        let q_and_pos = GetCurveValue(curveTies[i], frameNum: frameNum)
         
         postures[i].q = q_and_pos.0 ?? GLKQuaternionIdentity
         

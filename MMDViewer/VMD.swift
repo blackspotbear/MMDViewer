@@ -58,22 +58,55 @@ struct VMDMorph {
     var weight: Float = 0
 }
 
-func InterpolateKeyFrame(tie: CurveTie, frameNum: Int) -> (GLKQuaternion? , GLKVector3?) {
-    for i in 0 ..< tie.keys.count {
-        if tie.keys[i].frameNum <= frameNum {
-            continue
-        }
-        
-        let left = i > 0 ? tie.keys[i - 1] : tie.keys[0]
-        let right = tie.keys[i]
-        let t = Float(frameNum - left.frameNum) / Float(right.frameNum - left.frameNum)
-        let pos: GLKVector3? = left.noTranslate ? nil : InterpolatePos(left, right, t)
-        let rot: GLKQuaternion? = left.noQuaternion ? nil : InterpolateRot(left, right, t)
-        
-        return (rot, pos)
+private func InterpolateKeyFrameValue(k1: KeyFrame, _ k2: KeyFrame, _ frameNum: Int) -> (GLKQuaternion? , GLKVector3?) {
+    let t = Float(frameNum - k1.frameNum) / Float(k2.frameNum - k1.frameNum)
+    let pos: GLKVector3? = k1.noTranslate ? nil : InterpolatePos(k1, k2, t)
+    let rot: GLKQuaternion? = k1.noQuaternion ? nil : InterpolateRot(k1, k2, t)
+    return (rot, pos)
+}
+
+private func GetKeyFrameValue(key: KeyFrame) -> (GLKQuaternion? , GLKVector3?) {
+    let pos: GLKVector3? = key.noTranslate ? nil : GLKVector3Make(
+        key.segments[BoneAttr.TX].value,
+        key.segments[BoneAttr.TY].value,
+        key.segments[BoneAttr.TZ].value)
+    let rot: GLKQuaternion? = key.noQuaternion ? nil : GLKQuaternionMake(
+        key.segments[BoneAttr.QX].value,
+        key.segments[BoneAttr.QY].value,
+        key.segments[BoneAttr.QZ].value,
+        key.segments[BoneAttr.QW].value)
+    return (rot, pos)
+}
+
+func GetCurveValue(tie: CurveTie, frameNum: Int) -> (GLKQuaternion? , GLKVector3?) {
+    if tie.keys.count == 0 {
+        return (nil, nil)
     }
     
-    return (nil, nil)
+    var left = 0
+    var right = tie.keys.count - 1
+    let keys = tie.keys
+    
+    while true {
+        let index = (right - left) / 2 + left
+        let key = keys[index]
+        
+        if key.frameNum == frameNum {
+            return GetKeyFrameValue(key)
+        } else if key.frameNum < frameNum {
+            if left == index {
+                return InterpolateKeyFrameValue(key, keys[right], frameNum)
+            } else {
+                left = index
+            }
+        } else {
+            if right == index {
+                return InterpolateKeyFrameValue(keys[left], key, frameNum)
+            } else {
+                right = index
+            }
+        }
+    }
 }
 
 class VMD {
@@ -83,7 +116,7 @@ class VMD {
     
     func getTransformation(boneName: String, frameNum: Int) -> (GLKQuaternion?, GLKVector3?) {
         if let tie = curveTies[boneName] {
-            return InterpolateKeyFrame(tie, frameNum: frameNum)
+            return GetCurveValue(tie, frameNum: frameNum)
         }
         return (nil, nil)
     }
