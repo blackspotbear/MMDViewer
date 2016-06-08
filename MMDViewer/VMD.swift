@@ -58,6 +58,24 @@ struct VMDMorph {
     var weight: Float = 0
 }
 
+func InterpolateKeyFrame(tie: CurveTie, frameNum: Int) -> (GLKQuaternion? , GLKVector3?) {
+    for i in 0 ..< tie.keys.count {
+        if tie.keys[i].frameNum <= frameNum {
+            continue
+        }
+        
+        let left = i > 0 ? tie.keys[i - 1] : tie.keys[0]
+        let right = tie.keys[i]
+        let t = Float(frameNum - left.frameNum) / Float(right.frameNum - left.frameNum)
+        let pos: GLKVector3? = left.noTranslate ? nil : InterpolatePos(left, right, t)
+        let rot: GLKQuaternion? = left.noQuaternion ? nil : InterpolateRot(left, right, t)
+        
+        return (rot, pos)
+    }
+    
+    return (nil, nil)
+}
+
 class VMD {
     var meta = VMDMeta()
     var curveTies: [String: CurveTie] = [:]
@@ -65,21 +83,8 @@ class VMD {
     
     func getTransformation(boneName: String, frameNum: Int) -> (GLKQuaternion?, GLKVector3?) {
         if let tie = curveTies[boneName] {
-            for i in 0 ..< tie.keys.count {
-                if tie.keys[i].frameNum <= frameNum {
-                    continue
-                }
-                
-                let left = i > 0 ? tie.keys[i - 1] : tie.keys[0]
-                let right = tie.keys[i]
-                let t = Float(frameNum - left.frameNum) / Float(right.frameNum - left.frameNum)
-                let pos: GLKVector3? = left.noTranslate ? nil : InterpolatePos(left, right, t)
-                let rot: GLKQuaternion? = left.noQuaternion ? nil : InterpolateRot(left, right, t)
-                
-                return (rot, pos)
-            }
+            return InterpolateKeyFrame(tie, frameNum: frameNum)
         }
-        
         return (nil, nil)
     }
     
@@ -248,7 +253,7 @@ private func LoadVMDMotion(vmd: VMD, _ reader: DataReader) {
         readPoint(0)
         readPoint(1)
         
-        let keyFrame = KeyFrame(frameNum)
+        var keyFrame = KeyFrame(frameNum)
         keyFrame.segments[BoneAttr.TX] = segTX
         keyFrame.segments[BoneAttr.TY] = segTY
         keyFrame.segments[BoneAttr.TZ] = segTZ
