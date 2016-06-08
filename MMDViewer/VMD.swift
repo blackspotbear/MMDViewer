@@ -118,63 +118,47 @@ class VMD {
     }
 }
 
-private func InterpolateBezier(p: [GLKVector2], t: Float) -> [GLKVector2] {
-    if p.count == 1 {
-        return p
-    }
+private func InterpolateBezier(p2: GLKVector2, _ p3: GLKVector2, _ t: Float) -> GLKVector2 {
+    // t1 = 0, t4 = 127
+    let tt = t * t
+    let ttt127 = tt * t * 127
+    let u = 1 - t
+    let ttu3 = tt * u * 3
+    let tuu3 = t * u * u
     
-    var q = [GLKVector2](count: p.count - 1, repeatedValue: GLKVector2Make(0, 0))
-    for i in 0..<q.count {
+    return GLKVector2Make(
+        ttt127 + ttu3 * p3.x + tuu3 * p2.x,
+        ttt127 + ttu3 * p3.y + tuu3 * p2.y
+    )
     
-        let s = GLKVector2Subtract(p[i + 1], p[i])
-        q[i] = GLKVector2Add(p[i], GLKVector2MultiplyScalar(s, t))
-    }
-    
-    return InterpolateBezier(q, t: t)
 }
 
 private func InterpolatePos(left: KeyFrame, _ right: KeyFrame, _ t: Float) -> GLKVector3 {
     let tx = InterpolateBezier(
-        [
-            GLKVector2(0, 0),
             left.segments[BoneAttr.TX].controlPoint[0],
             left.segments[BoneAttr.TX].controlPoint[1],
-            GLKVector2(127, 127)
-        ],
-        t: t)
+            t)
     let ty = InterpolateBezier(
-        [
-            GLKVector2(0, 0),
             left.segments[BoneAttr.TY].controlPoint[0],
             left.segments[BoneAttr.TY].controlPoint[1],
-            GLKVector2(127, 127)
-        ],
-        t: t)
+            t)
     let tz = InterpolateBezier(
-        [
-            GLKVector2(0, 0),
             left.segments[BoneAttr.TZ].controlPoint[0],
             left.segments[BoneAttr.TZ].controlPoint[1],
-            GLKVector2(127, 127)
-        ],
-        t: t)
+            t)
     
-    let x = (right.segments[BoneAttr.TX].value - left.segments[BoneAttr.TX].value) * tx[0].y / 127 + left.segments[BoneAttr.TX].value
-    let y = (right.segments[BoneAttr.TY].value - left.segments[BoneAttr.TY].value) * ty[0].y / 127 + left.segments[BoneAttr.TY].value
-    let z = (right.segments[BoneAttr.TZ].value - left.segments[BoneAttr.TZ].value) * tz[0].y / 127 + left.segments[BoneAttr.TZ].value
+    let x = (right.segments[BoneAttr.TX].value - left.segments[BoneAttr.TX].value) * tx.y / 127 + left.segments[BoneAttr.TX].value
+    let y = (right.segments[BoneAttr.TY].value - left.segments[BoneAttr.TY].value) * ty.y / 127 + left.segments[BoneAttr.TY].value
+    let z = (right.segments[BoneAttr.TZ].value - left.segments[BoneAttr.TZ].value) * tz.y / 127 + left.segments[BoneAttr.TZ].value
     
     return GLKVector3Make(x, y, z)
 }
 
 private func InterpolateRot(left: KeyFrame, _ right: KeyFrame, _ t: Float) -> GLKQuaternion {
     let qw = InterpolateBezier(
-        [
-            GLKVector2(0, 0),
             left.segments[BoneAttr.QW].controlPoint[0],
             left.segments[BoneAttr.QW].controlPoint[1],
-            GLKVector2(127, 127)
-        ],
-        t: t)
+            t)
     
     let q1 = GLKQuaternionMake(
         left.segments[BoneAttr.QX].value,
@@ -188,7 +172,7 @@ private func InterpolateRot(left: KeyFrame, _ right: KeyFrame, _ t: Float) -> GL
         right.segments[BoneAttr.QZ].value,
         right.segments[BoneAttr.QW].value
     )
-    return GLKQuaternionSlerp(q1, q2, qw[0].y / 127) // ??
+    return GLKQuaternionSlerp(q1, q2, qw.y / 127) // ??
 }
 
 private func LoadVMDMeta(vmd: VMD, _ reader: DataReader) {
