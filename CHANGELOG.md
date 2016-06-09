@@ -1,3 +1,6 @@
+# 0.3.0
+Improve performance.
+
 # 0.2.0
 Support physics.
 
