@@ -175,6 +175,7 @@ class PMXModel {
     var device: MTLDevice
     var pmx: PMX
     var vmd: VMD
+    var curveTies: [CurveTie]
     
     var indexBuffer: MTLBuffer
     var opaquePipelineState: MTLRenderPipelineState?
@@ -266,6 +267,13 @@ class PMXModel {
         self.pmx = pmx
         self.vmd = vmd
         
+        self.curveTies = [CurveTie](count: pmx.bones.count, repeatedValue: CurveTie())
+        for (i, bone) in self.pmx.bones.enumerate() {
+            if let tie = self.vmd.curveTies[bone.name] {
+                self.curveTies[i] = tie
+            }
+        }
+        
         for i in 0..<self.pmx.bones.count {
             let posture = Posture(bone: self.pmx.bones[i])
             self.postures.append(posture)
@@ -312,7 +320,8 @@ class PMXModel {
     }
     
     func calc() {
-        FKSolver(postures, vmd: vmd, frameNum: counter.currentFrame())
+//        FKSolver(postures, vmd: vmd, frameNum: counter.currentFrame())
+        FKSolver(postures, curveTies: self.curveTies, frameNum: counter.currentFrame())
         IKSolver(postures, maxIt: counter.maxIt())
         GrantSolver(postures)
         

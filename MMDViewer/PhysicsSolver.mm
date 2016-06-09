@@ -23,13 +23,6 @@ namespace {
 @property (nonatomic, copy, readonly) NSArray<RigidBody*>* rigidBodies;
 @property (nonatomic, copy, readonly) NSArray<Constraint*>* constraints;
 @property (nonatomic, copy, readonly) NSArray<Bone*>* bones;
-@property (nonatomic) btDefaultCollisionConfiguration* collisionConfiguration;
-@property (nonatomic) btCollisionDispatcher* dispatcher;
-@property (nonatomic) btBroadphaseInterface* overlappingPairCache;
-@property (nonatomic) btSequentialImpulseConstraintSolver* solver;
-@property (nonatomic) btAlignedObjectArray<btCollisionShape*> collisionShapes;
-@property (nonatomic) btAlignedObjectArray<btRigidBody*> btRigidBodies;
-@property (nonatomic) btDiscreteDynamicsWorld* dynamicsWorld;
 
 - (void) build:(NSArray<RigidBody*>*)rigidBodies constraints:(NSArray<Constraint*>*)constraints bones:(NSArray<Bone*>*)bones;
 - (void) step;
@@ -37,7 +30,15 @@ namespace {
 - (void) getTransform:(int)boneIndex rot:(GLKQuaternion*)rot pos:(GLKVector3*)pos;
 @end
 
-@interface PhysicsSolver ()
+@interface PhysicsSolver () {
+    btDefaultCollisionConfiguration* _collisionConfiguration;
+    btCollisionDispatcher* _dispatcher;
+    btBroadphaseInterface* _overlappingPairCache;
+    btSequentialImpulseConstraintSolver* _solver;
+    btAlignedObjectArray<btCollisionShape*> _collisionShapes;
+    btAlignedObjectArray<btRigidBody*> _btRigidBodies;
+    btDiscreteDynamicsWorld* _dynamicsWorld;
+}
 @property (nonatomic, readwrite) NSArray<RigidBody*>* rigidBodies;
 @property (nonatomic, readwrite) NSArray<Constraint*>* constraints;
 @property (nonatomic, readwrite) NSArray<Bone*>* bones;
@@ -161,15 +162,15 @@ namespace {
     bttrTransform.setOrigin(glkvec2btvec(constraint.pos));
     bttrTransform.setBasis( btmRotationMat );
     
-    btTransform frameInA = self.btRigidBodies[(int)constraint.rigidAIndex]->getWorldTransform().inverse();
-    btTransform frameInB = self.btRigidBodies[(int)constraint.rigidBIndex]->getWorldTransform().inverse();
+    btTransform frameInA = _btRigidBodies[(int)constraint.rigidAIndex]->getWorldTransform().inverse();
+    btTransform frameInB = _btRigidBodies[(int)constraint.rigidBIndex]->getWorldTransform().inverse();
     frameInA = frameInA * bttrTransform;
     frameInB = frameInB * bttrTransform;
     
     const bool useLinearReferenceFrame = true;
     btGeneric6DofSpringConstraint * aBtConstraint = new btGeneric6DofSpringConstraint(
-                                                                                      *self.btRigidBodies[(int)constraint.rigidAIndex],
-                                                                                      *self.btRigidBodies[(int)constraint.rigidBIndex],
+                                                                                      *_btRigidBodies[(int)constraint.rigidAIndex],
+                                                                                      *_btRigidBodies[(int)constraint.rigidBIndex],
                                                                                       frameInA,
                                                                                       frameInB,
                                                                                       useLinearReferenceFrame);
@@ -237,14 +238,14 @@ namespace {
         
         void * pointer = (__bridge void*)rigidBody;
         
-        for (int i = 0; i < self.btRigidBodies.size(); i++)
+        for (int i = 0; i < _btRigidBodies.size(); i++)
         {
-            if (self.btRigidBodies[i]->getUserPointer() != pointer)
+            if (_btRigidBodies[i]->getUserPointer() != pointer)
             {
                 continue;
             }
             
-            btRigidBody * body = self.btRigidBodies[i];
+            btRigidBody * body = _btRigidBodies[i];
             btTransform worldTransform;
             worldTransform.setOrigin(glkvec2btvec(pos));
             worldTransform.setRotation(glkq2btq(rot));
@@ -284,14 +285,14 @@ namespace {
         
         void * pointer = (__bridge void*)rigidBody;
         
-        for (int i = 0; i < self.btRigidBodies.size(); i++)
+        for (int i = 0; i < _btRigidBodies.size(); i++)
         {
-            if (self.btRigidBodies[i]->getUserPointer() != pointer)
+            if (_btRigidBodies[i]->getUserPointer() != pointer)
             {
                 continue;
             }
             
-            btRigidBody * body = self.btRigidBodies[i];
+            btRigidBody * body = _btRigidBodies[i];
             
             btTransform trans;
             if (body->getMotionState())
