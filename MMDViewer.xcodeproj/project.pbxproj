@@ -13,6 +13,7 @@
 		AB0D8CD71CF31EDA00444CBE /* PhysicsSolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0D8CD61CF31EDA00444CBE /* PhysicsSolving.swift */; };
 		AB0D8CD91CF3248A00444CBE /* PhysicsSolver.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB0D8CD81CF3248A00444CBE /* PhysicsSolver.mm */; };
 		AB0D8CDD1CF3E9CB00444CBE /* PhysicsSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0D8CDC1CF3E9CB00444CBE /* PhysicsSolver.swift */; };
+		AB2BBC7E1D59B9F300103F89 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2BBC7D1D59B9F300103F89 /* MetalView.swift */; };
 		AB307C471CAF97FD007C4343 /* IKSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C461CAF97FD007C4343 /* IKSolver.swift */; };
 		AB307C491CB0D698007C4343 /* GLKQuaternion+MMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C481CB0D698007C4343 /* GLKQuaternion+MMD.swift */; };
 		AB307C4B1CB0D93B007C4343 /* GLKVector4+MMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C4A1CB0D93B007C4343 /* GLKVector4+MMD.swift */; };
@@ -221,6 +222,7 @@
 		AB0D8CD81CF3248A00444CBE /* PhysicsSolver.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PhysicsSolver.mm; sourceTree = "<group>"; };
 		AB0D8CDA1CF324AC00444CBE /* PhysicsSolver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PhysicsSolver.h; sourceTree = "<group>"; };
 		AB0D8CDC1CF3E9CB00444CBE /* PhysicsSolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhysicsSolver.swift; sourceTree = "<group>"; };
+		AB2BBC7D1D59B9F300103F89 /* MetalView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		AB307C461CAF97FD007C4343 /* IKSolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IKSolver.swift; sourceTree = "<group>"; };
 		AB307C481CB0D698007C4343 /* GLKQuaternion+MMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GLKQuaternion+MMD.swift"; sourceTree = "<group>"; };
 		AB307C4A1CB0D93B007C4343 /* GLKVector4+MMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GLKVector4+MMD.swift"; sourceTree = "<group>"; };
@@ -765,6 +767,7 @@
 				ABE075B11C4203E500213CB4 /* BufferProvider.swift */,
 				ABE075B31C4211C800213CB4 /* MetalTexture.swift */,
 				ABF3BE8C1CC7C4B80099329D /* Renderer.swift */,
+				AB2BBC7D1D59B9F300103F89 /* MetalView.swift */,
 				ABF3BE8E1CC8FAE80099329D /* MMDView.swift */,
 				ABE075AF1C39296E00213CB4 /* PMXModel.swift */,
 			);
@@ -1523,6 +1526,7 @@
 				ABDB8D251CE87DD600BD28AD /* btCapsuleShape.cpp in Sources */,
 				ABDB8D0D1CE87DD600BD28AD /* btCollisionObject.cpp in Sources */,
 				ABDB8D801CE87DD600BD28AD /* btDefaultSoftBodySolver.cpp in Sources */,
+				AB2BBC7E1D59B9F300103F89 /* MetalView.swift in Sources */,
 				ABDB8D2E1CE87DD600BD28AD /* btConvexPolyhedron.cpp in Sources */,
 				ABDB8D361CE87DD600BD28AD /* btMultiSphereShape.cpp in Sources */,
 				ABE075B01C39296E00213CB4 /* PMXModel.swift in Sources */,

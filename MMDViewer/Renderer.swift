@@ -73,11 +73,10 @@ class Renderer {
         inflightSemaphore = dispatch_semaphore_create(kInFlightCommandBuffers)
     }
     
-    func configure(view: MMDView) {
+    func configure(view: MetalView) {
         device = view.device;
         
         view.depthPixelFormat   = MTLPixelFormat.Depth32Float
-        view.stencilPixelFormat = MTLPixelFormat.Invalid
         view.sampleCount        = 1
         
         commandQueue = device!.newCommandQueue()
