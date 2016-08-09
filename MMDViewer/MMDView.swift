@@ -2,38 +2,9 @@ import Foundation
 import UIKit
 import Metal
 
-class MMDView: UIView {
-    var device: MTLDevice?
-    var renderPassDescriptor: MTLRenderPassDescriptor? {
-        if let drawable = currentDrawable {
-            setupRenderPassDescriptorForTexture(drawable.texture)
-        } else {
-            _renderPassDescriptor = nil;
-        }
-        return _renderPassDescriptor
-    }
-    var currentDrawable: CAMetalDrawable? {
-        if _currentDrawable == nil {
-            if let metalLayer = metalLayer {
-                _currentDrawable = metalLayer.nextDrawable()
-            } else {
-                fatalError("failed to get a drawable")
-            }
-        }
-        return _currentDrawable;
-    }
-    var depthPixelFormat = MTLPixelFormat.Invalid
-    var stencilPixelFormat = MTLPixelFormat.Invalid
-    var sampleCount = 0
-    
+class MMDView: MetalView {
     var playing = true
     
-    private var depthTex: MTLTexture?
-    private var stencilTex: MTLTexture?
-    private var msaaTex: MTLTexture?
-    private weak var metalLayer: CAMetalLayer?
-    private var _currentDrawable: CAMetalDrawable?
-    private var _renderPassDescriptor: MTLRenderPassDescriptor?
     private var renderer = Renderer()
     
     private var timer: CADisplayLink!
@@ -47,10 +18,6 @@ class MMDView: UIView {
     private var tapGestureRecognizer: UITapGestureRecognizer!
     private var angularVelocity = CGPointMake(0, 0)
     private var layerSizeDidUpdate = false
-    
-    override class func layerClass() -> AnyClass {
-        return CAMetalLayer.self
-    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -71,70 +38,8 @@ class MMDView: UIView {
         tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(MMDView.handleTap(_:)))
         addGestureRecognizer(tapGestureRecognizer)
         
-        if let metalLayer = self.layer as? CAMetalLayer {
-            device = MTLCreateSystemDefaultDevice()!
-            
-            metalLayer.device = device
-            metalLayer.pixelFormat = MTLPixelFormat.BGRA8Unorm
-            metalLayer.framebufferOnly = true
-            
-            self.metalLayer = metalLayer
-        }
-        
         renderer = Renderer()
         renderer.configure(self)
-    }
-    
-    func releaseTextures() {
-        depthTex   = nil;
-        stencilTex = nil;
-        msaaTex    = nil;
-    }
-    
-    private func setupRenderPassDescriptorForTexture(texture: MTLTexture) {
-        if _renderPassDescriptor == nil {
-            _renderPassDescriptor = MTLRenderPassDescriptor()
-        }
-        
-        if let renderPassDescriptor = _renderPassDescriptor {
-            let colorAttachment = renderPassDescriptor.colorAttachments[0]
-            colorAttachment.texture = texture
-            colorAttachment.loadAction = MTLLoadAction.Clear
-            colorAttachment.clearColor = MTLClearColorMake(0.0, 0.35, 0.65, 1.0)
-            colorAttachment.storeAction = MTLStoreAction.Store;
-            
-            if depthPixelFormat != MTLPixelFormat.Invalid {
-                var doUpdate = false
-                if let depthTex = depthTex {
-                    doUpdate =
-                        ( depthTex.width       != texture.width)  ||
-                        ( depthTex.height      != texture.height) ||
-                        ( depthTex.sampleCount != sampleCount)
-                    
-                }
-                
-                if depthTex == nil || doUpdate {
-                    
-                    let desc = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(
-                        depthPixelFormat,
-                        width: texture.width,
-                        height: texture.height,
-                        mipmapped: false
-                    )
-                    
-                    desc.textureType = (sampleCount > 1) ? MTLTextureType.Type2DMultisample : MTLTextureType.Type2D
-                    desc.sampleCount = sampleCount
-                    
-                    depthTex = device!.newTextureWithDescriptor(desc)
-                    
-                    let depthAttachment = renderPassDescriptor.depthAttachment
-                    depthAttachment.texture = depthTex
-                    depthAttachment.loadAction = MTLLoadAction.Clear
-                    depthAttachment.storeAction = MTLStoreAction.DontCare
-                    depthAttachment.clearDepth = 1.0
-                }
-            }
-        }
     }
     
     // MARK: Override UIView
@@ -164,7 +69,7 @@ class MMDView: UIView {
         vmd = LoadVMD("data/vmd/2分ループステップ17")
         miku = PMXModel(device: device!, pmx: pmx!, vmd: vmd)
         
-        // Set up Game loop
+        // Set up animation loop
         timer = CADisplayLink(target: self, selector: #selector(MMDView.mainLoop(_:)))
         timer.frameInterval = 2
         timer.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: NSDefaultRunLoopMode)
@@ -218,7 +123,7 @@ class MMDView: UIView {
                 drawableSize.width  *= self.contentScaleFactor;
                 drawableSize.height *= self.contentScaleFactor;
                 
-                metalLayer!.drawableSize = drawableSize;
+                self.drawableSize = drawableSize;
                 renderer.reshape(self)
                 
                 layerSizeDidUpdate = false;
@@ -228,7 +133,7 @@ class MMDView: UIView {
             miku.render(renderer)
             renderer.end(self)
             
-            _currentDrawable = nil;
+            releaseCurrentDrawable()
         }
     }
 }
