@@ -2,15 +2,15 @@ import Foundation
 import GLKit
 
 enum MorphType: Int {
-    case Group = 0
-    case Vertex
-    case Bone
-    case UV
-    case UV1
-    case UV2
-    case UV3
-    case UV4
-    case Material
+    case group = 0
+    case vertex
+    case bone
+    case uv
+    case uv1
+    case uv2
+    case uv3
+    case uv4
+    case material
 }
 
 struct MorphGroup {

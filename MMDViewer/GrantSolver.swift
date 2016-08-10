@@ -1,7 +1,7 @@
 import Foundation
 import GLKit
 
-func GrantSolver(postures: [Posture]) {
+func GrantSolver(_ postures: [Posture]) {
     for posture in postures {
         var dirty = false
         if posture.bone.bitFlag.contains(.RotationAdd) {
@@ -16,7 +16,7 @@ func GrantSolver(postures: [Posture]) {
             dirty = true
         }
         if dirty {
-            posture.updateTransformMatrix(postures);
+            posture.updateTransformMatrix(postures)
         }
     }
 }

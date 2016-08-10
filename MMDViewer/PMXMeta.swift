@@ -13,6 +13,6 @@ struct PMXMeta {
     var modelNameE = ""
     var comment = ""
     var commentE = ""
-    
+
     var vertexCount = 0
 }

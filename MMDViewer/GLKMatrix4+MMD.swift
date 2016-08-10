@@ -15,56 +15,52 @@ extension GLKMatrix4: CustomStringConvertible {
     init(other: GLKMatrix4) {
         self.m = other.m
     }
-    
-    func scale(x: Float, y: Float, z: Float) -> GLKMatrix4 {
+
+    func scale(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
         return GLKMatrix4Scale(self, x, y, z)
     }
-    
-    func rotateAroundX(x: Float, y: Float, z: Float) -> GLKMatrix4 {
+
+    func rotateAroundX(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
         let rx = GLKMatrix4Rotate(self, x, 1, 0, 0)
         let ry = GLKMatrix4Rotate(  rx, y, 0, 1, 0)
         let rz = GLKMatrix4Rotate(  ry, z, 0, 0, 1)
         return rz
     }
-    
-    func translate(x: Float, y: Float, z: Float) -> GLKMatrix4 {
+
+    func translate(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
         return GLKMatrix4Translate(self, x, y, z)
     }
-    
-    func multiply(other: GLKMatrix4) -> GLKMatrix4 {
+
+    func multiply(_ other: GLKMatrix4) -> GLKMatrix4 {
         return GLKMatrix4Multiply(self, other)
     }
-    
-    func multiplyLeft(other: GLKMatrix4) -> GLKMatrix4 {
+
+    func multiplyLeft(_ other: GLKMatrix4) -> GLKMatrix4 {
         return GLKMatrix4Multiply(other, self)
     }
-    
-    func raw() -> UnsafePointer<Void> {
+
+    func raw() -> UnsafeRawPointer {
         // see https://lists.swift.org/pipermail/swift-dev/Week-of-Mon-20151214/000404.html
         // copy self not to make raw() mutating
         var mutatingSelf = self
         // NOTE: ! return a pointer to a local variable
-        return withUnsafePointer(&mutatingSelf) { UnsafePointer<Void>($0) }
+        return withUnsafePointer(to: &mutatingSelf) { UnsafeRawPointer($0) }
     }
-    
+
     // mutating version
-    mutating func raw_mutating() -> UnsafePointer<Void> {
-        return withUnsafePointer(&self) { UnsafePointer<Void>($0) }
+    mutating func raw_mutating() -> UnsafeRawPointer {
+        return withUnsafePointer(to: &self) { UnsafeRawPointer($0) }
     }
-    
+
     func transpose() -> GLKMatrix4 {
         return GLKMatrix4Transpose(self)
     }
-    
+
     func translate() -> GLKVector4 {
         return GLKVector4Make(self.m30, self.m31, self.m32, self.m33)
     }
-    
-    func multiplyVector4(other: GLKVector4) -> GLKVector4 {
+
+    func multiplyVector4(_ other: GLKVector4) -> GLKVector4 {
         return GLKMatrix4MultiplyVector4(self, other)
-    }
-    
-    static func numberOfElements() -> Int {
-        return 16
     }
 }

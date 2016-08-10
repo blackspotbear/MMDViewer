@@ -1,0 +1,12 @@
+disabled_rules: # rule identifiers to exclude from running
+    - line_length
+    - function_parameter_count
+    - force_try
+    - comma
+
+force_cast:
+    severity: warning
+
+variable_name:
+     min_length: 1
+     error: 4

@@ -20,10 +20,19 @@
 		AB307C4D1CB0F2B0007C4343 /* GLKVector3+MMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C4C1CB0F2B0007C4343 /* GLKVector3+MMD.swift */; };
 		AB307C4F1CB143CF007C4343 /* GrantSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C4E1CB143CF007C4343 /* GrantSolver.swift */; };
 		AB307C511CB1E506007C4343 /* FKSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB307C501CB1E506007C4343 /* FKSolver.swift */; };
+		AB3548911D8FDAF100FA90FA /* PMXGBufferDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3548901D8FDAF100FA90FA /* PMXGBufferDrawer.swift */; };
+		AB4D06B11D83CD5E00654915 /* GBufferShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = AB4D06B01D83CD5E00654915 /* GBufferShader.metal */; };
+		AB4D06B51D83D97000654915 /* Traverser.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4D06B41D83D97000654915 /* Traverser.swift */; };
+		AB4D06B71D83D99900654915 /* RenderPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4D06B61D83D99900654915 /* RenderPass.swift */; };
+		AB4D06B91D83D9CC00654915 /* Drawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4D06B81D83D9CC00654915 /* Drawer.swift */; };
+		AB4D06BB1D83D9E300654915 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4D06BA1D83D9E300654915 /* Updater.swift */; };
+		AB4D06C11D853CAC00654915 /* BasicRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4D06C01D853CAC00654915 /* BasicRenderer.swift */; };
 		AB5288191CD6D632007B2BEA /* Morph.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5288181CD6D632007B2BEA /* Morph.swift */; };
 		AB52881B1CD70893007B2BEA /* PMXVertex.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB52881A1CD70893007B2BEA /* PMXVertex.swift */; };
 		AB52881D1CD7091F007B2BEA /* PMXMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB52881C1CD7091F007B2BEA /* PMXMeta.swift */; };
 		AB654F731C82CE29003EC569 /* GLKMatrix4+MMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB654F721C82CE29003EC569 /* GLKMatrix4+MMD.swift */; };
+		AB80F7931DB31A4800AC6A69 /* DepthShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = AB80F7921DB31A4800AC6A69 /* DepthShader.metal */; };
+		AB80F7951DB31D2000AC6A69 /* CompositionShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = AB80F7941DB31D2000AC6A69 /* CompositionShader.metal */; };
 		AB8230F11C2FE34D008691E0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8230F01C2FE34D008691E0 /* AppDelegate.swift */; };
 		AB8230F31C2FE34D008691E0 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8230F21C2FE34D008691E0 /* ViewController.swift */; };
 		AB8230F61C2FE34D008691E0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AB8230F41C2FE34D008691E0 /* Main.storyboard */; };
@@ -35,7 +44,7 @@
 		AB8231211C2FE38A008691E0 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8231201C2FE38A008691E0 /* Metal.framework */; };
 		AB8231231C2FE394008691E0 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8231221C2FE394008691E0 /* MetalKit.framework */; };
 		AB8231251C2FE3A1008691E0 /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8231241C2FE3A1008691E0 /* MetalPerformanceShaders.framework */; };
-		AB8231291C2FE6F4008691E0 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = AB8231281C2FE6F4008691E0 /* Shader.metal */; };
+		AB8231291C2FE6F4008691E0 /* ForwardShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = AB8231281C2FE6F4008691E0 /* ForwardShader.metal */; };
 		ABBCD3031CE18E5D00A253F4 /* data in Resources */ = {isa = PBXBuildFile; fileRef = ABBCD3021CE18E5D00A253F4 /* data */; };
 		ABCE463F1C60E6170024167E /* Bone.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCE463E1C60E6170024167E /* Bone.swift */; };
 		ABDB8B601CE61E6F00BD28AD /* BulletCollision in Resources */ = {isa = PBXBuildFile; fileRef = ABDB8B5C1CE61E6F00BD28AD /* BulletCollision */; };
@@ -185,16 +194,25 @@
 		ABDB8D8F1CE87DD600BD28AD /* btQuickprof.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8CEF1CE87DD600BD28AD /* btQuickprof.cpp */; };
 		ABDB8D901CE87DD600BD28AD /* btSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8CF31CE87DD600BD28AD /* btSerializer.cpp */; };
 		ABDB8D911CE87DD600BD28AD /* btVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8CF91CE87DD600BD28AD /* btVector3.cpp */; };
+		ABDF6A0A1DA8F64700B7A1F9 /* PointLightDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABDF6A091DA8F64700B7A1F9 /* PointLightDrawer.swift */; };
+		ABDF6A0C1DAB9C1D00B7A1F9 /* LightShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = ABDF6A0B1DAB9C1D00B7A1F9 /* LightShader.metal */; };
 		ABE075A81C365AF200213CB4 /* Material.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE075A71C365AF200213CB4 /* Material.swift */; };
 		ABE075AA1C36807A00213CB4 /* DataReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE075A91C36807A00213CB4 /* DataReader.swift */; };
 		ABE075AC1C36810400213CB4 /* PMX.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE075AB1C36810400213CB4 /* PMX.swift */; };
-		ABE075B01C39296E00213CB4 /* PMXModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE075AF1C39296E00213CB4 /* PMXModel.swift */; };
+		ABE075B01C39296E00213CB4 /* PMXObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE075AF1C39296E00213CB4 /* PMXObject.swift */; };
 		ABE075B21C4203E500213CB4 /* BufferProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE075B11C4203E500213CB4 /* BufferProvider.swift */; };
 		ABE075B41C4211C900213CB4 /* MetalTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE075B31C4211C800213CB4 /* MetalTexture.swift */; };
+		ABE5C2A61D8FC16800C0D169 /* ShadowPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE5C2A51D8FC16800C0D169 /* ShadowPass.swift */; };
+		ABE5C2A91D8FD69200C0D169 /* PMXDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE5C2A81D8FD69200C0D169 /* PMXDrawer.swift */; };
+		ABE5C2AB1D8FD6DE00C0D169 /* PMXShadowDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE5C2AA1D8FD6DE00C0D169 /* PMXShadowDrawer.swift */; };
+		ABE5C2AE1D8FD72D00C0D169 /* PMXUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE5C2AD1D8FD72D00C0D169 /* PMXUpdater.swift */; };
 		ABF3BE8B1CC58B6F0099329D /* GLKVector2+MMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF3BE8A1CC58B6F0099329D /* GLKVector2+MMD.swift */; };
 		ABF3BE8D1CC7C4B80099329D /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF3BE8C1CC7C4B80099329D /* Renderer.swift */; };
 		ABF3BE8F1CC8FAE80099329D /* MMDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF3BE8E1CC8FAE80099329D /* MMDView.swift */; };
 		ABF3BE911CCC73CF0099329D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF3BE901CCC73CF0099329D /* Utils.swift */; };
+		ABFA8F3C1D5AFD1300422EB1 /* PresentViewRenderPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFA8F3B1D5AFD1300422EB1 /* PresentViewRenderPass.swift */; };
+		ABFA8F3E1D5C414F00422EB1 /* GBufferPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFA8F3D1D5C414F00422EB1 /* GBufferPass.swift */; };
+		ABFA8F4D1D5E981F00422EB1 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFA8F4C1D5E981F00422EB1 /* Node.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -229,10 +247,19 @@
 		AB307C4C1CB0F2B0007C4343 /* GLKVector3+MMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GLKVector3+MMD.swift"; sourceTree = "<group>"; };
 		AB307C4E1CB143CF007C4343 /* GrantSolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GrantSolver.swift; sourceTree = "<group>"; };
 		AB307C501CB1E506007C4343 /* FKSolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FKSolver.swift; sourceTree = "<group>"; };
+		AB3548901D8FDAF100FA90FA /* PMXGBufferDrawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PMXGBufferDrawer.swift; sourceTree = "<group>"; };
+		AB4D06B01D83CD5E00654915 /* GBufferShader.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = GBufferShader.metal; sourceTree = "<group>"; };
+		AB4D06B41D83D97000654915 /* Traverser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Traverser.swift; sourceTree = "<group>"; };
+		AB4D06B61D83D99900654915 /* RenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderPass.swift; sourceTree = "<group>"; };
+		AB4D06B81D83D9CC00654915 /* Drawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Drawer.swift; sourceTree = "<group>"; };
+		AB4D06BA1D83D9E300654915 /* Updater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
+		AB4D06C01D853CAC00654915 /* BasicRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicRenderer.swift; sourceTree = "<group>"; };
 		AB5288181CD6D632007B2BEA /* Morph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Morph.swift; sourceTree = "<group>"; };
 		AB52881A1CD70893007B2BEA /* PMXVertex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PMXVertex.swift; sourceTree = "<group>"; };
 		AB52881C1CD7091F007B2BEA /* PMXMeta.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PMXMeta.swift; sourceTree = "<group>"; };
 		AB654F721C82CE29003EC569 /* GLKMatrix4+MMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GLKMatrix4+MMD.swift"; sourceTree = "<group>"; };
+		AB80F7921DB31A4800AC6A69 /* DepthShader.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = DepthShader.metal; sourceTree = "<group>"; };
+		AB80F7941DB31D2000AC6A69 /* CompositionShader.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = CompositionShader.metal; sourceTree = "<group>"; };
 		AB8230ED1C2FE34D008691E0 /* MMDViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MMDViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB8230F01C2FE34D008691E0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AB8230F21C2FE34D008691E0 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -250,7 +277,8 @@
 		AB8231201C2FE38A008691E0 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		AB8231221C2FE394008691E0 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		AB8231241C2FE3A1008691E0 /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = SDKROOT; };
-		AB8231281C2FE6F4008691E0 /* Shader.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
+		AB8231281C2FE6F4008691E0 /* ForwardShader.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = ForwardShader.metal; sourceTree = "<group>"; };
+		ABA806FC1D68740F004E26E6 /* ShaderCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderCommon.h; sourceTree = "<group>"; };
 		ABBCD3021CE18E5D00A253F4 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = data; sourceTree = "<group>"; };
 		ABCE463E1C60E6170024167E /* Bone.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bone.swift; sourceTree = "<group>"; };
 		ABDB8B5C1CE61E6F00BD28AD /* BulletCollision */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BulletCollision; path = "/Users/kmi/MMDViewer/third-party/bullet3-2.83.7/src/BulletCollision"; sourceTree = "<absolute>"; };
@@ -623,16 +651,25 @@
 		ABDB8CF81CE87DD600BD28AD /* btTransformUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btTransformUtil.h; sourceTree = "<group>"; };
 		ABDB8CF91CE87DD600BD28AD /* btVector3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btVector3.cpp; sourceTree = "<group>"; };
 		ABDB8CFA1CE87DD600BD28AD /* btVector3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btVector3.h; sourceTree = "<group>"; };
+		ABDF6A091DA8F64700B7A1F9 /* PointLightDrawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointLightDrawer.swift; sourceTree = "<group>"; };
+		ABDF6A0B1DAB9C1D00B7A1F9 /* LightShader.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = LightShader.metal; sourceTree = "<group>"; };
 		ABE075A71C365AF200213CB4 /* Material.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Material.swift; sourceTree = "<group>"; };
 		ABE075A91C36807A00213CB4 /* DataReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataReader.swift; sourceTree = "<group>"; };
 		ABE075AB1C36810400213CB4 /* PMX.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PMX.swift; sourceTree = "<group>"; };
-		ABE075AF1C39296E00213CB4 /* PMXModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PMXModel.swift; sourceTree = "<group>"; };
+		ABE075AF1C39296E00213CB4 /* PMXObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PMXObject.swift; sourceTree = "<group>"; };
 		ABE075B11C4203E500213CB4 /* BufferProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BufferProvider.swift; sourceTree = "<group>"; };
 		ABE075B31C4211C800213CB4 /* MetalTexture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalTexture.swift; sourceTree = "<group>"; };
+		ABE5C2A51D8FC16800C0D169 /* ShadowPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowPass.swift; sourceTree = "<group>"; };
+		ABE5C2A81D8FD69200C0D169 /* PMXDrawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PMXDrawer.swift; sourceTree = "<group>"; };
+		ABE5C2AA1D8FD6DE00C0D169 /* PMXShadowDrawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PMXShadowDrawer.swift; sourceTree = "<group>"; };
+		ABE5C2AD1D8FD72D00C0D169 /* PMXUpdater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PMXUpdater.swift; sourceTree = "<group>"; };
 		ABF3BE8A1CC58B6F0099329D /* GLKVector2+MMD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GLKVector2+MMD.swift"; sourceTree = "<group>"; };
 		ABF3BE8C1CC7C4B80099329D /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		ABF3BE8E1CC8FAE80099329D /* MMDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMDView.swift; sourceTree = "<group>"; };
 		ABF3BE901CCC73CF0099329D /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		ABFA8F3B1D5AFD1300422EB1 /* PresentViewRenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresentViewRenderPass.swift; sourceTree = "<group>"; };
+		ABFA8F3D1D5C414F00422EB1 /* GBufferPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GBufferPass.swift; sourceTree = "<group>"; };
+		ABFA8F4C1D5E981F00422EB1 /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -664,6 +701,66 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AB4D06B21D83CE6B00654915 /* shader */ = {
+			isa = PBXGroup;
+			children = (
+				ABA806FC1D68740F004E26E6 /* ShaderCommon.h */,
+				AB8231281C2FE6F4008691E0 /* ForwardShader.metal */,
+				AB80F7921DB31A4800AC6A69 /* DepthShader.metal */,
+				AB4D06B01D83CD5E00654915 /* GBufferShader.metal */,
+				ABDF6A0B1DAB9C1D00B7A1F9 /* LightShader.metal */,
+				AB80F7941DB31D2000AC6A69 /* CompositionShader.metal */,
+			);
+			name = shader;
+			sourceTree = "<group>";
+		};
+		AB4D06B31D83D95800654915 /* graph */ = {
+			isa = PBXGroup;
+			children = (
+				AB4D06B41D83D97000654915 /* Traverser.swift */,
+				AB4D06B61D83D99900654915 /* RenderPass.swift */,
+				AB4D06B81D83D9CC00654915 /* Drawer.swift */,
+				AB4D06BA1D83D9E300654915 /* Updater.swift */,
+				ABFA8F4C1D5E981F00422EB1 /* Node.swift */,
+			);
+			name = graph;
+			sourceTree = "<group>";
+		};
+		AB4D06BC1D83EC5C00654915 /* resource */ = {
+			isa = PBXGroup;
+			children = (
+				ABE075B11C4203E500213CB4 /* BufferProvider.swift */,
+				ABE075B31C4211C800213CB4 /* MetalTexture.swift */,
+			);
+			name = resource;
+			sourceTree = "<group>";
+		};
+		AB4D06BD1D83F4B200654915 /* renderer */ = {
+			isa = PBXGroup;
+			children = (
+				ABF3BE8C1CC7C4B80099329D /* Renderer.swift */,
+				AB4D06C01D853CAC00654915 /* BasicRenderer.swift */,
+			);
+			name = renderer;
+			sourceTree = "<group>";
+		};
+		AB4D06BE1D83F4C000654915 /* view */ = {
+			isa = PBXGroup;
+			children = (
+				AB2BBC7D1D59B9F300103F89 /* MetalView.swift */,
+				ABF3BE8E1CC8FAE80099329D /* MMDView.swift */,
+			);
+			name = view;
+			sourceTree = "<group>";
+		};
+		AB4D06BF1D83F4C700654915 /* object */ = {
+			isa = PBXGroup;
+			children = (
+				ABE075AF1C39296E00213CB4 /* PMXObject.swift */,
+			);
+			name = object;
+			sourceTree = "<group>";
+		};
 		AB8230E41C2FE34D008691E0 = {
 			isa = PBXGroup;
 			children = (
@@ -696,7 +793,7 @@
 				ABDB8B641CE6218800BD28AD /* bullet */,
 				ABDA7B331C62330B0023EF89 /* PMX */,
 				ABDA7B341C6233250023EF89 /* math */,
-				ABDA7B361C6233AC0023EF89 /* renderer */,
+				ABDA7B361C6233AC0023EF89 /* melt */,
 				AB8230F01C2FE34D008691E0 /* AppDelegate.swift */,
 				AB8230F21C2FE34D008691E0 /* ViewController.swift */,
 				AB8230F41C2FE34D008691E0 /* Main.storyboard */,
@@ -760,18 +857,20 @@
 			name = math;
 			sourceTree = "<group>";
 		};
-		ABDA7B361C6233AC0023EF89 /* renderer */ = {
+		ABDA7B361C6233AC0023EF89 /* melt */ = {
 			isa = PBXGroup;
 			children = (
-				AB8231281C2FE6F4008691E0 /* Shader.metal */,
-				ABE075B11C4203E500213CB4 /* BufferProvider.swift */,
-				ABE075B31C4211C800213CB4 /* MetalTexture.swift */,
-				ABF3BE8C1CC7C4B80099329D /* Renderer.swift */,
-				AB2BBC7D1D59B9F300103F89 /* MetalView.swift */,
-				ABF3BE8E1CC8FAE80099329D /* MMDView.swift */,
-				ABE075AF1C39296E00213CB4 /* PMXModel.swift */,
+				AB4D06B31D83D95800654915 /* graph */,
+				AB4D06B21D83CE6B00654915 /* shader */,
+				AB4D06BC1D83EC5C00654915 /* resource */,
+				AB4D06BD1D83F4B200654915 /* renderer */,
+				ABE5C2A41D8FC13000C0D169 /* pass */,
+				AB4D06BF1D83F4C700654915 /* object */,
+				ABE5C2AC1D8FD70D00C0D169 /* updater */,
+				ABE5C2A71D8FD66500C0D169 /* drawer */,
+				AB4D06BE1D83F4C000654915 /* view */,
 			);
-			name = renderer;
+			name = melt;
 			sourceTree = "<group>";
 		};
 		ABDB8B5A1CE61CF700BD28AD /* third-party */ = {
@@ -1288,6 +1387,35 @@
 			path = "third-party/bullet3-2.83.7/src/LinearMath";
 			sourceTree = "<group>";
 		};
+		ABE5C2A41D8FC13000C0D169 /* pass */ = {
+			isa = PBXGroup;
+			children = (
+				ABFA8F3B1D5AFD1300422EB1 /* PresentViewRenderPass.swift */,
+				ABE5C2A51D8FC16800C0D169 /* ShadowPass.swift */,
+				ABFA8F3D1D5C414F00422EB1 /* GBufferPass.swift */,
+			);
+			name = pass;
+			sourceTree = "<group>";
+		};
+		ABE5C2A71D8FD66500C0D169 /* drawer */ = {
+			isa = PBXGroup;
+			children = (
+				ABE5C2A81D8FD69200C0D169 /* PMXDrawer.swift */,
+				ABE5C2AA1D8FD6DE00C0D169 /* PMXShadowDrawer.swift */,
+				AB3548901D8FDAF100FA90FA /* PMXGBufferDrawer.swift */,
+				ABDF6A091DA8F64700B7A1F9 /* PointLightDrawer.swift */,
+			);
+			name = drawer;
+			sourceTree = "<group>";
+		};
+		ABE5C2AC1D8FD70D00C0D169 /* updater */ = {
+			isa = PBXGroup;
+			children = (
+				ABE5C2AD1D8FD72D00C0D169 /* PMXUpdater.swift */,
+			);
+			name = updater;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1298,6 +1426,7 @@
 				AB8230E91C2FE34D008691E0 /* Sources */,
 				AB8230EA1C2FE34D008691E0 /* Frameworks */,
 				AB8230EB1C2FE34D008691E0 /* Resources */,
+				AB80F7961DB3746E00AC6A69 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1356,13 +1485,17 @@
 				TargetAttributes = {
 					AB8230EC1C2FE34D008691E0 = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = F6DB52PNP9;
+						LastSwiftMigration = 0800;
 					};
 					AB8231001C2FE34D008691E0 = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0800;
 						TestTargetID = AB8230EC1C2FE34D008691E0;
 					};
 					AB82310B1C2FE34D008691E0 = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0800;
 						TestTargetID = AB8230EC1C2FE34D008691E0;
 					};
 				};
@@ -1419,6 +1552,22 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		AB80F7961DB3746E00AC6A69 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		AB8230E91C2FE34D008691E0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -1433,6 +1582,7 @@
 				AB0D8CD31CEB4E8300444CBE /* RigidBody.swift in Sources */,
 				ABDB8D561CE87DD600BD28AD /* btGjkPairDetector.cpp in Sources */,
 				ABDB8D1D1CE87DD600BD28AD /* btSphereBoxCollisionAlgorithm.cpp in Sources */,
+				ABFA8F3E1D5C414F00422EB1 /* GBufferPass.swift in Sources */,
 				ABDB8D441CE87DD600BD28AD /* btTriangleMeshShape.cpp in Sources */,
 				ABDB8D711CE87DD600BD28AD /* btRigidBody.cpp in Sources */,
 				ABDB8D2D1CE87DD600BD28AD /* btConvexPointCloudShape.cpp in Sources */,
@@ -1440,14 +1590,17 @@
 				ABDB8D4F1CE87DD600BD28AD /* gim_memory.cpp in Sources */,
 				ABE075AC1C36810400213CB4 /* PMX.swift in Sources */,
 				ABDB8D4E1CE87DD600BD28AD /* gim_contact.cpp in Sources */,
+				AB80F7951DB31D2000AC6A69 /* CompositionShader.metal in Sources */,
 				ABDB8D0E1CE87DD600BD28AD /* btCollisionWorld.cpp in Sources */,
 				ABDB8D141CE87DD600BD28AD /* btConvexConvexAlgorithm.cpp in Sources */,
+				AB4D06B11D83CD5E00654915 /* GBufferShader.metal in Sources */,
 				ABDB8D811CE87DD600BD28AD /* btSoftBody.cpp in Sources */,
 				ABDB8D901CE87DD600BD28AD /* btSerializer.cpp in Sources */,
 				ABDB8D761CE87DD600BD28AD /* btMultiBodyDynamicsWorld.cpp in Sources */,
 				ABDB8D181CE87DD600BD28AD /* btGhostObject.cpp in Sources */,
 				ABDB8D7A1CE87DD600BD28AD /* btDantzigLCP.cpp in Sources */,
 				ABDB8D501CE87DD600BD28AD /* gim_tri_collision.cpp in Sources */,
+				AB4D06C11D853CAC00654915 /* BasicRenderer.swift in Sources */,
 				ABDB8D091CE87DD600BD28AD /* btBox2dBox2dCollisionAlgorithm.cpp in Sources */,
 				ABDB8D081CE87DD600BD28AD /* btActivatingCollisionAlgorithm.cpp in Sources */,
 				ABDB8D4A1CE87DD600BD28AD /* btGImpactQuantizedBvh.cpp in Sources */,
@@ -1459,7 +1612,8 @@
 				ABDB8D2F1CE87DD600BD28AD /* btConvexShape.cpp in Sources */,
 				AB307C4B1CB0D93B007C4343 /* GLKVector4+MMD.swift in Sources */,
 				ABDB8D461CE87DD600BD28AD /* btContactProcessing.cpp in Sources */,
-				AB8231291C2FE6F4008691E0 /* Shader.metal in Sources */,
+				AB4D06B91D83D9CC00654915 /* Drawer.swift in Sources */,
+				AB8231291C2FE6F4008691E0 /* ForwardShader.metal in Sources */,
 				AB0D8CD71CF31EDA00444CBE /* PhysicsSolving.swift in Sources */,
 				ABDB8D731CE87DD600BD28AD /* btMultiBody.cpp in Sources */,
 				ABDB8D201CE87DD600BD28AD /* btUnionFind.cpp in Sources */,
@@ -1477,10 +1631,14 @@
 				ABDB8D3E1CE87DD600BD28AD /* btTetrahedronShape.cpp in Sources */,
 				ABDB8D7B1CE87DD600BD28AD /* btLemkeAlgorithm.cpp in Sources */,
 				ABDB8D861CE87DD600BD28AD /* btSoftRigidDynamicsWorld.cpp in Sources */,
+				ABE5C2A91D8FD69200C0D169 /* PMXDrawer.swift in Sources */,
 				ABDB8D221CE87DD600BD28AD /* btBox2dShape.cpp in Sources */,
 				ABDB8D041CE87DD600BD28AD /* btOverlappingPairCache.cpp in Sources */,
+				ABDF6A0C1DAB9C1D00B7A1F9 /* LightShader.metal in Sources */,
 				ABDB8D8C1CE87DD600BD28AD /* btConvexHullComputer.cpp in Sources */,
 				ABDB8D111CE87DD600BD28AD /* btCompoundCompoundCollisionAlgorithm.cpp in Sources */,
+				ABE5C2AE1D8FD72D00C0D169 /* PMXUpdater.swift in Sources */,
+				ABFA8F3C1D5AFD1300422EB1 /* PresentViewRenderPass.swift in Sources */,
 				ABDB8D321CE87DD600BD28AD /* btEmptyShape.cpp in Sources */,
 				ABDB8D3A1CE87DD600BD28AD /* btShapeHull.cpp in Sources */,
 				ABDB8D7E1CE87DD600BD28AD /* btRaycastVehicle.cpp in Sources */,
@@ -1497,16 +1655,19 @@
 				AB654F731C82CE29003EC569 /* GLKMatrix4+MMD.swift in Sources */,
 				ABDB8D421CE87DD600BD28AD /* btTriangleIndexVertexMaterialArray.cpp in Sources */,
 				ABDB8D261CE87DD600BD28AD /* btCollisionShape.cpp in Sources */,
+				ABDF6A0A1DA8F64700B7A1F9 /* PointLightDrawer.swift in Sources */,
 				ABDB8D741CE87DD600BD28AD /* btMultiBodyConstraint.cpp in Sources */,
 				ABDB8D581CE87DD600BD28AD /* btPersistentManifold.cpp in Sources */,
 				ABDB8D821CE87DD600BD28AD /* btSoftBodyConcaveCollisionAlgorithm.cpp in Sources */,
 				ABDB8D051CE87DD600BD28AD /* btQuantizedBvh.cpp in Sources */,
 				AB5288191CD6D632007B2BEA /* Morph.swift in Sources */,
+				AB80F7931DB31A4800AC6A69 /* DepthShader.metal in Sources */,
 				ABDB8D271CE87DD600BD28AD /* btCompoundShape.cpp in Sources */,
 				AB307C4D1CB0F2B0007C4343 /* GLKVector3+MMD.swift in Sources */,
 				ABDB8D0C1CE87DD600BD28AD /* btCollisionDispatcher.cpp in Sources */,
 				ABDB8D651CE87DD600BD28AD /* btGeneric6DofSpring2Constraint.cpp in Sources */,
 				ABDB8D831CE87DD600BD28AD /* btSoftBodyHelpers.cpp in Sources */,
+				ABE5C2A61D8FC16800C0D169 /* ShadowPass.swift in Sources */,
 				ABDB8D8F1CE87DD600BD28AD /* btQuickprof.cpp in Sources */,
 				ABDB8D551CE87DD600BD28AD /* btGjkEpaPenetrationDepthSolver.cpp in Sources */,
 				ABDB8D311CE87DD600BD28AD /* btCylinderShape.cpp in Sources */,
@@ -1529,12 +1690,14 @@
 				AB2BBC7E1D59B9F300103F89 /* MetalView.swift in Sources */,
 				ABDB8D2E1CE87DD600BD28AD /* btConvexPolyhedron.cpp in Sources */,
 				ABDB8D361CE87DD600BD28AD /* btMultiSphereShape.cpp in Sources */,
-				ABE075B01C39296E00213CB4 /* PMXModel.swift in Sources */,
+				ABE075B01C39296E00213CB4 /* PMXObject.swift in Sources */,
 				ABDB8D6A1CE87DD600BD28AD /* btPoint2PointConstraint.cpp in Sources */,
 				AB8230F11C2FE34D008691E0 /* AppDelegate.swift in Sources */,
 				AB307C471CAF97FD007C4343 /* IKSolver.swift in Sources */,
 				ABDB8D1B1CE87DD600BD28AD /* btManifoldResult.cpp in Sources */,
 				ABDB8D771CE87DD600BD28AD /* btMultiBodyJointLimitConstraint.cpp in Sources */,
+				AB4D06BB1D83D9E300654915 /* Updater.swift in Sources */,
+				AB4D06B71D83D99900654915 /* RenderPass.swift in Sources */,
 				ABDB8D641CE87DD600BD28AD /* btGeneric6DofConstraint.cpp in Sources */,
 				AB52881D1CD7091F007B2BEA /* PMXMeta.swift in Sources */,
 				ABDB8D6B1CE87DD600BD28AD /* btSequentialImpulseConstraintSolver.cpp in Sources */,
@@ -1548,6 +1711,7 @@
 				ABDB8D301CE87DD600BD28AD /* btConvexTriangleMeshShape.cpp in Sources */,
 				ABDB8D781CE87DD600BD28AD /* btMultiBodyJointMotor.cpp in Sources */,
 				ABDB8D8D1CE87DD600BD28AD /* btGeometryUtil.cpp in Sources */,
+				ABFA8F4D1D5E981F00422EB1 /* Node.swift in Sources */,
 				ABDB8D4D1CE87DD600BD28AD /* gim_box_set.cpp in Sources */,
 				ABDB8D5B1CE87DD600BD28AD /* btSubSimplexConvexCast.cpp in Sources */,
 				ABDB8D1E1CE87DD600BD28AD /* btSphereSphereCollisionAlgorithm.cpp in Sources */,
@@ -1568,6 +1732,7 @@
 				ABDB8D751CE87DD600BD28AD /* btMultiBodyConstraintSolver.cpp in Sources */,
 				ABDB8D5C1CE87DD600BD28AD /* btVoronoiSimplexSolver.cpp in Sources */,
 				ABE075AA1C36807A00213CB4 /* DataReader.swift in Sources */,
+				AB4D06B51D83D97000654915 /* Traverser.swift in Sources */,
 				ABF3BE8B1CC58B6F0099329D /* GLKVector2+MMD.swift in Sources */,
 				AB307C491CB0D698007C4343 /* GLKQuaternion+MMD.swift in Sources */,
 				ABDB8D151CE87DD600BD28AD /* btConvexPlaneCollisionAlgorithm.cpp in Sources */,
@@ -1596,7 +1761,9 @@
 				ABDB8D701CE87DD600BD28AD /* btDiscreteDynamicsWorld.cpp in Sources */,
 				ABDB8D191CE87DD600BD28AD /* btHashedSimplePairCache.cpp in Sources */,
 				ABDB8D3F1CE87DD600BD28AD /* btTriangleBuffer.cpp in Sources */,
+				AB3548911D8FDAF100FA90FA /* PMXGBufferDrawer.swift in Sources */,
 				ABDB8D611CE87DD600BD28AD /* btContactConstraint.cpp in Sources */,
+				ABE5C2AB1D8FD6DE00C0D169 /* PMXShadowDrawer.swift in Sources */,
 				ABDB8D691CE87DD600BD28AD /* btNNCGConstraintSolver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1689,7 +1856,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "./third-party/bullet3-2.83.7/src";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1729,7 +1896,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "./third-party/bullet3-2.83.7/src";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1743,12 +1910,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = F6DB52PNP9;
 				INFOPLIST_FILE = "$(SRCROOT)/MMDViewer/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewer;
 				PRODUCT_NAME = MMDViewer;
 				SWIFT_OBJC_BRIDGING_HEADER = "MMDViewer/MMDViewer-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1758,11 +1927,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = F6DB52PNP9;
 				INFOPLIST_FILE = "$(SRCROOT)/MMDViewer/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewer;
 				PRODUCT_NAME = MMDViewer;
 				SWIFT_OBJC_BRIDGING_HEADER = "MMDViewer/MMDViewer-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1774,6 +1945,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewerTests;
 				PRODUCT_NAME = MMDViewer;
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MMDViewer.app/MMDViewer";
 			};
 			name = Debug;
@@ -1786,6 +1958,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewerTests;
 				PRODUCT_NAME = MMDViewer;
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MMDViewer.app/MMDViewer";
 			};
 			name = Release;
@@ -1797,6 +1970,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewerUITests;
 				PRODUCT_NAME = MMDViewer;
+				SWIFT_VERSION = 3.0;
 				TEST_TARGET_NAME = MMDViewer;
 				USES_XCTRUNNER = YES;
 			};
@@ -1809,6 +1983,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewerUITests;
 				PRODUCT_NAME = MMDViewer;
+				SWIFT_VERSION = 3.0;
 				TEST_TARGET_NAME = MMDViewer;
 				USES_XCTRUNNER = YES;
 			};
