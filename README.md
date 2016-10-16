@@ -1,7 +1,7 @@
 # MMDViewer
 MMDViewer is an MMD Viewer written in Swift using Metal.
 
-I'm no planning to support full MMD function set. This is a playground to implement shaders.
+I'm not planning to support full MMD features. This is a playground to implement shaders.
 
 # Not supported for now
 * bone morph
