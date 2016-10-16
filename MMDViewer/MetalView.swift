@@ -2,20 +2,28 @@ import Foundation
 import UIKit
 import Metal
 
+private let depthTextureSampleCount = 1
+
+struct PixelFormatSpec {
+    var colorAttachmentFormats = [MTLPixelFormat](repeating: .invalid, count: 4)
+    var clearColors = [MTLClearColor](repeating: MTLClearColorMake(0, 0, 0, 0), count: 4)
+    var depthPixelFormat = MTLPixelFormat.invalid
+    var stencilPixelFormat = MTLPixelFormat.invalid
+}
+
 class MetalView: UIView {
     var device: MTLDevice?
-    var depthPixelFormat = MTLPixelFormat.Invalid
-    var sampleCount = 0
-    
+    var pixelFormatSpec = PixelFormatSpec()
+
     var renderPassDescriptor: MTLRenderPassDescriptor? {
         if let drawable = currentDrawable {
             setupRenderPassDescriptorForTexture(drawable.texture)
         } else {
-            _renderPassDescriptor = nil;
+            _renderPassDescriptor = nil
         }
         return _renderPassDescriptor
     }
-    
+
     var currentDrawable: CAMetalDrawable? {
         if _currentDrawable == nil {
             if let metalLayer = metalLayer {
@@ -24,9 +32,9 @@ class MetalView: UIView {
                 fatalError("failed to get a drawable")
             }
         }
-        return _currentDrawable;
+        return _currentDrawable
     }
-    
+
     var drawableSize: CGSize {
         set (v) {
             if let metalLayer = metalLayer {
@@ -37,88 +45,174 @@ class MetalView: UIView {
             if let metalLayer = metalLayer {
                 return metalLayer.drawableSize
             } else {
-                return CGSizeZero
+                return CGSize.zero
             }
         }
     }
-    
+
     private var _currentDrawable: CAMetalDrawable?
     private var _renderPassDescriptor: MTLRenderPassDescriptor?
-    private weak var metalLayer: CAMetalLayer?
+    weak var metalLayer: CAMetalLayer?
+
     private var depthTex: MTLTexture?
-    
+    private var stencilTex: MTLTexture?
+    private var colorTextures = [MTLTexture?](repeating:nil, count: 3)
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         initMetalLayer()
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         initMetalLayer()
     }
-    
+
     func releaseTextures() {
-        depthTex   = nil
+        print("releasing textures...")
+
+        depthTex = nil
+        stencilTex = nil
+        for i in 0..<colorTextures.count {
+            colorTextures[i] = nil
+        }
+
+        print("done")
     }
-    
+
     func releaseCurrentDrawable() {
         _currentDrawable = nil
     }
-    
-    override class func layerClass() -> AnyClass {
+
+    override class var layerClass: AnyClass {
         return CAMetalLayer.self
     }
-    
+
     private final func initMetalLayer() {
         if let metalLayer = self.layer as? CAMetalLayer {
-            device = MTLCreateSystemDefaultDevice()!
-            
+            guard let device = MTLCreateSystemDefaultDevice() else {
+                fatalError("can't create system default device")
+            }
             metalLayer.device = device
-            metalLayer.pixelFormat = MTLPixelFormat.BGRA8Unorm
-            metalLayer.framebufferOnly = true
-            
+
+            self.device = device
             self.metalLayer = metalLayer
         }
     }
-    
-    private func setupRenderPassDescriptorForTexture(texture: MTLTexture) {
+
+    private func setupRenderPassDescriptorForTexture(_ texture: MTLTexture) {
         if _renderPassDescriptor == nil {
             _renderPassDescriptor = MTLRenderPassDescriptor()
         }
-        
-        if let renderPassDescriptor = _renderPassDescriptor {
-            let colorAttachment = renderPassDescriptor.colorAttachments[0]
+
+        guard let renderPassDescriptor = _renderPassDescriptor else {
+            return
+        }
+
+        // color attachment #0
+        if let colorAttachment = renderPassDescriptor.colorAttachments[0] {
             colorAttachment.texture = texture
-            colorAttachment.loadAction = MTLLoadAction.Clear
-            colorAttachment.clearColor = MTLClearColorMake(0.0, 0.35, 0.65, 1.0)
-            colorAttachment.storeAction = MTLStoreAction.Store;
-            
-            if depthPixelFormat != MTLPixelFormat.Invalid {
-                var doUpdate = false
-                if let depthTex = depthTex {
-                    doUpdate =
-                        (depthTex.width       != texture.width)  ||
-                        (depthTex.height      != texture.height) ||
-                        (depthTex.sampleCount != sampleCount)
+            colorAttachment.loadAction = .clear
+            colorAttachment.clearColor = self.pixelFormatSpec.clearColors[0]
+            colorAttachment.storeAction = .store
+        }
+
+        // update color attachment #1 ~ 3
+        for i in 1...3 {
+            let format = self.pixelFormatSpec.colorAttachmentFormats[i]
+            if format == .invalid {
+                continue
+            }
+
+            var doUpdate = false
+            if let colorTexture = colorTextures[i - 1] {
+                doUpdate = colorTexture.width != texture.width || colorTexture.height != texture.height
+            } else {
+                doUpdate = true
+            }
+
+            if doUpdate {
+                let desc = MTLTextureDescriptor.texture2DDescriptor(
+                    pixelFormat: pixelFormatSpec.colorAttachmentFormats[i],
+                    width: texture.width, height: texture.height,
+                    mipmapped: false)
+                colorTextures[i - 1] = device!.makeTexture(descriptor: desc)
+
+                if let colorTexture = colorTextures[i - 1] {
+                    print(String(format:"update color texture [%d] (%d, %d)", i, colorTexture.width, colorTexture.height))
+
+                    if let attachment = renderPassDescriptor.colorAttachments[i] {
+                        attachment.texture = colorTexture
+                        attachment.loadAction = .clear
+                        attachment.storeAction = .dontCare
+                        attachment.clearColor = pixelFormatSpec.clearColors[i]
+                    }
                 }
-                
-                if depthTex == nil || doUpdate {
-                    
-                    let desc = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(
-                        depthPixelFormat,
-                        width: texture.width,
-                        height: texture.height,
-                        mipmapped: false
-                    )
-                    desc.textureType = (sampleCount > 1) ? MTLTextureType.Type2DMultisample : MTLTextureType.Type2D
-                    desc.sampleCount = sampleCount
-                    depthTex = device!.newTextureWithDescriptor(desc)
-                    
-                    let depthAttachment = renderPassDescriptor.depthAttachment
-                    depthAttachment.texture = depthTex
-                    depthAttachment.loadAction = MTLLoadAction.Clear
-                    depthAttachment.storeAction = MTLStoreAction.DontCare
-                    depthAttachment.clearDepth = 1.0
+            }
+        }
+
+        // update depth texture
+        if pixelFormatSpec.depthPixelFormat != .invalid {
+            var doUpdate = false
+            if let tex = depthTex {
+                doUpdate =
+                    (tex.width       != texture.width)  ||
+                    (tex.height      != texture.height) ||
+                    (tex.sampleCount != depthTextureSampleCount)
+            } else {
+                doUpdate = true
+            }
+
+            if doUpdate {
+                let desc = MTLTextureDescriptor.texture2DDescriptor(
+                    pixelFormat: pixelFormatSpec.depthPixelFormat,
+                    width: texture.width,
+                    height: texture.height,
+                    mipmapped: false)
+                desc.textureType = (depthTextureSampleCount > 1) ? .type2DMultisample : .type2D
+                desc.sampleCount = depthTextureSampleCount
+                depthTex = device!.makeTexture(descriptor: desc)
+
+                if let depthTex = depthTex {
+                    print(String(format:"update depth texture (%d, %d)", depthTex.width, depthTex.height))
+
+                    if let attachment = renderPassDescriptor.depthAttachment {
+                        attachment.texture = depthTex
+                        attachment.loadAction = .clear
+                        attachment.storeAction = .dontCare
+                        attachment.clearDepth = 1.0
+                    }
+                }
+            }
+        }
+
+        // update stencil texture
+        if pixelFormatSpec.stencilPixelFormat != .invalid {
+            var doUpdate = false
+            if let tex = stencilTex {
+                doUpdate = tex.width != texture.width || tex.height != texture.height
+            } else {
+                doUpdate = true
+            }
+
+            if doUpdate {
+                let desc = MTLTextureDescriptor.texture2DDescriptor(
+                    pixelFormat: pixelFormatSpec.stencilPixelFormat,
+                    width: texture.width,
+                    height: texture.height,
+                    mipmapped: false)
+                desc.textureType = .type2D
+                stencilTex = device!.makeTexture(descriptor: desc)
+
+                if let stencilTex = stencilTex {
+                    print(String(format:"update stencil texture (%d, %d)", stencilTex.width, stencilTex.height))
+
+                    if let attachment = renderPassDescriptor.stencilAttachment {
+                        attachment.texture = stencilTex
+                        attachment.loadAction = .clear
+                        attachment.storeAction = .dontCare
+                        attachment.clearStencil = 0
+                    }
                 }
             }
         }

@@ -1,3 +1,8 @@
+# 0.4.0.a
+Introduce Light Pre-Pass (in progress).
+
+Rewrite in Swift3.
+
 # 0.3.0
 Improve performance.
 
