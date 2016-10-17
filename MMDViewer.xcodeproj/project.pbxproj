@@ -1477,7 +1477,6 @@
 				TargetAttributes = {
 					AB8230EC1C2FE34D008691E0 = {
 						CreatedOnToolsVersion = 7.2;
-						DevelopmentTeam = F6DB52PNP9;
 						LastSwiftMigration = 0800;
 					};
 					AB8231001C2FE34D008691E0 = {
@@ -1898,8 +1897,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = F6DB52PNP9;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "$(SRCROOT)/MMDViewer/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewer;
 				PRODUCT_NAME = MMDViewer;
@@ -1915,8 +1915,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = F6DB52PNP9;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "$(SRCROOT)/MMDViewer/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewer;
 				PRODUCT_NAME = MMDViewer;
