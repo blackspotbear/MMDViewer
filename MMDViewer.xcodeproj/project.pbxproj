@@ -47,10 +47,6 @@
 		AB8231291C2FE6F4008691E0 /* ForwardShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = AB8231281C2FE6F4008691E0 /* ForwardShader.metal */; };
 		ABBCD3031CE18E5D00A253F4 /* data in Resources */ = {isa = PBXBuildFile; fileRef = ABBCD3021CE18E5D00A253F4 /* data */; };
 		ABCE463F1C60E6170024167E /* Bone.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCE463E1C60E6170024167E /* Bone.swift */; };
-		ABDB8B601CE61E6F00BD28AD /* BulletCollision in Resources */ = {isa = PBXBuildFile; fileRef = ABDB8B5C1CE61E6F00BD28AD /* BulletCollision */; };
-		ABDB8B611CE61E6F00BD28AD /* BulletDynamics in Resources */ = {isa = PBXBuildFile; fileRef = ABDB8B5D1CE61E6F00BD28AD /* BulletDynamics */; };
-		ABDB8B621CE61E6F00BD28AD /* BulletSoftBody in Resources */ = {isa = PBXBuildFile; fileRef = ABDB8B5E1CE61E6F00BD28AD /* BulletSoftBody */; };
-		ABDB8B631CE61E6F00BD28AD /* LinearMath in Resources */ = {isa = PBXBuildFile; fileRef = ABDB8B5F1CE61E6F00BD28AD /* LinearMath */; };
 		ABDB8CFD1CE87DD600BD28AD /* btAxisSweep3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8B7B1CE87DD500BD28AD /* btAxisSweep3.cpp */; };
 		ABDB8CFE1CE87DD600BD28AD /* btBroadphaseProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8B7E1CE87DD500BD28AD /* btBroadphaseProxy.cpp */; };
 		ABDB8CFF1CE87DD600BD28AD /* btCollisionAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8B801CE87DD500BD28AD /* btCollisionAlgorithm.cpp */; };
@@ -281,10 +277,6 @@
 		ABA806FC1D68740F004E26E6 /* ShaderCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderCommon.h; sourceTree = "<group>"; };
 		ABBCD3021CE18E5D00A253F4 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = data; sourceTree = "<group>"; };
 		ABCE463E1C60E6170024167E /* Bone.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bone.swift; sourceTree = "<group>"; };
-		ABDB8B5C1CE61E6F00BD28AD /* BulletCollision */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BulletCollision; path = "/Users/kmi/MMDViewer/third-party/bullet3-2.83.7/src/BulletCollision"; sourceTree = "<absolute>"; };
-		ABDB8B5D1CE61E6F00BD28AD /* BulletDynamics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BulletDynamics; path = "/Users/kmi/MMDViewer/third-party/bullet3-2.83.7/src/BulletDynamics"; sourceTree = "<absolute>"; };
-		ABDB8B5E1CE61E6F00BD28AD /* BulletSoftBody */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BulletSoftBody; path = "/Users/kmi/MMDViewer/third-party/bullet3-2.83.7/src/BulletSoftBody"; sourceTree = "<absolute>"; };
-		ABDB8B5F1CE61E6F00BD28AD /* LinearMath */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LinearMath; path = "/Users/kmi/MMDViewer/third-party/bullet3-2.83.7/src/LinearMath"; sourceTree = "<absolute>"; };
 		ABDB8B651CE8744E00BD28AD /* MMDViewer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MMDViewer-Bridging-Header.h"; sourceTree = "<group>"; };
 		ABDB8B7B1CE87DD500BD28AD /* btAxisSweep3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btAxisSweep3.cpp; sourceTree = "<group>"; };
 		ABDB8B7C1CE87DD500BD28AD /* btAxisSweep3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btAxisSweep3.h; sourceTree = "<group>"; };
@@ -1525,14 +1517,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABDB8B601CE61E6F00BD28AD /* BulletCollision in Resources */,
 				AB8230FB1C2FE34D008691E0 /* LaunchScreen.storyboard in Resources */,
-				ABDB8B611CE61E6F00BD28AD /* BulletDynamics in Resources */,
 				AB8230F81C2FE34D008691E0 /* Assets.xcassets in Resources */,
-				ABDB8B621CE61E6F00BD28AD /* BulletSoftBody in Resources */,
 				ABBCD3031CE18E5D00A253F4 /* data in Resources */,
 				AB8230F61C2FE34D008691E0 /* Main.storyboard in Resources */,
-				ABDB8B631CE61E6F00BD28AD /* LinearMath in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
