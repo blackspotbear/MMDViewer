@@ -80,7 +80,11 @@ class MMDView: MetalView {
 
         // Set up animation loop
         timer = CADisplayLink(target: self, selector: #selector(MMDView.mainLoop(_:)))
-        timer.preferredFramesPerSecond = 30
+        if #available(iOS 10.0, *) {
+            timer.preferredFramesPerSecond = 30
+        } else {
+            timer.frameInterval = 2
+        }
         timer.add(to: RunLoop.main, forMode: RunLoopMode.defaultRunLoopMode)
     }
 
