@@ -3,26 +3,6 @@ import GLKit
 import Metal
 import simd
 
-private func lookAt(
-    eyeX: Float, eyeY: Float, eyeZ: Float,
-    atX: Float, atY: Float, atZ: Float,
-    upX: Float, upY: Float, upZ: Float) -> GLKMatrix4 {
-
-    let eye = float3(x: eyeX, y: eyeY, z: eyeZ)
-    let center = float3(x: atX, y: atY, z: atZ)
-    let up = float3(x: upX, y: upY, z: upZ)
-
-    let zAxis = normalize(center - eye)
-    let xAxis = normalize(simd.cross(up, zAxis))
-    let yAxis = cross(zAxis, xAxis)
-
-    return GLKMatrix4Make(
-        xAxis.x, yAxis.x, zAxis.x, 0,
-        xAxis.y, yAxis.y, zAxis.y, 0,
-        xAxis.z, yAxis.z, zAxis.z, 0,
-        -dot(xAxis, eye), -dot(yAxis, eye), -dot(zAxis, eye), 1)
-}
-
 protocol AnimationCounter {
     init(beginFrameNum: Int, endFrameNum: Int)
     func increment()
@@ -422,15 +402,9 @@ class PMXObject {
         let uniformBuffer = uniformBufferProvider.nextBuffer()
 
         let modelViewMatrix = renderer.viewMatrix.multiply(modelMatrix)
-
-        // 左から
-        let sunMatrix = lookAt(eyeX: -10, eyeY: 12, eyeZ: 0,
-                                atX:   0, atY: 12, atZ: 0,
-                                upX:   0, upY:  1, upZ: 0)
+        let sunMatrix = GLKMatrix4MakeLookAt(-10, 12, 0, 0, 12, 0, 0, 1, 0)
         let orthoMatrix = makeOrthoOC(-12, 12, -12, 12, 1, 20)
-
         let shadowMatrix = orthoMatrix.multiply(sunMatrix)
-
         let shadowMatrixGB = GLKMatrix4MakeTranslation(0.5, 0.5, 0.0).multiply(GLKMatrix4MakeScale(0.5, -0.5, 1.0)).multiply(shadowMatrix)
 
         CopyMatrices(
