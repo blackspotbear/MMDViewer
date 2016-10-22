@@ -409,6 +409,14 @@ class PMXObject {
     private func sendUniforms(_ renderer: Renderer) -> MTLBuffer {
         let uniformBuffer = uniformBufferProvider.nextBuffer()
 
+        // "Metal Shading Language Guide" says:
+        // In Metal, the origin of the pixel coordinate system of a texture is
+        // defined at the top-left corner.
+        //
+        // So shadowMatrixGB's Y scale value is negative.
+        //
+        // see https://goo.gl/vgIYTf
+
         let modelViewMatrix = renderer.viewMatrix.multiply(modelMatrix)
         let sunMatrix = GLKMatrix4MakeLookAt(-10, 12, 0, 0, 12, 0, 0, 1, 0)
         let orthoMatrix = MakeOrthoOC(-12, 12, -12, 12, 1, 20)
