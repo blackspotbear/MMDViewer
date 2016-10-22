@@ -211,17 +211,25 @@ private func PhysicsSolverMake(_ pmx: PMX) -> PhysicsSolving {
     return solver
 }
 
-private func makeOrthoOC(_ left: Float, _ right: Float, _ bottom: Float, _ top: Float, _ near: Float, _ far: Float) -> GLKMatrix4 {
+private func MakeOrthoOC(_ left: Float, _ right: Float, _ bottom: Float, _ top: Float, _ near: Float, _ far: Float) -> GLKMatrix4 {
     let sLength = 1.0 / (right - left)
     let sHeight = 1.0 / (top   - bottom)
     let sDepth  = 1.0 / (far   - near)
 
+    // "Metal Programming Guide" says:
+    // Metal defines its Normalized Device Coordinate (NDC) system as a 2x2x1 cube
+    // with its center at (0, 0, 0.5). The left and bottom for x and y, respectively,
+    // of the NDC system are specified as -1. The right and top for x and y, respectively,
+    // of the NDC system are specified as +1.
+    //
+    // see https://goo.gl/5wT5kg
+
+    // Because of the reason, following expression is defferent from https://goo.gl/rFN8eS .
     return GLKMatrix4Make(
-        2.0 * sLength, 0,             0, 0,
-        0, 2.0 * sHeight, 0, 0,
-        0, 0,             sDepth, 0,
-        -sLength * (left + right), -sHeight * (top + bottom), -sDepth  * near, 1.0
-    )
+         2.0 * sLength,             0.0,                       0.0,            0.0,
+         0.0,                       2.0 * sHeight,             0.0,            0.0,
+         0.0,                       0.0,                      -sDepth,         0.0,
+        -sLength * (left + right), -sHeight * (top + bottom), -sDepth  * near, 1.0)
 }
 
 class PMXObject {
@@ -403,7 +411,7 @@ class PMXObject {
 
         let modelViewMatrix = renderer.viewMatrix.multiply(modelMatrix)
         let sunMatrix = GLKMatrix4MakeLookAt(-10, 12, 0, 0, 12, 0, 0, 1, 0)
-        let orthoMatrix = makeOrthoOC(-12, 12, -12, 12, 1, 20)
+        let orthoMatrix = MakeOrthoOC(-12, 12, -12, 12, 1, 20)
         let shadowMatrix = orthoMatrix.multiply(sunMatrix)
         let shadowMatrixGB = GLKMatrix4MakeTranslation(0.5, 0.5, 0.0).multiply(GLKMatrix4MakeScale(0.5, -0.5, 1.0)).multiply(shadowMatrix)
 
