@@ -211,6 +211,8 @@ private func PhysicsSolverMake(_ pmx: PMX) -> PhysicsSolving {
     return solver
 }
 
+// "OC" stands for off-center.
+// see https://goo.gl/s4VyNp
 private func MakeOrthoOC(_ left: Float, _ right: Float, _ bottom: Float, _ top: Float, _ near: Float, _ far: Float) -> GLKMatrix4 {
     let sLength = 1.0 / (right - left)
     let sHeight = 1.0 / (top   - bottom)
