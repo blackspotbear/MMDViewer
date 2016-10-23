@@ -211,8 +211,14 @@ private func PhysicsSolverMake(_ pmx: PMX) -> PhysicsSolving {
     return solver
 }
 
+// Make right-handed orthographic matrix.
+//
+// right-handed: 10-th value of matrix has a negative sign.
 // "OC" stands for off-center.
-// see https://goo.gl/s4VyNp
+//
+// see http://www.songho.ca/opengl/gl_projectionmatrix.html#ortho
+// and https://goo.gl/lJ1fb3 , https://goo.gl/Xlqrwf
+// and https://goo.gl/lD41Z7 , https://goo.gl/zqBkCU
 private func MakeOrthoOC(_ left: Float, _ right: Float, _ bottom: Float, _ top: Float, _ near: Float, _ far: Float) -> GLKMatrix4 {
     let sLength = 1.0 / (right - left)
     let sHeight = 1.0 / (top   - bottom)
@@ -226,7 +232,7 @@ private func MakeOrthoOC(_ left: Float, _ right: Float, _ bottom: Float, _ top: 
     //
     // see https://goo.gl/5wT5kg
 
-    // Because of the reason, following expression is defferent from https://goo.gl/rFN8eS .
+    // Because of the reason, following formula is defferent from https://goo.gl/rFN8eS .
     return GLKMatrix4Make(
          2.0 * sLength,             0.0,                       0.0,            0.0,
          0.0,                       2.0 * sHeight,             0.0,            0.0,
@@ -420,7 +426,7 @@ class PMXObject {
         // see https://goo.gl/vgIYTf
 
         let modelViewMatrix = renderer.viewMatrix.multiply(modelMatrix)
-        let sunMatrix = GLKMatrix4MakeLookAt(-10, 12, 0, 0, 12, 0, 0, 1, 0)
+        let sunMatrix = GLKMatrix4MakeLookAt(-10, 12, 0, 0, 12, 0, 0, 1, 0) // right-handed
         let orthoMatrix = MakeOrthoOC(-12, 12, -12, 12, 1, 20)
         let shadowMatrix = orthoMatrix.multiply(sunMatrix)
         let shadowMatrixGB = GLKMatrix4MakeTranslation(0.5, 0.5, 0.0).multiply(GLKMatrix4MakeScale(0.5, -0.5, 1.0)).multiply(shadowMatrix)
