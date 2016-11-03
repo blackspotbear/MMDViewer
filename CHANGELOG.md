@@ -1,3 +1,6 @@
+# 0.4.0.b
+Support stipple transparency.
+
 # 0.4.0.a
 Introduce Light Pre-Pass (in progress).
 
