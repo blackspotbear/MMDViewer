@@ -46,7 +46,7 @@ private func MakeRenderPipelineState(device: MTLDevice, pixelFormatSpec: PixelFo
     guard let vertexFunc = defaultLibrary.makeFunction(name: "gBufferVert") else {
         fatalError("failed to make vertex function")
     }
-    guard let fragmentFunc = defaultLibrary.makeFunction(name: "gBufferFrag") else {
+    guard let fragmentFunc = defaultLibrary.makeFunction(name: /* "gBufferFrag" */ "gBufferFragStipple") else {
         fatalError("failed to make fragment function")
     }
 
@@ -123,23 +123,30 @@ class PMXGBufferDrawer: Drawer {
         // draw primitives for each material
         var indexByteOffset = 0
         var materialByteOffset = 0
+        var cntr = 0
         for material in pmxObj.pmx.materials {
-            let textureIndex = material.textureIndex != 255 ? material.textureIndex : 0
-            let texture = pmxObj.textures[textureIndex]
-            // use member variable 'renderPipelineState' instead
-            // let renderPipelineState = texture.hasAlpha ? pmxObj.alphaPipelineState! : pmxObj.opaquePipelineState!
 
-            renderEncoder.setRenderPipelineState(renderPipelineState)
+            if cntr == pmxObj.pmx.materials.count - 3 {
+                // NOTE: skip shadow object
+            } else {
+                let textureIndex = material.textureIndex != 255 ? material.textureIndex : 0
+                let texture = pmxObj.textures[textureIndex]
+                // use member variable 'renderPipelineState' instead
+                // let renderPipelineState = texture.hasAlpha ? pmxObj.alphaPipelineState! : pmxObj.opaquePipelineState!
 
-            renderEncoder.setFragmentTexture(texture.texture, at: 0)
-            renderEncoder.setFragmentTexture(shadowTexture, at: 1)
+                renderEncoder.setRenderPipelineState(renderPipelineState)
 
-            renderEncoder.drawIndexedPrimitives(
-                type: .triangle,
-                indexCount: Int(material.vertexCount),
-                indexType: .uint16,
-                indexBuffer: pmxObj.indexBuffer,
-                indexBufferOffset: indexByteOffset)
+                renderEncoder.setFragmentTexture(texture.texture, at: 0)
+                renderEncoder.setFragmentTexture(shadowTexture, at: 1)
+
+                renderEncoder.drawIndexedPrimitives(
+                    type: .triangle,
+                    indexCount: Int(material.vertexCount),
+                    indexType: .uint16,
+                    indexBuffer: pmxObj.indexBuffer,
+                    indexBufferOffset: indexByteOffset)
+            }
+            cntr += 1
 
             indexByteOffset += Int(material.vertexCount) * 2 // 2 bytes per index
             materialByteOffset += MemoryLayout<ShaderMaterial>.stride

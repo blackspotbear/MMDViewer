@@ -22,13 +22,19 @@ class PMXShadowDrawer: Drawer {
 
         var indexByteOffset = 0
         var materialByteOffset = 0
+        var cntr = 0
         for material in pmxObj.pmx.materials {
-            renderEncoder.drawIndexedPrimitives(
-                type: .triangle,
-                indexCount: Int(material.vertexCount),
-                indexType: .uint16,
-                indexBuffer: pmxObj.indexBuffer,
-                indexBufferOffset: indexByteOffset)
+            if cntr == pmxObj.pmx.materials.count - 3 {
+                // NOTE: skip shadow object
+            } else {
+                renderEncoder.drawIndexedPrimitives(
+                    type: .triangle,
+                    indexCount: Int(material.vertexCount),
+                    indexType: .uint16,
+                    indexBuffer: pmxObj.indexBuffer,
+                    indexBufferOffset: indexByteOffset)
+            }
+            cntr += 1
 
             indexByteOffset += Int(material.vertexCount) * 2 // 2 bytes per index
             materialByteOffset += MemoryLayout<ShaderMaterial>.stride
