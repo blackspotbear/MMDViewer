@@ -46,7 +46,7 @@ private func MakeRenderPipelineState(device: MTLDevice, pixelFormatSpec: PixelFo
     guard let vertexFunc = defaultLibrary.makeFunction(name: "gBufferVert") else {
         fatalError("failed to make vertex function")
     }
-    guard let fragmentFunc = defaultLibrary.makeFunction(name: "gBufferFrag") else {
+    guard let fragmentFunc = defaultLibrary.makeFunction(name: /* "gBufferFrag" */ "gBufferFragStipple") else {
         fatalError("failed to make fragment function")
     }
 
