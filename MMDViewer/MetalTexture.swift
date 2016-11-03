@@ -4,6 +4,19 @@ import CoreGraphics
 
 // see http://www.raywenderlich.com/93997/ios-8-metal-tutorial-swift-part-3-adding-texture
 
+func alphaState(alphaInfo: CGImageAlphaInfo) -> Bool {
+    switch alphaInfo {
+    case .none:               return false
+    case .first:              return true
+    case .last:               return true
+    case .noneSkipFirst:      return false
+    case .noneSkipLast:       return false
+    case .alphaOnly:          return true
+    case .premultipliedFirst: return true
+    case .premultipliedLast:  return true
+    }
+}
+
 class MetalTexture {
     var texture: MTLTexture!
 
@@ -41,16 +54,7 @@ class MetalTexture {
             alphaInfo = .premultipliedFirst
         }
 
-        switch alphaInfo {
-        case .none:               hasAlpha = false
-        case .first:              hasAlpha = true
-        case .last:               hasAlpha = true
-        case .noneSkipFirst:      hasAlpha = false
-        case .noneSkipLast:       hasAlpha = false
-        case .alphaOnly:          hasAlpha = true
-        case .premultipliedFirst: hasAlpha = true
-        case .premultipliedLast:  hasAlpha = true
-        }
+        hasAlpha = alphaState(alphaInfo: alphaInfo)
 
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let rowBytes = width * bytesPerPixel
@@ -67,7 +71,7 @@ class MetalTexture {
         let bounds = CGRect(x: 0, y: 0, width: width, height: height)
 
         context.clear(bounds)
-        if flip == false {
+        if !flip {
             context.translateBy(x: 0, y: CGFloat(self.height))
             context.scaleBy(x: 1.0, y: -1.0)
         }
@@ -97,7 +101,7 @@ class MetalTexture {
         }
     }
 
-    func image(mipLevel: Int) -> UIImage {
+    func image(mipLevel: Int = 0) -> UIImage {
         let p = bytesForMipLevel(mipLevel: mipLevel)
         let q = Int(powf(2, Float(mipLevel)))
         let mipmapedWidth = max(width / q, 1)
@@ -112,10 +116,6 @@ class MetalTexture {
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
         )
         return UIImage(cgImage: (context?.makeImage())!)
-    }
-
-    func image() -> UIImage {
-        return image(mipLevel: 0)
     }
 
     func bytes() -> UnsafeMutableRawPointer {
