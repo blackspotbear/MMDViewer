@@ -74,28 +74,30 @@ class WireFrameDrawer: Drawer {
     }
 
     func draw(_ renderer: Renderer) {
-        if let renderEncoder = renderer.renderCommandEncoder {
-            let matrixBuffer = matrixBufferProvider.nextBuffer()
-            let matrixData = matrixBuffer.contents().bindMemory(
-                to: WireframeModelMatrices.self,
-                capacity: 1)
-            var matrices = WireframeModelMatrices(
-                mvpMatrix: renderer.projectionMatrix.multiply(renderer.viewMatrix))
-
-            memcpy(matrixData, &matrices, MemoryLayout<WireframeModelMatrices>.size)
-
-            renderEncoder.pushDebugGroup("wireframe")
-
-            renderEncoder.setVertexBuffer(model.vertexBuffer, offset: 0, at: 0)
-            renderEncoder.setVertexBuffer(matrixBuffer, offset: 0, at: 1)
-            renderEncoder.drawIndexedPrimitives(
-                type: .triangle,
-                indexCount: model.indexCount,
-                indexType: .uint16,
-                indexBuffer: model.indexBuffer,
-                indexBufferOffset: 0)
-            
-            renderEncoder.popDebugGroup()
+        guard let renderEncoder = renderer.renderCommandEncoder else {
+            return
         }
+        
+        let matrixBuffer = matrixBufferProvider.nextBuffer()
+        let matrixData = matrixBuffer.contents().bindMemory(
+            to: WireframeModelMatrices.self,
+            capacity: 1)
+        var matrices = WireframeModelMatrices(
+            mvpMatrix: renderer.projectionMatrix.multiply(renderer.viewMatrix))
+
+        memcpy(matrixData, &matrices, MemoryLayout<WireframeModelMatrices>.size)
+
+        renderEncoder.pushDebugGroup("wireframe")
+
+        renderEncoder.setVertexBuffer(model.vertexBuffer, offset: 0, at: 0)
+        renderEncoder.setVertexBuffer(matrixBuffer, offset: 0, at: 1)
+        renderEncoder.drawIndexedPrimitives(
+            type: .triangle,
+            indexCount: model.indexCount,
+            indexType: .uint16,
+            indexBuffer: model.indexBuffer,
+            indexBufferOffset: 0)
+
+        renderEncoder.popDebugGroup()
     }
 }
