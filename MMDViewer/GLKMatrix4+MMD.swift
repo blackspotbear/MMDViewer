@@ -39,19 +39,6 @@ extension GLKMatrix4: CustomStringConvertible {
         return GLKMatrix4Multiply(other, self)
     }
 
-    func raw() -> UnsafeRawPointer {
-        // see https://lists.swift.org/pipermail/swift-dev/Week-of-Mon-20151214/000404.html
-        // copy self not to make raw() mutating
-        var mutatingSelf = self
-        // NOTE: ! return a pointer to a local variable
-        return withUnsafePointer(to: &mutatingSelf) { UnsafeRawPointer($0) }
-    }
-
-    // mutating version
-    mutating func raw_mutating() -> UnsafeRawPointer {
-        return withUnsafePointer(to: &self) { UnsafeRawPointer($0) }
-    }
-
     func transpose() -> GLKMatrix4 {
         return GLKMatrix4Transpose(self)
     }

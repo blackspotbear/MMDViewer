@@ -39,7 +39,7 @@ private func MakeVertexDesc() -> MTLVertexDescriptor {
     return vertexDescriptor
 }
 
-private func MakeRenderPipelineState(device: MTLDevice, pixelFormatSpec: PixelFormatSpec) -> MTLRenderPipelineState {
+private func LoadShaderFunction(device: MTLDevice) -> MTLRenderPipelineDescriptor {
     guard let defaultLibrary = device.newDefaultLibrary() else {
         fatalError("failed to create default library")
     }
@@ -50,24 +50,12 @@ private func MakeRenderPipelineState(device: MTLDevice, pixelFormatSpec: PixelFo
         fatalError("failed to make fragment function")
     }
 
-    let vertexDescriptor = MakeVertexDesc()
-    let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+    let desc = MTLRenderPipelineDescriptor()
+    desc.vertexDescriptor = MakeVertexDesc()
+    desc.vertexFunction = vertexFunc
+    desc.fragmentFunction = fragmentFunc
 
-    pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
-    pipelineStateDescriptor.vertexFunction = vertexFunc
-    pipelineStateDescriptor.fragmentFunction = fragmentFunc
-
-    for (i, e) in pixelFormatSpec.colorAttachmentFormats.enumerated() {
-        pipelineStateDescriptor.colorAttachments[i].pixelFormat = e
-    }
-    pipelineStateDescriptor.depthAttachmentPixelFormat = pixelFormatSpec.depthPixelFormat
-    pipelineStateDescriptor.stencilAttachmentPixelFormat = pixelFormatSpec.stencilPixelFormat
-
-    do {
-        return try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
-    } catch {
-        fatalError("failed to make render pipeline state")
-    }
+    return desc
 }
 
 private func MakeDepthStencilState(device: MTLDevice) -> MTLDepthStencilState {
@@ -88,18 +76,75 @@ private func MakeDepthStencilState(device: MTLDevice) -> MTLDepthStencilState {
     return device.makeDepthStencilState(descriptor: desc)
 }
 
+private func UpdateRenderPipelineState(_ device: MTLDevice, _ renderer: Renderer, _ desc: MTLRenderPipelineDescriptor, _ renderPipelineState: MTLRenderPipelineState?) -> MTLRenderPipelineState? {
+
+    guard let colorBuffer = renderer.textureResources["ColorBuffer"] else {
+        return renderPipelineState
+    }
+    guard let normalBuffer = renderer.textureResources["NormalBuffer"] else {
+        return renderPipelineState
+    }
+    guard let linearDBuffer = renderer.textureResources["LinearDBuffer"] else {
+        return renderPipelineState
+    }
+    guard let lightBuffer = renderer.textureResources["LightBuffer"] else {
+        return renderPipelineState
+    }
+    guard let depthBuffer = renderer.textureResources["DepthBuffer"] else {
+        return renderPipelineState
+    }
+    guard let stencilBuffer = renderer.textureResources["StencilBuffer"] else {
+        return renderPipelineState
+    }
+
+    var doUpdate = renderPipelineState == nil
+    if desc.colorAttachments[0].pixelFormat != colorBuffer.pixelFormat {
+        desc.colorAttachments[0].pixelFormat = colorBuffer.pixelFormat
+        doUpdate = true
+    }
+    if desc.colorAttachments[1].pixelFormat != normalBuffer.pixelFormat {
+        desc.colorAttachments[1].pixelFormat = normalBuffer.pixelFormat
+        doUpdate = true
+    }
+    if desc.colorAttachments[2].pixelFormat != linearDBuffer.pixelFormat {
+        desc.colorAttachments[2].pixelFormat = linearDBuffer.pixelFormat
+        doUpdate = true
+    }
+    if desc.colorAttachments[3].pixelFormat != lightBuffer.pixelFormat {
+        desc.colorAttachments[3].pixelFormat = lightBuffer.pixelFormat
+        doUpdate = true
+    }
+    if desc.depthAttachmentPixelFormat != depthBuffer.pixelFormat {
+        desc.depthAttachmentPixelFormat = depthBuffer.pixelFormat
+        doUpdate = true
+    }
+    if desc.stencilAttachmentPixelFormat != stencilBuffer.pixelFormat {
+        desc.stencilAttachmentPixelFormat = stencilBuffer.pixelFormat
+        doUpdate = true
+    }
+
+    if doUpdate {
+        return try! device.makeRenderPipelineState(descriptor: desc)
+    } else {
+        return renderPipelineState
+    }
+}
+
 class PMXGBufferDrawer: Drawer {
+    let device: MTLDevice
     let pmxObj: PMXObject
-    let renderPipelineState: MTLRenderPipelineState
+    var renderPipelineState: MTLRenderPipelineState?
     let depthStencilState: MTLDepthStencilState
+    let renderPipelineDescriptor: MTLRenderPipelineDescriptor
 
     let shadowTexture: MTLTexture
 
-    init(device: MTLDevice, pmxObj: PMXObject, pixelFormatSpec: PixelFormatSpec, shadowTexture: MTLTexture) {
+    init(device: MTLDevice, pmxObj: PMXObject, shadowTexture: MTLTexture) {
+        self.device = device
         self.pmxObj = pmxObj
-        renderPipelineState = MakeRenderPipelineState(device: device, pixelFormatSpec: pixelFormatSpec)
         self.shadowTexture = shadowTexture
-        self.depthStencilState = MakeDepthStencilState(device: device)
+        renderPipelineDescriptor = LoadShaderFunction(device: device)
+        depthStencilState = MakeDepthStencilState(device: device)
     }
 
     func draw(_ renderer: Renderer) {
@@ -109,6 +154,8 @@ class PMXGBufferDrawer: Drawer {
         guard let currentVertexBuffer = pmxObj.currentVertexBuffer else {
             return
         }
+
+        renderPipelineState = UpdateRenderPipelineState(device, renderer, renderPipelineDescriptor, renderPipelineState)
 
         renderEncoder.setCullMode(.front)
         renderEncoder.setDepthStencilState(depthStencilState)
@@ -134,7 +181,7 @@ class PMXGBufferDrawer: Drawer {
                 // use member variable 'renderPipelineState' instead
                 // let renderPipelineState = texture.hasAlpha ? pmxObj.alphaPipelineState! : pmxObj.opaquePipelineState!
 
-                renderEncoder.setRenderPipelineState(renderPipelineState)
+                renderEncoder.setRenderPipelineState(renderPipelineState!)
 
                 renderEncoder.setFragmentTexture(texture.texture, at: 0)
                 renderEncoder.setFragmentTexture(shadowTexture, at: 1)

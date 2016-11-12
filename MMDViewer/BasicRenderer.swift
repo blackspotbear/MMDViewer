@@ -8,6 +8,8 @@ class BasicRenderer: Renderer {
     var viewMatrix = GLKMatrix4Identity
     var projectionMatrix = GLKMatrix4Identity
 
+    var textureResources = [String:MTLTexture]()
+
     var commandBuffer: MTLCommandBuffer?
     var renderCommandEncoderStack: [MTLRenderCommandEncoder] = []
     var renderCommandEncoder: MTLRenderCommandEncoder? {
@@ -20,6 +22,8 @@ class BasicRenderer: Renderer {
 
     private let inflightSemaphore: DispatchSemaphore
     private var mnOrientation = UIInterfaceOrientation.unknown
+
+    private var onEndHandler: ((Renderer) -> Void)?
 
     init() {
         inflightSemaphore = DispatchSemaphore(value: kInFlightCommandBuffers)
@@ -48,6 +52,9 @@ class BasicRenderer: Renderer {
     }
 
     func end() {
+        if let onEndHandler = onEndHandler {
+            onEndHandler(self)
+        }
         commandBuffer = nil
     }
 
@@ -63,5 +70,9 @@ class BasicRenderer: Renderer {
                 0.01,
                 100.0)
         }
+    }
+
+    func setEndHandler(_ handler: @escaping (Renderer) -> Void) {
+        self.onEndHandler = handler
     }
 }
