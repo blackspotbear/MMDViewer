@@ -71,10 +71,20 @@ class MMDView: MetalView {
         vmd = LoadVMD("data/vmd/2分ループステップ17")
         miku = PMXObject(device: device!, pmx: pmx!, vmd: vmd)
 
-        setupSceneGraph()
+        renderer.setEndHandler({ [weak self] (_ renderer: Renderer) in
+            if let drawable = self?.currentDrawable {
+                if let commandBuffer = renderer.commandBuffer {
+                    commandBuffer.present(drawable)
+                    commandBuffer.commit()
+                }
+                self?.releaseCurrentDrawable()
+            }
+        })
+
+        let colorFormat = setupSceneGraph()
 
         if let metalLayer = self.metalLayer {
-            metalLayer.pixelFormat = self.pixelFormatSpec.colorAttachmentFormats[0]
+            metalLayer.pixelFormat = colorFormat
             metalLayer.framebufferOnly = true
         }
 
@@ -90,41 +100,53 @@ class MMDView: MetalView {
 
     #if false
 
-    private func setupSceneGraph() {
+    private func setupSceneGraph() -> MTLPixelFormat{
         pmxUpdater = PMXUpdater(pmxObj: miku)
         root.updater = pmxUpdater
         root.drawer = PMXDrawer(pmxObj: miku, device: device!)
         root.pass = PresentViewRenderPass(view: self)
+
+        return .bgra8Unorm
     }
 
     #else
 
-    private func setupSceneGraph() {
+    private func setupSceneGraph() -> MTLPixelFormat {
         let shadowNode = Node()
         let shadowPass = ShadowPass(device: device!)
         shadowNode.pass = shadowPass
         shadowNode.drawer = PMXShadowDrawer(pmxObj: miku)
 
         let gbufferNode = Node()
-        gbufferNode.pass = GBufferPass(view: self)
+        let gbufferPass = GBufferPass(view: self)
+        gbufferNode.pass = gbufferPass
 
         let pmxDrawNode = Node()
         pmxDrawNode.drawer = PMXGBufferDrawer(
             device: device!,
             pmxObj: miku,
-            pixelFormatSpec: pixelFormatSpec,
             shadowTexture: shadowPass.shadowTexture)
 
         let pointLightNode = Node()
-        pointLightNode.drawer = PointLightDrawer(device: device!, pixelFormatSpec: pixelFormatSpec, lightCount: 1)
+        pointLightNode.drawer = PointLightDrawer(
+            device: device!,
+            lightCount: 1)
 
         gbufferNode.children.append(pmxDrawNode)
         gbufferNode.children.append(pointLightNode)
+
+        let wireframeNode = Node()
+        let wireframePass = WireframePass(device: device!)
+        wireframeNode.pass = wireframePass
+        wireframeNode.drawer = WireFrameDrawer(device: device!)
 
         pmxUpdater = PMXUpdater(pmxObj: miku)
         root.updater = pmxUpdater
         root.children.append(shadowNode)
         root.children.append(gbufferNode)
+        root.children.append(wireframeNode)
+
+        return .bgra8Unorm
     }
 
     #endif

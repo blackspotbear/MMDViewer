@@ -69,7 +69,7 @@ private func MakeIcosahedron(_ device: MTLDevice) -> (MTLBuffer, MTLBuffer) {
     return (vertexBuffer, indexBuffer)
 }
 
-private func MakeRenderPipelineState(_ device: MTLDevice, _ pixelFormatSpec: PixelFormatSpec) -> (MTLRenderPipelineState, MTLRenderPipelineState) {
+private func LoadShaderFunction(_ device: MTLDevice) -> (MTLRenderPipelineDescriptor, MTLRenderPipelineDescriptor) {
     guard let defaultLibrary = device.newDefaultLibrary() else {
         fatalError("failed to create default library")
     }
@@ -80,33 +80,23 @@ private func MakeRenderPipelineState(_ device: MTLDevice, _ pixelFormatSpec: Pix
         fatalError("failed to make fragment function")
     }
 
-    let desc = MTLRenderPipelineDescriptor()
-
+    let lightMaskDesc = MTLRenderPipelineDescriptor()
+    lightMaskDesc.label = "Light Mask Render"
+    lightMaskDesc.vertexFunction = lightVert
+    lightMaskDesc.fragmentFunction = nil
     for i in 0...3 {
-        desc.colorAttachments[i].pixelFormat = pixelFormatSpec.colorAttachmentFormats[i]
-    }
-    desc.depthAttachmentPixelFormat = pixelFormatSpec.depthPixelFormat
-    desc.stencilAttachmentPixelFormat = pixelFormatSpec.stencilPixelFormat
-
-    desc.label = "Light Mask Render"
-    desc.vertexFunction = lightVert
-    desc.fragmentFunction = nil
-    for i in 0...3 {
-        desc.colorAttachments[i].writeMask = [] // means '.none'
+        lightMaskDesc.colorAttachments[i].writeMask = [] // means '.none'
     }
 
-    let lightMaskPipeline = try! device.makeRenderPipelineState(descriptor: desc)
-
-    desc.label = "Light Color Render"
-    desc.vertexFunction = lightVert
-    desc.fragmentFunction = lightFrag
+    let lightColorDesc = MTLRenderPipelineDescriptor()
+    lightColorDesc.label = "Light Color Render"
+    lightColorDesc.vertexFunction = lightVert
+    lightColorDesc.fragmentFunction = lightFrag
     for i in 0...3 {
-        desc.colorAttachments[i].writeMask = .all
+        lightColorDesc.colorAttachments[i].writeMask = .all
     }
-    let lightColorPipeline = try! device.makeRenderPipelineState(descriptor: desc)
 
-    return (lightMaskPipeline, lightColorPipeline)
-
+    return (lightMaskDesc, lightColorDesc)
 }
 
 private func MakeLightMaskStencilState(_ device: MTLDevice) -> MTLDepthStencilState {
@@ -137,7 +127,7 @@ private func MakeLightColorStencilState(_ device: MTLDevice) -> (MTLDepthStencil
     stencilState.depthStencilPassOperation = .decrementClamp
     stencilState.readMask = 0xFF
     stencilState.writeMask = 0xFF
-    desc.depthCompareFunction = .greaterEqual // .lessEqual
+    desc.depthCompareFunction = .greaterEqual
     desc.frontFaceStencil = stencilState
     desc.backFaceStencil = stencilState
     let lightColorStencilState = device.makeDepthStencilState(descriptor: desc)
@@ -148,10 +138,66 @@ private func MakeLightColorStencilState(_ device: MTLDevice) -> (MTLDepthStencil
     return (lightColorStencilState, lightColorStencilStateNoDepth)
 }
 
+private func UpdateRenderPipelineState(_ device: MTLDevice, _ renderer: Renderer, _ desc: MTLRenderPipelineDescriptor, _ renderPipelineState: MTLRenderPipelineState?) -> MTLRenderPipelineState? {
+    guard let colorBuffer = renderer.textureResources["ColorBuffer"] else {
+        return renderPipelineState
+    }
+    guard let normalBuffer = renderer.textureResources["NormalBuffer"] else {
+        return renderPipelineState
+    }
+    guard let linearDBuffer = renderer.textureResources["LinearDBuffer"] else {
+        return renderPipelineState
+    }
+    guard let lightBuffer = renderer.textureResources["LightBuffer"] else {
+        return renderPipelineState
+    }
+    guard let depthBuffer = renderer.textureResources["DepthBuffer"] else {
+        return renderPipelineState
+    }
+    guard let stencilBuffer = renderer.textureResources["StencilBuffer"] else {
+        return renderPipelineState
+    }
+
+    var doUpdate = renderPipelineState == nil
+    if desc.colorAttachments[0].pixelFormat != colorBuffer.pixelFormat {
+        desc.colorAttachments[0].pixelFormat = colorBuffer.pixelFormat
+        doUpdate = true
+    }
+    if desc.colorAttachments[1].pixelFormat != normalBuffer.pixelFormat {
+        desc.colorAttachments[1].pixelFormat = normalBuffer.pixelFormat
+        doUpdate = true
+    }
+    if desc.colorAttachments[2].pixelFormat != linearDBuffer.pixelFormat {
+        desc.colorAttachments[2].pixelFormat = linearDBuffer.pixelFormat
+        doUpdate = true
+    }
+    if desc.colorAttachments[3].pixelFormat != lightBuffer.pixelFormat {
+        desc.colorAttachments[3].pixelFormat = lightBuffer.pixelFormat
+        doUpdate = true
+    }
+    if desc.depthAttachmentPixelFormat != depthBuffer.pixelFormat {
+        desc.depthAttachmentPixelFormat = depthBuffer.pixelFormat
+        doUpdate = true
+    }
+    if desc.stencilAttachmentPixelFormat != stencilBuffer.pixelFormat {
+        desc.stencilAttachmentPixelFormat = stencilBuffer.pixelFormat
+        doUpdate = true
+    }
+
+    if doUpdate {
+        return try! device.makeRenderPipelineState(descriptor: desc)
+    } else {
+        return renderPipelineState
+    }
+}
+
 class PointLightDrawer: Drawer {
+    let device: MTLDevice
     let pointLightCount: Int
-    let lightMaskRenderPipelineState: MTLRenderPipelineState
-    let lightColorRenderPipelineState: MTLRenderPipelineState
+    let lightMaskDescriptor: MTLRenderPipelineDescriptor
+    let lightColorDescriptor: MTLRenderPipelineDescriptor
+    var lightMaskRenderPipelineState: MTLRenderPipelineState?
+    var lightColorRenderPipelineState: MTLRenderPipelineState?
     let lightMaskStencilState: MTLDepthStencilState
     let lightColorStencilState: MTLDepthStencilState
     let lightColorStencilStateNoDepth: MTLDepthStencilState
@@ -162,10 +208,11 @@ class PointLightDrawer: Drawer {
 
     var cntr = 0
 
-    init(device: MTLDevice, pixelFormatSpec: PixelFormatSpec, lightCount: Int) {
+    init(device: MTLDevice, lightCount: Int) {
+        self.device = device
         pointLightCount = lightCount
 
-        (lightMaskRenderPipelineState, lightColorRenderPipelineState) = MakeRenderPipelineState(device, pixelFormatSpec)
+        (lightMaskDescriptor, lightColorDescriptor) = LoadShaderFunction(device)
         lightMaskStencilState = MakeLightMaskStencilState(device)
         (lightColorStencilState, lightColorStencilStateNoDepth) = MakeLightColorStencilState(device)
 
@@ -181,10 +228,14 @@ class PointLightDrawer: Drawer {
         (lightModelVertexBuffer, lightModelIndexBuffer) = MakeIcosahedron(device)
     }
 
+
     func draw(_ renderer: Renderer) {
         guard let renderEncoder = renderer.renderCommandEncoder else {
             return
         }
+
+        lightMaskRenderPipelineState = UpdateRenderPipelineState(device, renderer, lightMaskDescriptor, lightMaskRenderPipelineState)
+        lightColorRenderPipelineState = UpdateRenderPipelineState(device, renderer, lightColorDescriptor, lightColorRenderPipelineState)
 
         renderEncoder.pushDebugGroup("light accumulation")
 
@@ -236,7 +287,7 @@ class PointLightDrawer: Drawer {
             memcpy(gpuLights.advanced(by: i), &lightData, MemoryLayout<LightFragmentInputs>.size)
 
             renderEncoder.pushDebugGroup("stencil")
-            renderEncoder.setRenderPipelineState(lightMaskRenderPipelineState)
+            renderEncoder.setRenderPipelineState(lightMaskRenderPipelineState!)
 
             renderEncoder.setDepthStencilState(lightMaskStencilState)
             renderEncoder.setStencilReferenceValue(128)
@@ -252,7 +303,7 @@ class PointLightDrawer: Drawer {
             renderEncoder.pushDebugGroup("volume")
 
             // shade the front face if it won't clip through the front plane, otherwise use the back plane
-            renderEncoder.setRenderPipelineState(lightColorRenderPipelineState)
+            renderEncoder.setRenderPipelineState(lightColorRenderPipelineState!)
 
             //let clip = lightData.lightPosition[2] + lightData.lightColorRadius[3] * circumscribe / inscribe < near
             let clip = fabs(lightData.viewLightPosition[2] + lightData.lightColorRadius[3] * circumscribe / inscribe) < near

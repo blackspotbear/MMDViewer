@@ -1,12 +1,19 @@
 import Foundation
 import Metal
 
-private func makeFunctionFromLibrary(_ library: MTLLibrary, name: String) -> MTLFunction {
+private func MakeFunctionFromLibrary(_ library: MTLLibrary, name: String) -> MTLFunction {
     let fn = library.makeFunction(name: name)
     if fn == nil {
         fatalError(String(format: "faled to load function %s", name))
     }
     return fn!
+}
+
+private func MakeDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState {
+    let desc = MTLDepthStencilDescriptor()
+    desc.isDepthWriteEnabled = true
+    desc.depthCompareFunction = .lessEqual
+    return device.makeDepthStencilState(descriptor: desc)
 }
 
 class ShadowPass: RenderPass {
@@ -15,13 +22,6 @@ class ShadowPass: RenderPass {
     private var shadowRenderPassDescriptor: MTLRenderPassDescriptor
     private var renderPipelineState: MTLRenderPipelineState
     private var shadowDepthStencilState: MTLDepthStencilState
-
-    class func createDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState {
-        let desc = MTLDepthStencilDescriptor()
-        desc.isDepthWriteEnabled = true
-        desc.depthCompareFunction = .lessEqual
-        return device.makeDepthStencilState(descriptor: desc)
-    }
 
     init(device: MTLDevice) {
         guard let defaultLibrary = device.newDefaultLibrary() else {
@@ -38,7 +38,7 @@ class ShadowPass: RenderPass {
 
         let desc = MTLRenderPipelineDescriptor()
         desc.label = "Shadow Render"
-        desc.vertexFunction = makeFunctionFromLibrary(defaultLibrary, name: "depthVertex")
+        desc.vertexFunction = MakeFunctionFromLibrary(defaultLibrary, name: "depthVertex")
         desc.fragmentFunction = nil
         desc.depthAttachmentPixelFormat = shadowTexture.pixelFormat
         try! renderPipelineState = device.makeRenderPipelineState(descriptor: desc)
@@ -51,7 +51,7 @@ class ShadowPass: RenderPass {
             attachment.clearDepth = 1.0
         }
 
-        shadowDepthStencilState = ShadowPass.createDepthStencilState(device)
+        shadowDepthStencilState = MakeDepthStencilState(device)
     }
 
     func begin(_ renderer: Renderer) {

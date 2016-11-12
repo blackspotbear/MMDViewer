@@ -448,7 +448,7 @@ class PMXObject {
         var dst = palette.contents()
 
         for posture in postures {
-            memcpy(dst, posture.wm.raw(), MemoryLayout<GLKMatrix4>.size)
+            memcpy(dst, &posture.wm, MemoryLayout<GLKMatrix4>.size)
             dst = dst.advanced(by: MemoryLayout<GLKMatrix4>.stride)
         }
 

@@ -115,7 +115,7 @@ fragment FragOutput gBufferFragStipple(VertexOutput         in             [[ st
     const float4x4 rowAccess = float4x4(1); // Identity Matrix
 
     // TODO: apply actual screen size
-    const float2 screenPos = (in.position.xy * 0.5 + float2(0.5, 0.5)) * float2(750, 1166/*1334*/);
+    const float2 screenPos = (in.position.xy * 0.5 + float2(0.5, 0.5)) * float2(750, 1206/*1166*//*1334*/);
     const int ix = fmod(screenPos.x, 4);
     const int iy = fmod(screenPos.y, 4);
     const float threshold = dot(thresholdMatrix[ix], rowAccess[iy]);
