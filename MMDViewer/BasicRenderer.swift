@@ -16,6 +16,26 @@ class BasicRenderer: Renderer {
         return renderCommandEncoderStack.last
     }
 
+    private var cameraMatrixStack = [GLKMatrix4](repeating: GLKMatrix4Identity, count: 1)
+
+    func pushCameraMatrix(_ mtrx: GLKMatrix4) {
+        cameraMatrixStack.append(mtrx)
+    }
+
+    func popCameraMatrix() -> GLKMatrix4 {
+        return cameraMatrixStack.popLast()!
+    }
+
+    var currentCameraMatrix: GLKMatrix4 {
+        get {
+            return cameraMatrixStack[cameraMatrixStack.endIndex]
+        }
+        set (value) {
+            cameraMatrixStack[cameraMatrixStack.endIndex] = value
+        }
+    }
+
+
     private var device: MTLDevice?
     private var commandQueue: MTLCommandQueue?
     private var shaderLibrary: MTLLibrary?

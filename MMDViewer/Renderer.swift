@@ -11,6 +11,10 @@ protocol Renderer {
     var renderCommandEncoderStack: [MTLRenderCommandEncoder] { get set }
     var renderCommandEncoder: MTLRenderCommandEncoder? { get }
 
+    func pushCameraMatrix(_ mtrx: GLKMatrix4)
+    func popCameraMatrix() -> GLKMatrix4
+    var currentCameraMatrix: GLKMatrix4 { get set }
+
     func begin()
     func end()
     func reshape(_ bounds: CGRect)
