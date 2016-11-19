@@ -1,9 +1,13 @@
 import Foundation
 import UIKit
+import GLKit
 import Metal
+
+let InitialCameraPosition = GLKVector3Make(0, 10, 20)
 
 class MMDView: MetalView {
     var pmxUpdater: PMXUpdater?
+    private var cameraUpdater = CameraUpdater(rot: GLKVector3Make(0, 0, 0), pos: InitialCameraPosition)
 
     private var renderer = BasicRenderer()
     private var traverser: Traverser
@@ -101,10 +105,14 @@ class MMDView: MetalView {
     #if false
 
     private func setupSceneGraph() -> MTLPixelFormat {
+        let node = Node()
         pmxUpdater = PMXUpdater(pmxObj: miku)
-        root.updater = pmxUpdater
-        root.drawer = PMXDrawer(pmxObj: miku, device: device!)
-        root.pass = ForwardRenderPass(view: self)
+        node.updater = pmxUpdater
+        node.drawer = PMXDrawer(pmxObj: miku, device: device!)
+        node.pass = ForwardRenderPass(view: self)
+
+        root.updater = cameraUpdater
+        root.children.append(node)
 
         return .bgra8Unorm
     }
@@ -140,11 +148,16 @@ class MMDView: MetalView {
         wireframeNode.pass = wireframePass
         wireframeNode.drawer = WireFrameDrawer(device: device!)
 
+
+        let node = Node()
         pmxUpdater = PMXUpdater(pmxObj: miku)
-        root.updater = pmxUpdater
-        root.children.append(shadowNode)
-        root.children.append(gbufferNode)
-        root.children.append(wireframeNode)
+        node.updater = pmxUpdater
+        node.children.append(shadowNode)
+        node.children.append(gbufferNode)
+        node.children.append(wireframeNode)
+
+        root.updater = cameraUpdater
+        root.children.append(node)
 
         return .bgra8Unorm
     }
