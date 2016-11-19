@@ -30,12 +30,20 @@ class Traverser {
             pass.begin(renderer)
         }
 
+        if let modelMatrix = node.modelMatrix {
+            renderer.pushModelMatrix(modelMatrix)
+        }
+
         if let drawer = node.drawer {
             drawer.draw(renderer)
         }
 
         for node in node.children {
             drawCore(node)
+        }
+
+        if node.modelMatrix != nil {
+            renderer.popModelMatrix()
         }
 
         if let pass = node.pass {

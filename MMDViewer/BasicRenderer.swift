@@ -5,6 +5,25 @@ import Metal
 private let kInFlightCommandBuffers = 3
 
 class BasicRenderer: Renderer {
+    private var modelMatrixStack = [GLKMatrix4](repeating: GLKMatrix4Identity, count: 1)
+
+    func pushModelMatrix(_ mtrx: GLKMatrix4) {
+        modelMatrixStack.append(mtrx)
+    }
+
+    func popModelMatrix() -> GLKMatrix4 {
+        return modelMatrixStack.popLast()!
+    }
+    
+    var modelMatrix: GLKMatrix4 {
+        get {
+            return modelMatrixStack[modelMatrixStack.endIndex]
+        }
+        set (value) {
+            modelMatrixStack[modelMatrixStack.endIndex] = value
+        }
+    }
+
     var viewMatrix = GLKMatrix4Identity
     var projectionMatrix = GLKMatrix4Identity
 
@@ -15,26 +34,6 @@ class BasicRenderer: Renderer {
     var renderCommandEncoder: MTLRenderCommandEncoder? {
         return renderCommandEncoderStack.last
     }
-
-    private var cameraMatrixStack = [GLKMatrix4](repeating: GLKMatrix4Identity, count: 1)
-
-    func pushCameraMatrix(_ mtrx: GLKMatrix4) {
-        cameraMatrixStack.append(mtrx)
-    }
-
-    func popCameraMatrix() -> GLKMatrix4 {
-        return cameraMatrixStack.popLast()!
-    }
-
-    var currentCameraMatrix: GLKMatrix4 {
-        get {
-            return cameraMatrixStack[cameraMatrixStack.endIndex]
-        }
-        set (value) {
-            cameraMatrixStack[cameraMatrixStack.endIndex] = value
-        }
-    }
-
 
     private var device: MTLDevice?
     private var commandQueue: MTLCommandQueue?
