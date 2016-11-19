@@ -7,7 +7,7 @@ let InitialCameraPosition = GLKVector3Make(0, 10, 20)
 
 class MMDView: MetalView {
     var pmxUpdater: PMXUpdater?
-    private var cameraUpdater = CameraUpdater(rot: GLKVector3Make(0, 0, 0), pos: InitialCameraPosition)
+    private var cameraUpdater = CameraUpdater(rot: GLKQuaternionIdentity, pos: InitialCameraPosition)
 
     private var renderer = BasicRenderer()
     private var traverser: Traverser
@@ -172,12 +172,18 @@ class MMDView: MetalView {
         let t = recognize.translation(in: self)
         let dx = Float(t.x)
         let dy = Float(t.y)
+        if dx == 0 && dy == 0 {
+            return
+        }
         if recognize.numberOfTouches == 1 {
-            cameraUpdater.r = GLKVector3Add(cameraUpdater.r, GLKVector3Make(dy / 100, dx / 100, 0))
+            let len = sqrt(dx * dx + dy * dy)
+            let rad = len / 500 * Float(M_PI)
+            cameraUpdater.rot = cameraUpdater.rot.mul(
+                GLKQuaternionMakeWithAngleAndVector3Axis(rad, GLKVector3Make(dy / len, dx / len, 0)))
         } else if recognize.numberOfTouches == 2 {
-            let dX = GLKVector3MultiplyScalar(cameraUpdater.viewMatrix.ixAxis(), -dx / 10)
-            let dY = GLKVector3MultiplyScalar(cameraUpdater.viewMatrix.iyAxis(), dy / 10)
-            cameraUpdater.x = GLKVector3Add(GLKVector3Add(cameraUpdater.x, dX), dY)
+            let dX = cameraUpdater.viewMatrix.ixAxis().mul(-dx / 10)
+            let dY = cameraUpdater.viewMatrix.iyAxis().mul(dy / 10)
+            cameraUpdater.pos = cameraUpdater.pos.add(dX).add(dY)
         }
 
         recognize.setTranslation(CGPoint(x: 0, y: 0), in: self)
@@ -185,21 +191,24 @@ class MMDView: MetalView {
 
     func handleTap(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
-            cameraUpdater.x = InitialCameraPosition
-            cameraUpdater.r = GLKVector3Make(0, 0, 0)
+            cameraUpdater.rot = GLKQuaternionIdentity
+            cameraUpdater.pos = InitialCameraPosition
         }
     }
 
     func handlePinch(_ recognize: UIPinchGestureRecognizer) {
         let v = Float(recognize.velocity)
-        let dZ = GLKVector3MultiplyScalar(cameraUpdater.viewMatrix.izAxis(), -v)
-        cameraUpdater.x = GLKVector3Add(cameraUpdater.x, dZ)
+        let dz = -v * 0.5
+        let dZ = cameraUpdater.viewMatrix.izAxis().mul(dz)
+        cameraUpdater.pos = cameraUpdater.pos.add(dZ)
         recognize.scale = 1
     }
 
     func handleRotate(_ recognize: UIRotationGestureRecognizer) {
-        let v = Float(recognize.velocity) * 0.05
-        cameraUpdater.r = GLKVector3Add(cameraUpdater.r, GLKVector3Make(0, 0, v))
+        let v = Float(recognize.velocity)
+        let rad = v * 0.05
+        cameraUpdater.rot = cameraUpdater.rot.mul(
+            GLKQuaternionMakeWithAngleAndVector3Axis(rad, GLKVector3Make(0, 0, 1)))
         recognize.rotation = 0
     }
 
