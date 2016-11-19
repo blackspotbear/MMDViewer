@@ -177,11 +177,9 @@ class MMDView: MetalView {
         lastFrameTimestamp = displayLink.timestamp
 
         if layerSizeDidUpdate {
-            var drawableSize = self.bounds.size
-            drawableSize.width  *= contentScaleFactor
-            drawableSize.height *= contentScaleFactor
+            self.drawableSize.width = self.bounds.size.width * contentScaleFactor
+            self.drawableSize.height = self.bounds.size.height * contentScaleFactor
 
-            self.drawableSize = drawableSize
             renderer.reshape(self.bounds)
 
             layerSizeDidUpdate = false
