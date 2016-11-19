@@ -1,8 +1,6 @@
 import Foundation
 import Metal
 
-private let depthTextureSampleCount = 1
-
 private func MakeDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState {
     let desc = MTLDepthStencilDescriptor()
     desc.isDepthWriteEnabled = true
@@ -55,10 +53,10 @@ class WireframePass: RenderPass {
         //
         // Update RenderPassDescriptor
         //
-        if let colorAttachment = renderPassDescriptor.colorAttachments[0] {
-            colorAttachment.texture = colorBuffer
-            colorAttachment.loadAction = .load
-            colorAttachment.storeAction = .store
+        if let attachment = renderPassDescriptor.colorAttachments[0] {
+            attachment.texture = colorBuffer
+            attachment.loadAction = .load
+            attachment.storeAction = .store
         }
 
         if let attachment = renderPassDescriptor.depthAttachment {

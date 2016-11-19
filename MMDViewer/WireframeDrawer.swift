@@ -77,7 +77,7 @@ class WireFrameDrawer: Drawer {
         guard let renderEncoder = renderer.renderCommandEncoder else {
             return
         }
-        
+
         let matrixBuffer = matrixBufferProvider.nextBuffer()
         let matrixData = matrixBuffer.contents().bindMemory(
             to: WireframeModelMatrices.self,

@@ -7,4 +7,3 @@ struct PixelFormatSpec {
     var depthPixelFormat = MTLPixelFormat.invalid
     var stencilPixelFormat = MTLPixelFormat.invalid
 }
-

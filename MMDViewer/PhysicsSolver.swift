@@ -6,7 +6,7 @@ func PhysicsSolver(_ postures: [Posture], physicsSolving solver: PhysicsSolving)
         if rigidBody.boneIndex < 0 {
             continue
         }
-        if (rigidBody.type != 0) {
+        if rigidBody.type != 0 {
             continue
         }
 

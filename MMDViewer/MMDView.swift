@@ -100,11 +100,11 @@ class MMDView: MetalView {
 
     #if false
 
-    private func setupSceneGraph() -> MTLPixelFormat{
+    private func setupSceneGraph() -> MTLPixelFormat {
         pmxUpdater = PMXUpdater(pmxObj: miku)
         root.updater = pmxUpdater
         root.drawer = PMXDrawer(pmxObj: miku, device: device!)
-        root.pass = PresentViewRenderPass(view: self)
+        root.pass = ForwardRenderPass(view: self)
 
         return .bgra8Unorm
     }

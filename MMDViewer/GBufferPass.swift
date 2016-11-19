@@ -138,7 +138,7 @@ private class PassResource {
                 }
             }
         }
-        
+
         return renderPassDescriptor
     }
 }
@@ -164,7 +164,7 @@ private func MakeDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState 
 
 class GBufferPass: RenderPass {
     private let passRes: PassResource
-    
+
     private var view: MetalView
     private var compositionPipeline: MTLRenderPipelineState
     private var sunDataBuffers: [MTLBuffer] = []

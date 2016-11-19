@@ -228,7 +228,6 @@ class PointLightDrawer: Drawer {
         (lightModelVertexBuffer, lightModelIndexBuffer) = MakeIcosahedron(device)
     }
 
-
     func draw(_ renderer: Renderer) {
         guard let renderEncoder = renderer.renderCommandEncoder else {
             return

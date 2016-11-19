@@ -3,8 +3,7 @@ import Metal
 
 private let depthTextureSampleCount = 1
 
-// TODO: rename
-private class MyPassResource {
+private class PassResource {
     let device: MTLDevice
     var depthTex: MTLTexture?
 
@@ -67,14 +66,14 @@ private class MyPassResource {
     }
 }
 
-class PresentViewRenderPass: RenderPass {
+class ForwardRenderPass: RenderPass {
     private let view: MetalView
 
-    private let passRes: MyPassResource
+    private let passRes: PassResource
 
     init(view: MetalView) {
         self.view = view
-        passRes = MyPassResource(device: view.device!)
+        passRes = PassResource(device: view.device!)
     }
 
     func begin(_ renderer: Renderer) {

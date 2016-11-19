@@ -210,7 +210,7 @@
 		ABF3BE8D1CC7C4B80099329D /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF3BE8C1CC7C4B80099329D /* Renderer.swift */; };
 		ABF3BE8F1CC8FAE80099329D /* MMDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF3BE8E1CC8FAE80099329D /* MMDView.swift */; };
 		ABF3BE911CCC73CF0099329D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF3BE901CCC73CF0099329D /* Utils.swift */; };
-		ABFA8F3C1D5AFD1300422EB1 /* PresentViewRenderPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFA8F3B1D5AFD1300422EB1 /* PresentViewRenderPass.swift */; };
+		ABFA8F3C1D5AFD1300422EB1 /* ForwardRenderPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFA8F3B1D5AFD1300422EB1 /* ForwardRenderPass.swift */; };
 		ABFA8F3E1D5C414F00422EB1 /* GBufferPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFA8F3D1D5C414F00422EB1 /* GBufferPass.swift */; };
 		ABFA8F4D1D5E981F00422EB1 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFA8F4C1D5E981F00422EB1 /* Node.swift */; };
 /* End PBXBuildFile section */
@@ -667,7 +667,7 @@
 		ABF3BE8C1CC7C4B80099329D /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		ABF3BE8E1CC8FAE80099329D /* MMDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMDView.swift; sourceTree = "<group>"; };
 		ABF3BE901CCC73CF0099329D /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
-		ABFA8F3B1D5AFD1300422EB1 /* PresentViewRenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresentViewRenderPass.swift; sourceTree = "<group>"; };
+		ABFA8F3B1D5AFD1300422EB1 /* ForwardRenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForwardRenderPass.swift; sourceTree = "<group>"; };
 		ABFA8F3D1D5C414F00422EB1 /* GBufferPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GBufferPass.swift; sourceTree = "<group>"; };
 		ABFA8F4C1D5E981F00422EB1 /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1392,7 +1392,7 @@
 			isa = PBXGroup;
 			children = (
 				AB303C341DCF3CD7000D092B /* PixelFormatSpec.swift */,
-				ABFA8F3B1D5AFD1300422EB1 /* PresentViewRenderPass.swift */,
+				ABFA8F3B1D5AFD1300422EB1 /* ForwardRenderPass.swift */,
 				ABE5C2A51D8FC16800C0D169 /* ShadowPass.swift */,
 				ABFA8F3D1D5C414F00422EB1 /* GBufferPass.swift */,
 				AB471B951DD741B000E31965 /* WireframePass.swift */,
@@ -1639,7 +1639,7 @@
 				ABDB8D8C1CE87DD600BD28AD /* btConvexHullComputer.cpp in Sources */,
 				ABDB8D111CE87DD600BD28AD /* btCompoundCompoundCollisionAlgorithm.cpp in Sources */,
 				ABE5C2AE1D8FD72D00C0D169 /* PMXUpdater.swift in Sources */,
-				ABFA8F3C1D5AFD1300422EB1 /* PresentViewRenderPass.swift in Sources */,
+				ABFA8F3C1D5AFD1300422EB1 /* ForwardRenderPass.swift in Sources */,
 				ABDB8D321CE87DD600BD28AD /* btEmptyShape.cpp in Sources */,
 				ABDB8D3A1CE87DD600BD28AD /* btShapeHull.cpp in Sources */,
 				ABDB8D7E1CE87DD600BD28AD /* btRaycastVehicle.cpp in Sources */,

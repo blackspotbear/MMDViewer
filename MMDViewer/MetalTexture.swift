@@ -4,7 +4,7 @@ import CoreGraphics
 
 // see http://www.raywenderlich.com/93997/ios-8-metal-tutorial-swift-part-3-adding-texture
 
-func alphaState(alphaInfo: CGImageAlphaInfo) -> Bool {
+private func alphaState(alphaInfo: CGImageAlphaInfo) -> Bool {
     switch alphaInfo {
     case .none:               return false
     case .first:              return true
