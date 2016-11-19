@@ -1,3 +1,6 @@
+# 0.4.0.c
+Support camera control by double tap, pan, pinch and rotation.
+
 # 0.4.0.b
 Support stipple transparency.
 
