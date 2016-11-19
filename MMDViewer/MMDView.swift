@@ -20,8 +20,6 @@ class MMDView: MetalView {
     private var vmd: VMD!
     private var miku: PMXObject!
 
-    private var panGestureRecognizer: UIGestureRecognizer!
-    private var tapGestureRecognizer: UITapGestureRecognizer!
     private var layerSizeDidUpdate = false
 
     override init(frame: CGRect) {
@@ -38,14 +36,18 @@ class MMDView: MetalView {
         initCommon()
     }
 
+//    private panRecognizer: UIPanGestureRecognizer
+
     private func initCommon() {
         isOpaque = true
         backgroundColor = nil
 
-        panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(MMDView.gestureRecognizerDidRecognize(_:)))
-        addGestureRecognizer(panGestureRecognizer)
-        tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(MMDView.handleTap(_:)))
-        addGestureRecognizer(tapGestureRecognizer)
+        let tapg = UITapGestureRecognizer(target: self, action: #selector(MMDView.handleTap(_:)))
+        tapg.numberOfTapsRequired = 2
+        addGestureRecognizer(tapg)
+        addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(MMDView.handlePan(_:))))
+        addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(MMDView.handlePinch(_:))))
+        addGestureRecognizer(UIRotationGestureRecognizer(target: self, action: #selector(MMDView.handleRotate(_:))))
     }
 
     // MARK: Override UIView
@@ -166,17 +168,39 @@ class MMDView: MetalView {
 
     // MARK: UI Event Handlers
 
-    func gestureRecognizerDidRecognize(_ recognize: UIPanGestureRecognizer) {
-        let v = recognize.velocity(in: self)
-        if let pmxUpdater = pmxUpdater {
-            pmxUpdater.angularVelocity = CGPoint(x: v.x * 0.01, y: v.y * 0.01)
+    func handlePan(_ recognize: UIPanGestureRecognizer) {
+        let t = recognize.translation(in: self)
+        let dx = Float(t.x)
+        let dy = Float(t.y)
+        if recognize.numberOfTouches == 1 {
+            cameraUpdater.r = GLKVector3Add(cameraUpdater.r, GLKVector3Make(dy / 100, dx / 100, 0))
+        } else if recognize.numberOfTouches == 2 {
+            let dX = GLKVector3MultiplyScalar(cameraUpdater.viewMatrix.ixAxis(), -dx / 10)
+            let dY = GLKVector3MultiplyScalar(cameraUpdater.viewMatrix.iyAxis(), dy / 10)
+            cameraUpdater.x = GLKVector3Add(GLKVector3Add(cameraUpdater.x, dX), dY)
         }
+
+        recognize.setTranslation(CGPoint(x: 0, y: 0), in: self)
     }
 
     func handleTap(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
-            // nothing to do
+            cameraUpdater.x = InitialCameraPosition
+            cameraUpdater.r = GLKVector3Make(0, 0, 0)
         }
+    }
+
+    func handlePinch(_ recognize: UIPinchGestureRecognizer) {
+        let v = Float(recognize.velocity)
+        let dZ = GLKVector3MultiplyScalar(cameraUpdater.viewMatrix.izAxis(), -v)
+        cameraUpdater.x = GLKVector3Add(cameraUpdater.x, dZ)
+        recognize.scale = 1
+    }
+
+    func handleRotate(_ recognize: UIRotationGestureRecognizer) {
+        let v = Float(recognize.velocity) * 0.05
+        cameraUpdater.r = GLKVector3Add(cameraUpdater.r, GLKVector3Make(0, 0, v))
+        recognize.rotation = 0
     }
 
     // MARK: Loop
