@@ -3,6 +3,10 @@ import GLKit
 import Metal
 
 protocol Renderer {
+    func pushModelMatrix(_ mtrx: GLKMatrix4)
+    @discardableResult func popModelMatrix() -> GLKMatrix4
+    var modelMatrix: GLKMatrix4 { get set }
+
     var viewMatrix: GLKMatrix4 { get set }
     var projectionMatrix: GLKMatrix4 { get set }
     var textureResources: [String:MTLTexture] { get set }

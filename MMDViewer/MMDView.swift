@@ -1,9 +1,13 @@
 import Foundation
 import UIKit
+import GLKit
 import Metal
+
+let InitialCameraPosition = GLKVector3Make(0, 10, 20)
 
 class MMDView: MetalView {
     var pmxUpdater: PMXUpdater?
+    private var cameraUpdater = CameraUpdater(rot: GLKQuaternionIdentity, pos: InitialCameraPosition)
 
     private var renderer = BasicRenderer()
     private var traverser: Traverser
@@ -16,8 +20,6 @@ class MMDView: MetalView {
     private var vmd: VMD!
     private var miku: PMXObject!
 
-    private var panGestureRecognizer: UIGestureRecognizer!
-    private var tapGestureRecognizer: UITapGestureRecognizer!
     private var layerSizeDidUpdate = false
 
     override init(frame: CGRect) {
@@ -34,14 +36,18 @@ class MMDView: MetalView {
         initCommon()
     }
 
+//    private panRecognizer: UIPanGestureRecognizer
+
     private func initCommon() {
         isOpaque = true
         backgroundColor = nil
 
-        panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(MMDView.gestureRecognizerDidRecognize(_:)))
-        addGestureRecognizer(panGestureRecognizer)
-        tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(MMDView.handleTap(_:)))
-        addGestureRecognizer(tapGestureRecognizer)
+        let tapg = UITapGestureRecognizer(target: self, action: #selector(MMDView.handleTap(_:)))
+        tapg.numberOfTapsRequired = 2
+        addGestureRecognizer(tapg)
+        addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(MMDView.handlePan(_:))))
+        addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(MMDView.handlePinch(_:))))
+        addGestureRecognizer(UIRotationGestureRecognizer(target: self, action: #selector(MMDView.handleRotate(_:))))
     }
 
     // MARK: Override UIView
@@ -101,10 +107,14 @@ class MMDView: MetalView {
     #if false
 
     private func setupSceneGraph() -> MTLPixelFormat {
+        let node = Node()
         pmxUpdater = PMXUpdater(pmxObj: miku)
-        root.updater = pmxUpdater
-        root.drawer = PMXDrawer(pmxObj: miku, device: device!)
-        root.pass = ForwardRenderPass(view: self)
+        node.updater = pmxUpdater
+        node.drawer = PMXDrawer(pmxObj: miku, device: device!)
+        node.pass = ForwardRenderPass(view: self)
+
+        root.updater = cameraUpdater
+        root.children.append(node)
 
         return .bgra8Unorm
     }
@@ -140,11 +150,16 @@ class MMDView: MetalView {
         wireframeNode.pass = wireframePass
         wireframeNode.drawer = WireFrameDrawer(device: device!)
 
+
+        let node = Node()
         pmxUpdater = PMXUpdater(pmxObj: miku)
-        root.updater = pmxUpdater
-        root.children.append(shadowNode)
-        root.children.append(gbufferNode)
-        root.children.append(wireframeNode)
+        node.updater = pmxUpdater
+        node.children.append(shadowNode)
+        node.children.append(gbufferNode)
+        node.children.append(wireframeNode)
+
+        root.updater = cameraUpdater
+        root.children.append(node)
 
         return .bgra8Unorm
     }
@@ -153,17 +168,48 @@ class MMDView: MetalView {
 
     // MARK: UI Event Handlers
 
-    func gestureRecognizerDidRecognize(_ recognize: UIPanGestureRecognizer) {
-        let v = recognize.velocity(in: self)
-        if let pmxUpdater = pmxUpdater {
-            pmxUpdater.angularVelocity = CGPoint(x: v.x * 0.01, y: v.y * 0.01)
+    func handlePan(_ recognize: UIPanGestureRecognizer) {
+        let t = recognize.translation(in: self)
+        let dx = Float(t.x)
+        let dy = Float(t.y)
+        if dx == 0 && dy == 0 {
+            return
         }
+        if recognize.numberOfTouches == 1 {
+            let len = sqrt(dx * dx + dy * dy)
+            let rad = len / 500 * Float(M_PI)
+            cameraUpdater.rot = cameraUpdater.rot.mul(
+                GLKQuaternionMakeWithAngleAndVector3Axis(rad, GLKVector3Make(dy / len, dx / len, 0)))
+        } else if recognize.numberOfTouches == 2 {
+            let dX = cameraUpdater.viewMatrix.ixAxis().mul(-dx / 10)
+            let dY = cameraUpdater.viewMatrix.iyAxis().mul(dy / 10)
+            cameraUpdater.pos = cameraUpdater.pos.add(dX).add(dY)
+        }
+
+        recognize.setTranslation(CGPoint(x: 0, y: 0), in: self)
     }
 
     func handleTap(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
-            // nothing to do
+            cameraUpdater.rot = GLKQuaternionIdentity
+            cameraUpdater.pos = InitialCameraPosition
         }
+    }
+
+    func handlePinch(_ recognize: UIPinchGestureRecognizer) {
+        let v = Float(recognize.velocity)
+        let dz = -v * 0.5
+        let dZ = cameraUpdater.viewMatrix.izAxis().mul(dz)
+        cameraUpdater.pos = cameraUpdater.pos.add(dZ)
+        recognize.scale = 1
+    }
+
+    func handleRotate(_ recognize: UIRotationGestureRecognizer) {
+        let v = Float(recognize.velocity)
+        let rad = v * 0.05
+        cameraUpdater.rot = cameraUpdater.rot.mul(
+            GLKQuaternionMakeWithAngleAndVector3Axis(rad, GLKVector3Make(0, 0, 1)))
+        recognize.rotation = 0
     }
 
     // MARK: Loop
@@ -177,11 +223,9 @@ class MMDView: MetalView {
         lastFrameTimestamp = displayLink.timestamp
 
         if layerSizeDidUpdate {
-            var drawableSize = self.bounds.size
-            drawableSize.width  *= contentScaleFactor
-            drawableSize.height *= contentScaleFactor
+            self.drawableSize.width = self.bounds.size.width * contentScaleFactor
+            self.drawableSize.height = self.bounds.size.height * contentScaleFactor
 
-            self.drawableSize = drawableSize
             renderer.reshape(self.bounds)
 
             layerSizeDidUpdate = false

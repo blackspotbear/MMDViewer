@@ -5,6 +5,25 @@ import Metal
 private let kInFlightCommandBuffers = 3
 
 class BasicRenderer: Renderer {
+    private var modelMatrixStack = [GLKMatrix4](repeating: GLKMatrix4Identity, count: 1)
+
+    func pushModelMatrix(_ mtrx: GLKMatrix4) {
+        modelMatrixStack.append(mtrx)
+    }
+
+    func popModelMatrix() -> GLKMatrix4 {
+        return modelMatrixStack.popLast()!
+    }
+    
+    var modelMatrix: GLKMatrix4 {
+        get {
+            return modelMatrixStack[modelMatrixStack.endIndex]
+        }
+        set (value) {
+            modelMatrixStack[modelMatrixStack.endIndex] = value
+        }
+    }
+
     var viewMatrix = GLKMatrix4Identity
     var projectionMatrix = GLKMatrix4Identity
 

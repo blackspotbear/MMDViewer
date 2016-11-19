@@ -48,6 +48,7 @@
 		AB8231231C2FE394008691E0 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8231221C2FE394008691E0 /* MetalKit.framework */; };
 		AB8231251C2FE3A1008691E0 /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8231241C2FE3A1008691E0 /* MetalPerformanceShaders.framework */; };
 		AB8231291C2FE6F4008691E0 /* ForwardShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = AB8231281C2FE6F4008691E0 /* ForwardShader.metal */; };
+		ABAA7AE61DE00E54001FF6C6 /* CameraUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABAA7AE51DE00E54001FF6C6 /* CameraUpdater.swift */; };
 		ABB9AD2B1DCDD287004F289D /* Wireframe.metal in Sources */ = {isa = PBXBuildFile; fileRef = ABB9AD2A1DCDD287004F289D /* Wireframe.metal */; };
 		ABBCD3031CE18E5D00A253F4 /* data in Resources */ = {isa = PBXBuildFile; fileRef = ABBCD3021CE18E5D00A253F4 /* data */; };
 		ABCE463F1C60E6170024167E /* Bone.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCE463E1C60E6170024167E /* Bone.swift */; };
@@ -282,6 +283,7 @@
 		AB8231241C2FE3A1008691E0 /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = SDKROOT; };
 		AB8231281C2FE6F4008691E0 /* ForwardShader.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = ForwardShader.metal; sourceTree = "<group>"; };
 		ABA806FC1D68740F004E26E6 /* ShaderCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderCommon.h; sourceTree = "<group>"; };
+		ABAA7AE51DE00E54001FF6C6 /* CameraUpdater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraUpdater.swift; sourceTree = "<group>"; };
 		ABB9AD2A1DCDD287004F289D /* Wireframe.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Wireframe.metal; sourceTree = "<group>"; };
 		ABBCD3021CE18E5D00A253F4 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = data; sourceTree = "<group>"; };
 		ABCE463E1C60E6170024167E /* Bone.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bone.swift; sourceTree = "<group>"; };
@@ -1416,6 +1418,7 @@
 			isa = PBXGroup;
 			children = (
 				ABE5C2AD1D8FD72D00C0D169 /* PMXUpdater.swift */,
+				ABAA7AE51DE00E54001FF6C6 /* CameraUpdater.swift */,
 			);
 			name = updater;
 			sourceTree = "<group>";
@@ -1740,6 +1743,7 @@
 				AB307C491CB0D698007C4343 /* GLKQuaternion+MMD.swift in Sources */,
 				ABDB8D151CE87DD600BD28AD /* btConvexPlaneCollisionAlgorithm.cpp in Sources */,
 				ABF3BE911CCC73CF0099329D /* Utils.swift in Sources */,
+				ABAA7AE61DE00E54001FF6C6 /* CameraUpdater.swift in Sources */,
 				ABDB8D2A1CE87DD600BD28AD /* btConvex2dShape.cpp in Sources */,
 				ABDB8D631CE87DD600BD28AD /* btGearConstraint.cpp in Sources */,
 				ABDB8D0F1CE87DD600BD28AD /* btCollisionWorldImporter.cpp in Sources */,

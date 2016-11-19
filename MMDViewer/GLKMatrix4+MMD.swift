@@ -43,11 +43,35 @@ extension GLKMatrix4: CustomStringConvertible {
         return GLKMatrix4Transpose(self)
     }
 
-    func translate() -> GLKVector4 {
-        return GLKVector4Make(self.m30, self.m31, self.m32, self.m33)
+    func translate() -> GLKVector3 {
+        return GLKVector3Make(self.m30, self.m31, self.m32)
     }
 
     func multiplyVector4(_ other: GLKVector4) -> GLKVector4 {
         return GLKMatrix4MultiplyVector4(self, other)
+    }
+
+    func xAxis() -> GLKVector3 {
+        return GLKVector3Make(self.m00, self.m01, self.m02)
+    }
+
+    func yAxis() -> GLKVector3 {
+        return GLKVector3Make(self.m10, self.m11, self.m12)
+    }
+
+    func zAxis() -> GLKVector3 {
+        return GLKVector3Make(self.m20, self.m21, self.m22)
+    }
+
+    func ixAxis() -> GLKVector3 {
+        return GLKVector3Make(self.m00, self.m10, self.m20)
+    }
+
+    func iyAxis() -> GLKVector3 {
+        return GLKVector3Make(self.m01, self.m11, self.m21)
+    }
+
+    func izAxis() -> GLKVector3 {
+        return GLKVector3Make(self.m02, self.m12, self.m22)
     }
 }
