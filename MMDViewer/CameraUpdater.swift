@@ -13,7 +13,7 @@ class CameraUpdater: Updater {
     }
 
     func update(_ dt: CFTimeInterval, renderer: Renderer, node: Node) {
-        viewMatrix = GLKMatrix4MakeWithQuaternion(GLKQuaternionInvert(rot)).multiply(
+        viewMatrix = GLKMatrix4MakeWithQuaternion(rot.inverse()).multiply(
             GLKMatrix4MakeTranslation(-pos.x, -pos.y, -pos.z))
         var renderer = renderer
         renderer.viewMatrix = viewMatrix
