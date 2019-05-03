@@ -40,7 +40,7 @@ private func MakeVertexDesc() -> MTLVertexDescriptor {
 }
 
 private func LoadShaderFunction(device: MTLDevice) -> MTLRenderPipelineDescriptor {
-    guard let defaultLibrary = device.newDefaultLibrary() else {
+    guard let defaultLibrary = device.makeDefaultLibrary() else {
         fatalError("failed to create default library")
     }
     guard let vertexFunc = defaultLibrary.makeFunction(name: "gBufferVert") else {
@@ -73,7 +73,7 @@ private func MakeDepthStencilState(device: MTLDevice) -> MTLDepthStencilState {
     desc.frontFaceStencil = stencilState
     desc.backFaceStencil = stencilState
 
-    return device.makeDepthStencilState(descriptor: desc)
+    return device.makeDepthStencilState(descriptor: desc)!
 }
 
 private func UpdateRenderPipelineState(_ device: MTLDevice, _ renderer: Renderer, _ desc: MTLRenderPipelineDescriptor, _ renderPipelineState: MTLRenderPipelineState?) -> MTLRenderPipelineState? {
@@ -160,12 +160,12 @@ class PMXGBufferDrawer: Drawer {
         renderEncoder.setCullMode(.front)
         renderEncoder.setDepthStencilState(depthStencilState)
 
-        renderEncoder.setVertexBuffer(currentVertexBuffer, offset: 0, at: 0)
-        renderEncoder.setVertexBuffer(pmxObj.uniformBuffer, offset: 0, at: 1)
-        renderEncoder.setVertexBuffer(pmxObj.matrixPalette, offset: 0, at: 2)
+        renderEncoder.setVertexBuffer(currentVertexBuffer, offset: 0, index: 0)
+        renderEncoder.setVertexBuffer(pmxObj.uniformBuffer, offset: 0, index: 1)
+        renderEncoder.setVertexBuffer(pmxObj.matrixPalette, offset: 0, index: 2)
 
-        renderEncoder.setFragmentBuffer(pmxObj.uniformBuffer, offset: 0, at:0)
-        renderEncoder.setFragmentSamplerState(pmxObj.samplerState, at: 0)
+        renderEncoder.setFragmentBuffer(pmxObj.uniformBuffer, offset: 0, index:0)
+        renderEncoder.setFragmentSamplerState(pmxObj.samplerState, index: 0)
 
         // draw primitives for each material
         var indexByteOffset = 0
@@ -183,8 +183,8 @@ class PMXGBufferDrawer: Drawer {
 
                 renderEncoder.setRenderPipelineState(renderPipelineState!)
 
-                renderEncoder.setFragmentTexture(texture.texture, at: 0)
-                renderEncoder.setFragmentTexture(shadowTexture, at: 1)
+                renderEncoder.setFragmentTexture(texture.texture, index: 0)
+                renderEncoder.setFragmentTexture(shadowTexture, index: 1)
 
                 renderEncoder.drawIndexedPrimitives(
                     type: .triangle,

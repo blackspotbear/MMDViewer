@@ -16,7 +16,7 @@ private struct FloorModel {
 private func MakeFloor(_ device: MTLDevice) -> FloorModel {
     let xsize: Float = 20
     let zsize: Float = 20
-    let gridNum = 20
+    let gridNum: Int16 = 20
     let xstep = xsize / Float(gridNum)
     let zstep = zsize / Float(gridNum)
 
@@ -47,15 +47,15 @@ private func MakeFloor(_ device: MTLDevice) -> FloorModel {
         bytes: vdata,
         length: vdata.count * MemoryLayout<GLKVector4>.stride,
         options: [])
-    vertexBuffer.label = "wireframe vertices"
+    vertexBuffer?.label = "wireframe vertices"
 
     let indexBuffer = device.makeBuffer(
         bytes: tindices,
         length: tindices.count * MemoryLayout<Int16>.stride,
         options: [])
-    indexBuffer.label = "wireframe indicies"
+    indexBuffer?.label = "wireframe indicies"
 
-    let model = FloorModel(vertexBuffer: vertexBuffer, indexBuffer: indexBuffer, indexCount: tindices.count)
+    let model = FloorModel(vertexBuffer: vertexBuffer!, indexBuffer: indexBuffer!, indexCount: tindices.count)
 
     return model
 }
@@ -89,8 +89,8 @@ class WireFrameDrawer: Drawer {
 
         renderEncoder.pushDebugGroup("wireframe")
 
-        renderEncoder.setVertexBuffer(model.vertexBuffer, offset: 0, at: 0)
-        renderEncoder.setVertexBuffer(matrixBuffer, offset: 0, at: 1)
+        renderEncoder.setVertexBuffer(model.vertexBuffer, offset: 0, index: 0)
+        renderEncoder.setVertexBuffer(matrixBuffer, offset: 0, index: 1)
         renderEncoder.drawIndexedPrimitives(
             type: .triangle,
             indexCount: model.indexCount,

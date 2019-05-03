@@ -48,6 +48,7 @@ private class PassResource {
                 mipmapped: false)
             desc.textureType = (depthTextureSampleCount > 1) ? .type2DMultisample : .type2D
             desc.sampleCount = depthTextureSampleCount
+            desc.usage = .renderTarget
             depthTex = device.makeTexture(descriptor: desc)
 
             if let depthTex = depthTex {
@@ -85,7 +86,7 @@ class ForwardRenderPass: RenderPass {
         }
 
         let renderPassDescriptor = passRes.renderPassDescriptorForDrawable(drawable.texture)
-        let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
+        let renderEncoder = (commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor))!
 
         var renderer = renderer
         renderer.renderCommandEncoderStack.append(renderEncoder)

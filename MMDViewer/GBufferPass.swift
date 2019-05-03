@@ -58,6 +58,7 @@ private class PassResource {
                     pixelFormat: pixelFormatSpec.colorAttachmentFormats[i],
                     width: drawable.width, height: drawable.height,
                     mipmapped: false)
+                desc.usage = .renderTarget
                 colorTextures[i - 1] = device.makeTexture(descriptor: desc)
 
                 if let colorTexture = colorTextures[i - 1] {
@@ -91,6 +92,7 @@ private class PassResource {
                     width: drawable.width,
                     height: drawable.height,
                     mipmapped: false)
+                desc.usage = .renderTarget
                 desc.textureType = (depthTextureSampleCount > 1) ? .type2DMultisample : .type2D
                 desc.sampleCount = depthTextureSampleCount
                 depthTex = device.makeTexture(descriptor: desc)
@@ -124,6 +126,7 @@ private class PassResource {
                     height: drawable.height,
                     mipmapped: false)
                 desc.textureType = .type2D
+                desc.usage = .renderTarget
                 stencilTex = device.makeTexture(descriptor: desc)
 
                 if let stencilTex = stencilTex {
@@ -159,7 +162,7 @@ private func MakeDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState 
     let desc = MTLDepthStencilDescriptor()
     desc.isDepthWriteEnabled = true
     desc.depthCompareFunction = .lessEqual
-    return device.makeDepthStencilState(descriptor: desc)
+    return device.makeDepthStencilState(descriptor: desc)!
 }
 
 class GBufferPass: RenderPass {
@@ -225,14 +228,14 @@ class GBufferPass: RenderPass {
         desc.frontFaceStencil = stencilState
         desc.backFaceStencil = stencilState
 
-        return device.makeDepthStencilState(descriptor: desc)
+        return device.makeDepthStencilState(descriptor: desc)!
     }
 
     init(view: MetalView) {
         guard let device = view.device else {
             fatalError("failed to get a device object")
         }
-        guard let defaultLibrary = device.newDefaultLibrary() else {
+        guard let defaultLibrary = device.makeDefaultLibrary() else {
             fatalError("failed to create a default library")
         }
 
@@ -256,7 +259,7 @@ class GBufferPass: RenderPass {
         self.view = view
 
         for _ in 0..<numFrames {
-            sunDataBuffers.append(device.makeBuffer(length: MemoryLayout<MaterialSunData>.size, options: MTLResourceOptions()))
+            sunDataBuffers.append(device.makeBuffer(length: MemoryLayout<MaterialSunData>.size, options: MTLResourceOptions())!)
         }
 
         compositionDepthState = GBufferPass.createCompositionDepthState(device)
@@ -277,7 +280,7 @@ class GBufferPass: RenderPass {
             bytes: quadVerts,
             length: quadVerts.count * MemoryLayout<Float>.size,
             options: MTLResourceOptions()
-        )
+            )!
 
         let desc = MTLDepthStencilDescriptor()
         let stencilState = MTLStencilDescriptor()
@@ -291,7 +294,7 @@ class GBufferPass: RenderPass {
         desc.depthCompareFunction = .lessEqual
         desc.frontFaceStencil = stencilState
         desc.backFaceStencil = stencilState
-        gBufferDepthStencilState = device.makeDepthStencilState(descriptor: desc)
+        gBufferDepthStencilState = device.makeDepthStencilState(descriptor: desc)!
     }
 
     func begin(_ renderer: Renderer) {
@@ -309,17 +312,17 @@ class GBufferPass: RenderPass {
         renderer.textureResources["StencilBuffer"] = passRes.stencilTex
 
         let encoder = renderer.commandBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
-        encoder.pushDebugGroup("g-buffer pass")
-        encoder.label = "g-buffer"
-        encoder.setDepthStencilState(shadowDepthStencilState)
+        encoder!.pushDebugGroup("g-buffer pass")
+        encoder!.label = "g-buffer"
+        encoder!.setDepthStencilState(shadowDepthStencilState)
 
-        encoder.setRenderPipelineState(gbufferRenderRipeline)
-        encoder.setCullMode(.back)
+        encoder!.setRenderPipelineState(gbufferRenderRipeline)
+        encoder!.setCullMode(.back)
 
-        encoder.setDepthStencilState(gBufferDepthStencilState)
-        encoder.setStencilReferenceValue(128)
+        encoder!.setDepthStencilState(gBufferDepthStencilState)
+        encoder!.setStencilReferenceValue(128)
 
-        renderer.renderCommandEncoderStack.append(encoder)
+        renderer.renderCommandEncoderStack.append(encoder!)
     }
 
     func end(_ renderer: Renderer) {
@@ -345,7 +348,7 @@ class GBufferPass: RenderPass {
     }
 
     private func drawQuad(_ encoder: MTLRenderCommandEncoder) {
-        encoder.setVertexBuffer(quadPositionBuffer, offset: 0, at: 0)
+        encoder.setVertexBuffer(quadPositionBuffer, offset: 0, index: 0)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
     }
 }

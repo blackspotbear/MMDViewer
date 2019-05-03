@@ -60,12 +60,12 @@ private func DefaultSampler(_ device: MTLDevice) -> MTLSamplerState {
         sampler.rAddressMode          = .repeat
         sampler.normalizedCoordinates = true
         sampler.lodMinClamp           = 0
-        sampler.lodMaxClamp           = FLT_MAX
+        sampler.lodMaxClamp           = Float.greatestFiniteMagnitude
     } else {
         fatalError("failed creating a sampler descriptor")
     }
 
-    return device.makeSamplerState(descriptor: pSamplerDescriptor!)
+    return device.makeSamplerState(descriptor: pSamplerDescriptor!)!
 }
 
 private func PrepareDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState {
@@ -73,7 +73,7 @@ private func PrepareDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilSta
     pDepthStateDesc.depthCompareFunction = .less
     pDepthStateDesc.isDepthWriteEnabled    = true
 
-    return device.makeDepthStencilState(descriptor: pDepthStateDesc)
+    return device.makeDepthStencilState(descriptor: pDepthStateDesc)!
 }
 
 private class NormalCounter: AnimationCounter {
@@ -308,7 +308,7 @@ class PMXObject {
             inflightBuffersCount: 3,
             data: vertexData)
 
-        indexBuffer = device.makeBuffer(bytes: pmx.indices, length: pmx.indices.count * MemoryLayout<UInt16>.size, options: MTLResourceOptions())
+        indexBuffer = device.makeBuffer(bytes: pmx.indices, length: pmx.indices.count * MemoryLayout<UInt16>.size, options: MTLResourceOptions())!
 
         self.uniformBufferProvider = BufferProvider(
             device: device,

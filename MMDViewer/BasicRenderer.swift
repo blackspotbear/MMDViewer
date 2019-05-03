@@ -49,7 +49,7 @@ class BasicRenderer: Renderer {
     }
 
     func configure(_ device: MTLDevice) {
-        guard let defaultLibrary = device.newDefaultLibrary() else {
+        guard let defaultLibrary = device.makeDefaultLibrary() else {
             fatalError("failed to create a default library")
         }
 

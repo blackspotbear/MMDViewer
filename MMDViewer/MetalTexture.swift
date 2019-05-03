@@ -14,6 +14,7 @@ private func alphaState(alphaInfo: CGImageAlphaInfo) -> Bool {
     case .alphaOnly:          return true
     case .premultipliedFirst: return true
     case .premultipliedLast:  return true
+    @unknown default:         return false
     }
 }
 
@@ -126,11 +127,11 @@ class MetalTexture {
         _ texture: MTLTexture, device: MTLDevice, commandQ: MTLCommandQueue,
         block: @escaping MTLCommandBufferHandler) {
         let commandBuffer = commandQ.makeCommandBuffer()
-        commandBuffer.addCompletedHandler(block)
-        let blitCommandEncoder = commandBuffer.makeBlitCommandEncoder()
-        blitCommandEncoder.generateMipmaps(for: texture)
-        blitCommandEncoder.endEncoding()
-        commandBuffer.commit()
+        commandBuffer?.addCompletedHandler(block)
+        let blitCommandEncoder = commandBuffer?.makeBlitCommandEncoder()
+        blitCommandEncoder?.generateMipmaps(for: texture)
+        blitCommandEncoder?.endEncoding()
+        commandBuffer?.commit()
     }
 
     private func bytesForMipLevel(mipLevel: Int) -> UnsafeMutableRawPointer {

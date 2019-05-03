@@ -25,11 +25,11 @@ class ViewController: UIViewController {
         )
     }
 
-    func viewWillEnterForeground(_ notification: Notification?) {
+    @objc func viewWillEnterForeground(_ notification: Notification?) {
         mmdView.pmxUpdater?.playing = true
     }
 
-    func viewDidEnterBackground(_ notification: Notification?) {
+    @objc func viewDidEnterBackground(_ notification: Notification?) {
         mmdView.pmxUpdater?.playing = false
     }
 
@@ -41,8 +41,8 @@ class ViewController: UIViewController {
     @IBAction func onPlayButtonPushed(_ sender: AnyObject) {
         if let pmxUpdater = mmdView.pmxUpdater {
             pmxUpdater.playing = !pmxUpdater.playing
-            if let index = toolBar.items?.index(of: sender as! UIBarButtonItem) {
-                let btnSystemItem = mmdView.pmxUpdater!.playing ? UIBarButtonSystemItem.pause : UIBarButtonSystemItem.play
+            if let index = toolBar.items?.firstIndex(of: sender as! UIBarButtonItem) {
+                let btnSystemItem = mmdView.pmxUpdater!.playing ? UIBarButtonItem.SystemItem.pause : UIBarButtonItem.SystemItem.play
                 let btnItem = UIBarButtonItem(barButtonSystemItem: btnSystemItem, target: self, action: #selector(ViewController.onPlayButtonPushed(_:)))
                 toolBar.items?.insert(btnItem, at: index)
                 toolBar.items?.remove(at: index + 1)

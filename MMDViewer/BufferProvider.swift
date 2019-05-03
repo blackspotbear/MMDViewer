@@ -9,7 +9,7 @@ class BufferProvider {
     init(device: MTLDevice, inflightBuffersCount: Int, sizeOfUniformsBuffer: Int) {
         self.inflightBuffersCount = inflightBuffersCount
         for _ in 0..<inflightBuffersCount {
-            let buffer = device.makeBuffer(length: sizeOfUniformsBuffer, options: [])
+            let buffer = device.makeBuffer(length: sizeOfUniformsBuffer, options: [])!
             buffers.append(buffer)
         }
     }
@@ -17,7 +17,7 @@ class BufferProvider {
     init(device: MTLDevice, inflightBuffersCount: Int, data: Data) {
         self.inflightBuffersCount = inflightBuffersCount
         for _ in 0..<inflightBuffersCount {
-            let buffer = device.makeBuffer(bytes: (data as NSData).bytes, length: data.count, options: [])
+            let buffer = device.makeBuffer(bytes: (data as NSData).bytes, length: data.count, options: [])!
             buffers.append(buffer)
         }
     }

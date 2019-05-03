@@ -5,6 +5,7 @@ typealias Color = GLKVector4
 
 extension GLKVector4 {
     init(other: GLKVector4) {
+        self.init()
         self.v = other.v
     }
 

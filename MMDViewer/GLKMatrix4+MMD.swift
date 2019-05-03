@@ -13,6 +13,7 @@ extension GLKMatrix4: CustomStringConvertible {
     }
 
     init(other: GLKMatrix4) {
+        self.init()
         self.m = other.m
     }
 

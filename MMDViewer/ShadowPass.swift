@@ -13,7 +13,7 @@ private func MakeDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState 
     let desc = MTLDepthStencilDescriptor()
     desc.isDepthWriteEnabled = true
     desc.depthCompareFunction = .lessEqual
-    return device.makeDepthStencilState(descriptor: desc)
+    return device.makeDepthStencilState(descriptor: desc)!
 }
 
 class ShadowPass: RenderPass {
@@ -24,7 +24,7 @@ class ShadowPass: RenderPass {
     private var shadowDepthStencilState: MTLDepthStencilState
 
     init(device: MTLDevice) {
-        guard let defaultLibrary = device.newDefaultLibrary() else {
+        guard let defaultLibrary = device.makeDefaultLibrary() else {
             fatalError("failed to create a default library")
         }
 
@@ -33,7 +33,8 @@ class ShadowPass: RenderPass {
             width: 1024,
             height: 1024,
             mipmapped: false)
-        shadowTexture = device.makeTexture(descriptor: shadowTextureDesc)
+        shadowTextureDesc.usage = [.renderTarget, .shaderRead]
+        shadowTexture = device.makeTexture(descriptor: shadowTextureDesc)!
         shadowTexture.label = "shadow map"
 
         let desc = MTLRenderPipelineDescriptor()

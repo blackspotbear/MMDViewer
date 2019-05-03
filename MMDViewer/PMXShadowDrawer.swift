@@ -16,9 +16,9 @@ class PMXShadowDrawer: Drawer {
             return
         }
 
-        renderEncoder.setVertexBuffer(currentVertexBuffer, offset: 0, at: 0)
-        renderEncoder.setVertexBuffer(pmxObj.uniformBuffer, offset: 0, at: 1)
-        renderEncoder.setVertexBuffer(pmxObj.matrixPalette, offset: 0, at: 2)
+        renderEncoder.setVertexBuffer(currentVertexBuffer, offset: 0, index: 0)
+        renderEncoder.setVertexBuffer(pmxObj.uniformBuffer, offset: 0, index: 1)
+        renderEncoder.setVertexBuffer(pmxObj.matrixPalette, offset: 0, index: 2)
 
         var indexByteOffset = 0
         var materialByteOffset = 0

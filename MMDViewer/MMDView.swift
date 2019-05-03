@@ -101,7 +101,7 @@ class MMDView: MetalView {
         } else {
             timer.frameInterval = 2
         }
-        timer.add(to: RunLoop.main, forMode: RunLoopMode.defaultRunLoopMode)
+        timer.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
     }
 
     #if false
@@ -168,7 +168,7 @@ class MMDView: MetalView {
 
     // MARK: UI Event Handlers
 
-    func handlePan(_ recognize: UIPanGestureRecognizer) {
+    @objc func handlePan(_ recognize: UIPanGestureRecognizer) {
         let t = recognize.translation(in: self)
         let dx = Float(t.x)
         let dy = Float(t.y)
@@ -177,7 +177,7 @@ class MMDView: MetalView {
         }
         if recognize.numberOfTouches == 1 {
             let len = sqrt(dx * dx + dy * dy)
-            let rad = len / 500 * Float(M_PI)
+            let rad = len / 500 * Float.pi
             cameraUpdater.rot = cameraUpdater.rot.mul(
                 GLKQuaternionMakeWithAngleAndVector3Axis(rad, GLKVector3Make(dy / len, dx / len, 0)))
         } else if recognize.numberOfTouches == 2 {
@@ -189,14 +189,14 @@ class MMDView: MetalView {
         recognize.setTranslation(CGPoint(x: 0, y: 0), in: self)
     }
 
-    func handleTap(_ sender: UITapGestureRecognizer) {
+    @objc func handleTap(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
             cameraUpdater.rot = GLKQuaternionIdentity
             cameraUpdater.pos = InitialCameraPosition
         }
     }
 
-    func handlePinch(_ recognize: UIPinchGestureRecognizer) {
+    @objc func handlePinch(_ recognize: UIPinchGestureRecognizer) {
         let v = Float(recognize.velocity)
         let dz = -v * 0.5
         let dZ = cameraUpdater.viewMatrix.izAxis().mul(dz)
@@ -204,7 +204,7 @@ class MMDView: MetalView {
         recognize.scale = 1
     }
 
-    func handleRotate(_ recognize: UIRotationGestureRecognizer) {
+    @objc func handleRotate(_ recognize: UIRotationGestureRecognizer) {
         let v = Float(recognize.velocity)
         let rad = v * 0.05
         cameraUpdater.rot = cameraUpdater.rot.mul(
@@ -214,7 +214,7 @@ class MMDView: MetalView {
 
     // MARK: Loop
 
-    func mainLoop(_ displayLink: CADisplayLink) {
+    @objc func mainLoop(_ displayLink: CADisplayLink) {
         if lastFrameTimestamp == 0.0 {
             lastFrameTimestamp = displayLink.timestamp
         }
