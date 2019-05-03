@@ -30,7 +30,7 @@ class Bone: NSObject {
     var name: String
     var nameE: String
 
-    var pos: GLKVector3
+    @objc var pos: GLKVector3
     var parentBoneIndex: Int
     var deformLayer: Int32
 

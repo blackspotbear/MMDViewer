@@ -44,7 +44,7 @@ private func CreateAlphaPipelinesState(_ device: MTLDevice, _ vertexDescriptor: 
 }
 
 private func MakePipelineStates(_ device: MTLDevice) -> (MTLRenderPipelineState, MTLRenderPipelineState) {
-    guard let defaultLibrary = device.newDefaultLibrary() else {
+    guard let defaultLibrary = device.makeDefaultLibrary() else {
         fatalError("failed to create default library")
     }
     guard let newVertexFunction = defaultLibrary.makeFunction(name: "basic_vertex") else {
@@ -115,12 +115,12 @@ class PMXDrawer: Drawer {
         renderEncoder.setCullMode(.front)
         renderEncoder.setDepthStencilState(pmxObj.depthStencilState)
 
-        renderEncoder.setVertexBuffer(currentVertexBuffer, offset: 0, at: 0)
-        renderEncoder.setVertexBuffer(pmxObj.uniformBuffer, offset: 0, at: 1)
-        renderEncoder.setVertexBuffer(pmxObj.matrixPalette, offset: 0, at: 2)
+        renderEncoder.setVertexBuffer(currentVertexBuffer, offset: 0, index: 0)
+        renderEncoder.setVertexBuffer(pmxObj.uniformBuffer, offset: 0, index: 1)
+        renderEncoder.setVertexBuffer(pmxObj.matrixPalette, offset: 0, index: 2)
 
-        renderEncoder.setFragmentBuffer(pmxObj.uniformBuffer, offset: 0, at:0)
-        renderEncoder.setFragmentSamplerState(pmxObj.samplerState, at: 0)
+        renderEncoder.setFragmentBuffer(pmxObj.uniformBuffer, offset: 0, index:0)
+        renderEncoder.setFragmentSamplerState(pmxObj.samplerState, index: 0)
 
         // draw primitives for each material
         var indexByteOffset = 0
@@ -131,8 +131,8 @@ class PMXDrawer: Drawer {
             let renderPipelineState = texture.hasAlpha ? alphaPipelineState : opaquePipelineState
 
             renderEncoder.setRenderPipelineState(renderPipelineState)
-            renderEncoder.setFragmentTexture(texture.texture, at: 0)
-            renderEncoder.setFragmentBuffer(pmxObj.materialBuffer, offset: materialByteOffset, at: 1)
+            renderEncoder.setFragmentTexture(texture.texture, index: 0)
+            renderEncoder.setFragmentBuffer(pmxObj.materialBuffer, offset: materialByteOffset, index: 1)
 
             renderEncoder.drawIndexedPrimitives(
                 type: .triangle,

@@ -28,15 +28,15 @@ struct VertexOut {
 
 constant Light g_light = {
     .direction     = { 0.13, 0.72, 0.68 },
-    .ambientColor  = { 0.75, 0.75, 0.75 },
+    .ambientColor  = { 0.5, 0.5, 0.5 },
     .diffuseColor  = { 0.9,  0.9,  0.9  },
     .specularColor = { 1.0,  1.0,  1.0  }
 };
 
-vertex VertexOut basic_vertex(const device VertexIn* vertex_array [[ buffer(0) ]],
-                              const device Uniforms& uniforms     [[ buffer(1) ]],
-                              const device float4x4* matrices     [[ buffer(2) ]],
-                              unsigned int vid                    [[ vertex_id ]]) {
+vertex VertexOut basic_vertex(const device VertexIn* vertex_array,
+                              const device Uniforms& uniforms,
+                              const device float4x4* matrices,
+                              unsigned int vid [[ vertex_id ]]) {
     VertexIn in = vertex_array[vid];
     
     float4 positions[4];

@@ -4,11 +4,11 @@
 #include <metal_stdlib>
 
 struct VertexIn {
-    metal::packed_float3 position    [[attribute(0)]];
-    metal::packed_float3 normal      [[attribute(1)]];
-    metal::packed_float2 texCoord    [[attribute(2)]];
-    metal::packed_float4 boneWeights [[attribute(3)]];
-    metal::packed_short4 boneIndices [[attribute(4)]];
+    metal::packed_float3 position;
+    metal::packed_float3 normal;
+    metal::packed_float2 texCoord;
+    metal::packed_float4 boneWeights;
+    metal::packed_short4 boneIndices;
 };
 
 struct Uniforms {

@@ -50,10 +50,10 @@ namespace {
 
 } // anonymous namespace
 
-vertex VertexOutput gBufferVert(const device VertexIn* vertex_array [[ buffer(0) ]],
-                                        const device Uniforms& uniforms     [[ buffer(1) ]],
-                                        const device float4x4* matrices     [[ buffer(2) ]],
-                                        unsigned int vid                    [[ vertex_id ]]) {
+vertex VertexOutput gBufferVert(const device VertexIn* vertex_array,
+                                const device Uniforms& uniforms,
+                                const device float4x4* matrices,
+                                unsigned int vid [[ vertex_id ]]) {
     VertexIn in = vertex_array[vid];
 
     // position

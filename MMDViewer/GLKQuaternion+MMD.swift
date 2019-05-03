@@ -7,6 +7,7 @@ extension GLKQuaternion: CustomStringConvertible {
     }
 
     init(other: GLKQuaternion) {
+        self.init()
         self.q = other.q
     }
 

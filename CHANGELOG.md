@@ -1,19 +1,32 @@
-# 0.4.0.c
+# CHANGELOG
+
+## 0.4.0.d
+
+Fix errors on Xcode 10.2.1 .
+
+## 0.4.0.c
+
 Support camera control by double tap, pan, pinch and rotation.
 
-# 0.4.0.b
+## 0.4.0.b
+
 Support stipple transparency.
 
-# 0.4.0.a
+## 0.4.0.a
+
 Introduce Light Pre-Pass (in progress).
 
 Rewrite in Swift3.
 
-# 0.3.0
+## 0.3.0
+
 Improve performance.
 
-# 0.2.0
+## 0.2.0
+
 Support physics.
 
-# 0.1.0
+## 0.1.0
+
 First release.
+

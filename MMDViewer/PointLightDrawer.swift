@@ -60,17 +60,17 @@ private func MakeIcosahedron(_ device: MTLDevice) -> (MTLBuffer, MTLBuffer) {
 
     let vertexBuffer = device.makeBuffer(
         bytes: lightVdata, length: lightVdata.count * MemoryLayout<GLKVector4>.stride, options: [])
-    vertexBuffer.label = "light model vertices"
+    vertexBuffer?.label = "light model vertices"
 
     let indexBuffer = device.makeBuffer(
         bytes: tindices, length: tindices.count * MemoryLayout<Int16>.stride, options: [])
-    indexBuffer.label = "light model indicies"
+    indexBuffer?.label = "light model indicies"
 
-    return (vertexBuffer, indexBuffer)
+    return (vertexBuffer!, indexBuffer!)
 }
 
 private func LoadShaderFunction(_ device: MTLDevice) -> (MTLRenderPipelineDescriptor, MTLRenderPipelineDescriptor) {
-    guard let defaultLibrary = device.newDefaultLibrary() else {
+    guard let defaultLibrary = device.makeDefaultLibrary() else {
         fatalError("failed to create default library")
     }
     guard let lightVert = defaultLibrary.makeFunction(name: "lightVert") else {
@@ -114,7 +114,7 @@ private func MakeLightMaskStencilState(_ device: MTLDevice) -> MTLDepthStencilSt
     desc.frontFaceStencil = stencilState
     desc.backFaceStencil = stencilState
 
-    return device.makeDepthStencilState(descriptor: desc)
+    return device.makeDepthStencilState(descriptor: desc)!
 }
 
 private func MakeLightColorStencilState(_ device: MTLDevice) -> (MTLDepthStencilState, MTLDepthStencilState) {
@@ -130,12 +130,12 @@ private func MakeLightColorStencilState(_ device: MTLDevice) -> (MTLDepthStencil
     desc.depthCompareFunction = .greaterEqual
     desc.frontFaceStencil = stencilState
     desc.backFaceStencil = stencilState
-    let lightColorStencilState = device.makeDepthStencilState(descriptor: desc)
+    let lightColorStencilState = device.makeDepthStencilState(descriptor: desc)!
 
     desc.depthCompareFunction = .always
-    let lightColorStencilStateNoDepth = device.makeDepthStencilState(descriptor: desc)
+    let lightColorStencilStateNoDepth = device.makeDepthStencilState(descriptor: desc)!
 
-    return (lightColorStencilState, lightColorStencilStateNoDepth)
+    return (lightColorStencilState, lightColorStencilStateNoDepth )
 }
 
 private func UpdateRenderPipelineState(_ device: MTLDevice, _ renderer: Renderer, _ desc: MTLRenderPipelineDescriptor, _ renderPipelineState: MTLRenderPipelineState?) -> MTLRenderPipelineState? {
@@ -292,8 +292,8 @@ class PointLightDrawer: Drawer {
             renderEncoder.setStencilReferenceValue(128)
             renderEncoder.setCullMode(.front)
 
-            renderEncoder.setVertexBuffer(lightModelVertexBuffer, offset: 0, at: 0)
-            renderEncoder.setVertexBuffer(lightModelMatrixBuffer, offset: i * MemoryLayout<LightModelMatrices>.stride, at: 1)
+            renderEncoder.setVertexBuffer(lightModelVertexBuffer, offset: 0, index: 0)
+            renderEncoder.setVertexBuffer(lightModelMatrixBuffer, offset: i * MemoryLayout<LightModelMatrices>.stride, index: 1)
             renderEncoder.drawIndexedPrimitives(
                 type: .triangle, indexCount: 60, indexType: .uint16, indexBuffer: lightModelIndexBuffer, indexBufferOffset: 0)
 
@@ -305,7 +305,7 @@ class PointLightDrawer: Drawer {
             renderEncoder.setRenderPipelineState(lightColorRenderPipelineState!)
 
             //let clip = lightData.lightPosition[2] + lightData.lightColorRadius[3] * circumscribe / inscribe < near
-            let clip = fabs(lightData.viewLightPosition[2] + lightData.lightColorRadius[3] * circumscribe / inscribe) < near
+            let clip = abs(lightData.viewLightPosition[2] + lightData.lightColorRadius[3] * circumscribe / inscribe) < near
 
             if clip {
                 renderEncoder.setDepthStencilState(lightColorStencilStateNoDepth)
@@ -317,9 +317,9 @@ class PointLightDrawer: Drawer {
 
             renderEncoder.setStencilReferenceValue(128)
 
-            renderEncoder.setVertexBuffer(lightModelVertexBuffer, offset: 0, at: 0)
-            renderEncoder.setVertexBuffer(lightModelMatrixBuffer, offset: i * MemoryLayout<LightModelMatrices>.stride, at: 1)
-            renderEncoder.setFragmentBuffer(lightDataBuffer, offset: i * MemoryLayout<LightFragmentInputs>.stride, at: 0)
+            renderEncoder.setVertexBuffer(lightModelVertexBuffer, offset: 0, index: 0)
+            renderEncoder.setVertexBuffer(lightModelMatrixBuffer, offset: i * MemoryLayout<LightModelMatrices>.stride, index: 1)
+            renderEncoder.setFragmentBuffer(lightDataBuffer, offset: i * MemoryLayout<LightFragmentInputs>.stride, index: 0)
             renderEncoder.drawIndexedPrimitives(
                 type: .triangle, indexCount: 60, indexType: .uint16, indexBuffer: lightModelIndexBuffer, indexBufferOffset: 0)
 

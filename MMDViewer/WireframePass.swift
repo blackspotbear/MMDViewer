@@ -5,11 +5,11 @@ private func MakeDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState 
     let desc = MTLDepthStencilDescriptor()
     desc.isDepthWriteEnabled = true
     desc.depthCompareFunction = .lessEqual
-    return device.makeDepthStencilState(descriptor: desc)
+    return device.makeDepthStencilState(descriptor: desc)!
 }
 
 private func LoadShaderFunction(_ device: MTLDevice) -> MTLRenderPipelineDescriptor {
-    guard let defaultLibrary = device.newDefaultLibrary() else {
+    guard let defaultLibrary = device.makeDefaultLibrary() else {
         fatalError("failed to create default library")
     }
     guard let wireframeVert = defaultLibrary.makeFunction(name: "wireframeVert") else {
