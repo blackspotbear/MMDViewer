@@ -28,7 +28,7 @@ struct VertexOut {
 
 constant Light g_light = {
     .direction     = { 0.13, 0.72, 0.68 },
-    .ambientColor  = { 0.75, 0.75, 0.75 },
+    .ambientColor  = { 0.5, 0.5, 0.5 },
     .diffuseColor  = { 0.9,  0.9,  0.9  },
     .specularColor = { 1.0,  1.0,  1.0  }
 };

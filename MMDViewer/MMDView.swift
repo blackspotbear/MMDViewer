@@ -104,7 +104,7 @@ class MMDView: MetalView {
         timer.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
     }
 
-    #if false
+    #if true // forward rendering
 
     private func setupSceneGraph() -> MTLPixelFormat {
         let node = Node()
@@ -119,7 +119,7 @@ class MMDView: MetalView {
         return .bgra8Unorm
     }
 
-    #else
+    #else // deferred rendering
 
     private func setupSceneGraph() -> MTLPixelFormat {
         let shadowNode = Node()

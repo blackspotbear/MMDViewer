@@ -46,7 +46,7 @@ private func LoadShaderFunction(device: MTLDevice) -> MTLRenderPipelineDescripto
     guard let vertexFunc = defaultLibrary.makeFunction(name: "gBufferVert") else {
         fatalError("failed to make vertex function")
     }
-    guard let fragmentFunc = defaultLibrary.makeFunction(name: /* "gBufferFrag" */ "gBufferFragStipple") else {
+    guard let fragmentFunc = defaultLibrary.makeFunction(name: "gBufferFrag" /* "gBufferFragStipple" */) else {
         fatalError("failed to make fragment function")
     }
 

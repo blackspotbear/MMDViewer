@@ -17,7 +17,7 @@ struct MaterialSunData {
 constant MaterialSunData gSunData = {
 //  .sunDirection = { 0.13, 0.72, 0.68     },
     .sunDirection = { -1 ,  0,    0        },
-    .sunColor     = { 0.5,  0.5,  0.5, 1.0 }
+    .sunColor     = { 0.75,  0.75,  0.75, 1.0 }
 };
 
 vertex VertexOutput compositionVertex(constant float2 *posData [[buffer(0)]],
