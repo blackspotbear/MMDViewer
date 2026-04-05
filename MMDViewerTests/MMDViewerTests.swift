@@ -258,6 +258,15 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertEqual(result.w, expected.w, accuracy: 1e-6)
     }
 
+    func testVector2RoundTripsThroughSimdRepresentation() {
+        let vector = GLKVector2Make(12.5, -3.25)
+
+        let roundTrip = GLKVector2(simd: vector.simdValue)
+
+        XCTAssertEqual(roundTrip.x, vector.x, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.y, vector.y, accuracy: 1e-6)
+    }
+
     func testCurveValueReturnsExactKeyFrameValues() {
         let key = makeKeyFrame(
             frameNum: 12,
