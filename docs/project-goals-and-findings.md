@@ -162,6 +162,38 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 また、クォータニオン変換・合成・ベクトル回転の回帰テストに加えて、`GLKMatrix4` <-> `simd_float4x4` の round-trip テスト、および実データの PMX / VMD fixture を読み込むローダ確認テストを追加し、`xcodebuild test -only-testing:MMDViewerTests` で 11 件の単体テスト成功を確認済みです。
 
+## Bullet 更新可否の調査結果
+
+ローカル実装の確認では、Bullet は prebuilt library ではなく、[`third-party/bullet3-2.83.7/`](/Users/kmi/devel/MMDViewer/third-party/bullet3-2.83.7) に同梱したソースを Xcode ターゲットへ直接追加して使っています。フォルダ名は `2.83.7` ですが、同梱された [`VERSION`](/Users/kmi/devel/MMDViewer/third-party/bullet3-2.83.7/VERSION) には `2.84` と記載されています。
+
+現在 Swift / Objective-C++ 側で実際に使っている Bullet API はかなり限定的です。
+
+- dynamics world: `btDiscreteDynamicsWorld`
+- broadphase / dispatcher / solver: `btDbvtBroadphase`, `btCollisionDispatcher`, `btSequentialImpulseConstraintSolver`
+- shape: `btSphereShape`, `btBoxShape`, `btCapsuleShape`
+- transform / motion: `btTransform`, `btDefaultMotionState`, `btRigidBody`
+- constraint: `btGeneric6DofSpringConstraint`
+
+つまり、このアプリは Bullet の巨大な機能集合のうち、剛体、基本 shape、6DoF spring constraint だけを使っています。依存範囲が狭いため、「理論上は更新可能」である可能性が高いです。
+
+一方で、更新には次のリスクがあります。
+
+- Xcode プロジェクトへ手で追加している Bullet ソース一覧の更新が必要
+- `btGeneric6DofSpringConstraint` まわりの挙動差分確認が必要
+- iOS Simulator / 実機での挙動確認を必須にする必要がある
+- warning 解消と API 差分吸収を同時にやると切り分けが難しい
+
+2026-04-06 時点で確認できた公式情報では、GitHub 上の最新 release は [bulletphysics/bullet3 Releases](https://github.com/bulletphysics/bullet3/releases) にある `PyBullet 3.2.5` / tag `3.25`（2022-04-24）です。一方でリポジトリ本体は [bulletphysics/bullet3](https://github.com/bulletphysics/bullet3) として 2025 年にも更新が続いており、release と repository head に時間差があります。
+
+このため、更新方針としては次の順が妥当です。
+
+1. まず現行の vendored Bullet ソース一覧を文書化する
+2. 次に公式 release tag を基準に、`src` 配下の差分だけを比較する
+3. `PhysicsSolver.mm` が依存する API に差分がなければ、小さいイテレーションで差し替える
+4. 置換後はビルド、単体テスト、シミュレータ表示、物理付きモーションの実動作確認を行う
+
+現時点の結論は、「Bullet 更新は検討価値が高いが、レンダリング近代化とは別イテレーションで実施すべき」です。
+
 ## Apple の新しいフレームワークへの移行判断
 
 ### 採用有力
