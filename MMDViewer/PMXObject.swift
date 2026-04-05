@@ -43,7 +43,7 @@ private func CopyMatrices(_ buffer: MTLBuffer,
     dst = dst.advanced(by: matrixBufferSize)
 
     // shader's normal matrix is of type float3x3
-    // float3 alignment is 16byte (= sizeof(Float) * 4)
+    // SIMD3<Float> alignment is 16 bytes (= sizeof(Float) * 4)
     memcpy(dst, &normalMatrix, MemoryLayout<float3x3>.size)
 }
 
@@ -197,9 +197,9 @@ struct ShaderUniforms {
 }
 
 struct ShaderMaterial {
-    let ambientColor: float3
-    let diffuseColor: float3
-    let specularColor: float3
+    let ambientColor: SIMD3<Float>
+    let diffuseColor: SIMD3<Float>
+    let specularColor: SIMD3<Float>
     let specularPower: Float
 }
 
@@ -461,9 +461,9 @@ class PMXObject {
         var materialPointer = materialBuffer.contents()
         for mat in pmx.materials {
             var material = ShaderMaterial(
-                ambientColor: float3(mat.ambient.r, mat.ambient.g, mat.ambient.b),
-                diffuseColor: float3(mat.diffuse.r, mat.diffuse.g, mat.diffuse.b),
-                specularColor: float3(mat.specular.r, mat.specular.g, mat.specular.b),
+                ambientColor: SIMD3(mat.ambient.r, mat.ambient.g, mat.ambient.b),
+                diffuseColor: SIMD3(mat.diffuse.r, mat.diffuse.g, mat.diffuse.b),
+                specularColor: SIMD3(mat.specular.r, mat.specular.g, mat.specular.b),
                 specularPower: mat.specularPower)
             memcpy(materialPointer, &material, MemoryLayout<ShaderMaterial>.size)
             materialPointer += MemoryLayout<ShaderMaterial>.stride

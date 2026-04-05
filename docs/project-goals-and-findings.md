@@ -139,7 +139,6 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 ビルドと基本動作は復旧しましたが、まだ以下は残っています。
 
-- `float3` / `float4` など古い型名の警告
 - Bullet 2.83.7 由来の大量 warning
 - テスト未整備
 - `GLKit` / UIKit / 自前 MetalView 依存の近代化未着手
@@ -156,6 +155,8 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 - `DataReader` に対する基本的な単体テストを追加
 - テストターゲットの `PRODUCT_NAME` が誤って `MMDViewer` になっていた設定を修正
 - `xcodebuild test -only-testing:MMDViewerTests` で 6 件の単体テスト成功を確認
+
+第3段階の最初の反映として、Swift 側の `float3` / `float4` は `SIMD3<Float>` / `SIMD4<Float>` へ置き換え済みです。これにより、`simd` への段階的移行を始めつつ、Xcode 26.4 上の該当 warning を解消しました。
 
 ## Apple の新しいフレームワークへの移行判断
 

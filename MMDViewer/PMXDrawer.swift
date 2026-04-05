@@ -130,9 +130,9 @@ class PMXDrawer: Drawer {
             let texture = pmxObj.textures[textureIndex]
             let renderPipelineState = texture.hasAlpha ? alphaPipelineState : opaquePipelineState
             var shaderMaterial = ShaderMaterial(
-                ambientColor: float3(material.ambient.r, material.ambient.g, material.ambient.b),
-                diffuseColor: float3(material.diffuse.r, material.diffuse.g, material.diffuse.b),
-                specularColor: float3(material.specular.r, material.specular.g, material.specular.b),
+                ambientColor: SIMD3(material.ambient.r, material.ambient.g, material.ambient.b),
+                diffuseColor: SIMD3(material.diffuse.r, material.diffuse.g, material.diffuse.b),
+                specularColor: SIMD3(material.specular.r, material.specular.g, material.specular.b),
                 specularPower: material.specularPower
             )
 

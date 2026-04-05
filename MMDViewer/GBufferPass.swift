@@ -149,8 +149,8 @@ private class PassResource {
 }
 
 struct MaterialSunData {
-    var sunDirection: float4
-    var sunColor: float4
+    var sunDirection: SIMD4<Float>
+    var sunColor: SIMD4<Float>
 }
 
 private func newFunctionFromLibrary(_ library: MTLLibrary, name: String) -> MTLFunction {
