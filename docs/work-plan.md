@@ -168,7 +168,7 @@
 - [x] Bullet 2 系の公式 release を基準に、vendor を丸ごと更新できるか調査する
 - [x] Bullet 2.89 を第一候補として、API 差分と移行コストを確認する
 - [ ] 丸ごと更新が重すぎる場合に備えて、target 依存面積の縮小を第 2 案として整理する
-- [ ] Bullet 2.89 更新後の描画、モーション、物理挙動をシミュレータで確認する
+- [x] Bullet 2.89 更新後の描画、モーション、物理挙動をシミュレータで確認する
 
 ### 最終棚卸し
 
@@ -201,6 +201,8 @@
 - Bullet 更新方針を見直し、「先に縮小」より「まず丸ごと更新を試し、難しければ縮小へ切り替える」方針に改めた
 - Bullet の版付きパス依存は Xcode project 内で主に group path 4 箇所と `HEADER_SEARCH_PATHS` 2 箇所に集中しており、vendor 差し替え自体は比較的機械的に進められそうだと分かった
 - Bullet 2.89 への vendor 丸ごと更新を試し、`btMultiSapBroadphase` の参照削除と `btSdfCollisionShape` / `btMiniSDF` の追加で simulator build と単体テスト成功まで確認した
+- Bullet 2.89 更新後も、シミュレータ上でモデル表示、モーション再生、Pause / Play、カメラ操作に問題がないことを確認した
+- `GLKVector3` / `GLKVector4` の基本 helper の内部実装を `simd` ベースへ寄せ、既存 GLK 演算との差分を回帰テストで監視できるようにした
 
 ## 次のイテレーション候補
 

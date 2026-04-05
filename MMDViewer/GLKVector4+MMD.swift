@@ -23,7 +23,7 @@ extension GLKVector4 {
     }
 
     func sub(_ other: GLKVector4) -> GLKVector4 {
-        return GLKVector4Subtract(self, other)
+        GLKVector4(simd: simdValue - other.simdValue)
     }
 
     func toGLKVector3() -> GLKVector3 {

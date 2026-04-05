@@ -224,6 +224,37 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertEqual(result.w, expected.w, accuracy: 1e-6)
     }
 
+    func testVectorHelpersMatchLegacyGLKOperations() {
+        let left = GLKVector3Make(1, 2, 3)
+        let right = GLKVector3Make(-4, 5, -6)
+
+        assertEqualVector3(left.add(right), GLKVector3Add(left, right))
+        assertEqualVector3(left.sub(right), GLKVector3Subtract(left, right))
+        XCTAssertEqual(left.len(), GLKVector3Length(left), accuracy: 1e-6)
+        assertEqualVector3(left.mul(2.5), GLKVector3MultiplyScalar(left, 2.5))
+        assertEqualVector3(left.normal(), GLKVector3Normalize(left))
+        assertEqualVector3(left.outer(right), GLKVector3CrossProduct(left, right))
+        XCTAssertEqual(left.inner(right), GLKVector3DotProduct(left, right), accuracy: 1e-6)
+        XCTAssertEqual(left.dot(right), GLKVector3DotProduct(left, right), accuracy: 1e-6)
+        assertEqualVector3(left.cross(right), GLKVector3CrossProduct(left, right))
+
+        let zero = GLKVector3Make(0, 0, 0)
+        assertEqualVector3(zero.normal(), zero)
+    }
+
+    func testVector4HelpersMatchLegacyGLKOperations() {
+        let left = GLKVector4Make(1, 2, 3, 4)
+        let right = GLKVector4Make(-4, 5, -6, 7)
+
+        let result = left.sub(right)
+        let expected = GLKVector4Subtract(left, right)
+
+        XCTAssertEqual(result.x, expected.x, accuracy: 1e-6)
+        XCTAssertEqual(result.y, expected.y, accuracy: 1e-6)
+        XCTAssertEqual(result.z, expected.z, accuracy: 1e-6)
+        XCTAssertEqual(result.w, expected.w, accuracy: 1e-6)
+    }
+
     func testCurveValueReturnsExactKeyFrameValues() {
         let key = makeKeyFrame(
             frameNum: 12,
@@ -349,5 +380,11 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertEqual(lhs.m31, rhs.m31, accuracy: accuracy, file: file, line: line)
         XCTAssertEqual(lhs.m32, rhs.m32, accuracy: accuracy, file: file, line: line)
         XCTAssertEqual(lhs.m33, rhs.m33, accuracy: accuracy, file: file, line: line)
+    }
+
+    private func assertEqualVector3(_ lhs: GLKVector3, _ rhs: GLKVector3, accuracy: Float = 1e-6, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertEqual(lhs.x, rhs.x, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.y, rhs.y, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.z, rhs.z, accuracy: accuracy, file: file, line: line)
     }
 }
