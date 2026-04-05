@@ -194,6 +194,8 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 つまり、アプリが本当に必要としている剛体 + 基本 shape + 6DoF spring constraint まわりよりも、target 設定側は「Bullet 2 系のかなり広い範囲を丸ごと抱えている」状態です。vendor 更新時の差分や warning の量は、この広さの影響を強く受けます。
 
+また、[`PhysicsSolver.mm`](/Users/kmi/devel/MMDViewer/MMDViewer/PhysicsSolver.mm) はもともと umbrella header の `btBulletDynamicsCommon.h` を読み込んでいましたが、現時点では明示的な個別 header 群へ差し替えても simulator build は通ります。つまり、コード側の include 依存は先に狭められる見込みがあり、target 側の縮小前準備として有効です。
+
 一方で、更新には次のリスクがあります。
 
 - Xcode プロジェクトへ手で追加している Bullet ソース一覧の更新が必要

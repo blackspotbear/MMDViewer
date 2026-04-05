@@ -195,6 +195,7 @@
 - VMD 補間の数値回帰テストを追加し、単体テストは 13 件になった
 - Play / Pause ボタンを使った最小 UI 起動テストを追加し、UI テストで起動とトグル操作を自動確認できるようにした
 - Bullet vendor 調査を進め、実使用 API は限定的だが Xcode target は 143 本の Bullet ソースを広くコンパイルしていることを確認した
+- `PhysicsSolver.mm` の Bullet include を umbrella header から明示的な個別 header 群へ絞っても simulator build が通ることを確認した
 
 ## 次のイテレーション候補
 

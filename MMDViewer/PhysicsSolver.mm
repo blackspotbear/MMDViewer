@@ -3,7 +3,18 @@
 #import <GLKit/GLKit.h>
 #import "MMDViewer-Swift.h"
 #import "PhysicsSolver.h"
-#include "btBulletDynamicsCommon.h"
+#include "LinearMath/btDefaultMotionState.h"
+#include "LinearMath/btTransform.h"
+#include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
+#include "BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h"
+#include "BulletCollision/CollisionShapes/btBoxShape.h"
+#include "BulletCollision/CollisionShapes/btCapsuleShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
+#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
 
 namespace {
     
