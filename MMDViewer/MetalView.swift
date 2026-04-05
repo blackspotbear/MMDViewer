@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import Metal
+import QuartzCore
 
 class MetalView: UIView {
     var device: MTLDevice?
@@ -18,7 +19,7 @@ class MetalView: UIView {
 
     var drawableSize: CGSize {
         set (v) {
-            if let metalLayer = metalLayer {
+            if let metalLayer = metalLayer, v.width > 0, v.height > 0 {
                 metalLayer.drawableSize = v
             }
         }
@@ -59,6 +60,7 @@ class MetalView: UIView {
                 fatalError("can't create system default device")
             }
             metalLayer.device = device
+            metalLayer.frame = bounds
 
             self.device = device
             self.metalLayer = metalLayer

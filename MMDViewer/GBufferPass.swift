@@ -95,6 +95,7 @@ private class PassResource {
                 desc.usage = .renderTarget
                 desc.textureType = (depthTextureSampleCount > 1) ? .type2DMultisample : .type2D
                 desc.sampleCount = depthTextureSampleCount
+                desc.storageMode = .private
                 depthTex = device.makeTexture(descriptor: desc)
 
                 if let depthTex = depthTex {
@@ -127,6 +128,7 @@ private class PassResource {
                     mipmapped: false)
                 desc.textureType = .type2D
                 desc.usage = .renderTarget
+                desc.storageMode = .private
                 stencilTex = device.makeTexture(descriptor: desc)
 
                 if let stencilTex = stencilTex {

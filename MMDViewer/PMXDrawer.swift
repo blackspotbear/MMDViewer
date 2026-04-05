@@ -1,5 +1,6 @@
 import Foundation
 import Metal
+import simd
 
 private func CreateOpaquePipelinesState(_ device: MTLDevice, _ vertexDescriptor: MTLVertexDescriptor, _ vertexFunc: MTLFunction, _ fragmentFunc: MTLFunction) -> MTLRenderPipelineState {
     let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
@@ -124,15 +125,20 @@ class PMXDrawer: Drawer {
 
         // draw primitives for each material
         var indexByteOffset = 0
-        var materialByteOffset = 0
         for material in pmxObj.pmx.materials {
             let textureIndex = material.textureIndex != 255 ? material.textureIndex : 0
             let texture = pmxObj.textures[textureIndex]
             let renderPipelineState = texture.hasAlpha ? alphaPipelineState : opaquePipelineState
+            var shaderMaterial = ShaderMaterial(
+                ambientColor: float3(material.ambient.r, material.ambient.g, material.ambient.b),
+                diffuseColor: float3(material.diffuse.r, material.diffuse.g, material.diffuse.b),
+                specularColor: float3(material.specular.r, material.specular.g, material.specular.b),
+                specularPower: material.specularPower
+            )
 
             renderEncoder.setRenderPipelineState(renderPipelineState)
             renderEncoder.setFragmentTexture(texture.texture, index: 0)
-            renderEncoder.setFragmentBuffer(pmxObj.materialBuffer, offset: materialByteOffset, index: 1)
+            renderEncoder.setFragmentBytes(&shaderMaterial, length: MemoryLayout<ShaderMaterial>.stride, index: 1)
 
             renderEncoder.drawIndexedPrimitives(
                 type: .triangle,
@@ -142,7 +148,6 @@ class PMXDrawer: Drawer {
                 indexBufferOffset: indexByteOffset)
 
             indexByteOffset += Int(material.vertexCount) * 2 // 2 bytes per index
-            materialByteOffset += MemoryLayout<ShaderMaterial>.stride
         }
     }
 }

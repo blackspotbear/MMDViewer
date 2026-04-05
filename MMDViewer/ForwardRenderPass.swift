@@ -20,7 +20,6 @@ private class PassResource {
     }
 
     func renderPassDescriptorForDrawable(_ drawable: MTLTexture) -> MTLRenderPassDescriptor {
-
         // color attachment #0
         if let colorAttachment = renderPassDescriptor.colorAttachments[0] {
             colorAttachment.texture = drawable
@@ -49,6 +48,7 @@ private class PassResource {
             desc.textureType = (depthTextureSampleCount > 1) ? .type2DMultisample : .type2D
             desc.sampleCount = depthTextureSampleCount
             desc.usage = .renderTarget
+            desc.storageMode = .private
             depthTex = device.makeTexture(descriptor: desc)
 
             if let depthTex = depthTex {
@@ -79,6 +79,10 @@ class ForwardRenderPass: RenderPass {
 
     func begin(_ renderer: Renderer) {
         guard let drawable = view.currentDrawable else {
+            return
+        }
+        guard drawable.texture.width > 0, drawable.texture.height > 0 else {
+            view.releaseCurrentDrawable()
             return
         }
         guard let commandBuffer = renderer.commandBuffer else {

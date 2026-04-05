@@ -64,6 +64,7 @@ class MMDView: MetalView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        metalLayer?.frame = bounds
         layerSizeDidUpdate = true
     }
 
@@ -223,12 +224,18 @@ class MMDView: MetalView {
         lastFrameTimestamp = displayLink.timestamp
 
         if layerSizeDidUpdate {
-            self.drawableSize.width = self.bounds.size.width * contentScaleFactor
-            self.drawableSize.height = self.bounds.size.height * contentScaleFactor
+            self.drawableSize = CGSize(
+                width: self.bounds.size.width * contentScaleFactor,
+                height: self.bounds.size.height * contentScaleFactor
+            )
 
             renderer.reshape(self.bounds)
 
             layerSizeDidUpdate = false
+        }
+
+        guard drawableSize.width > 0, drawableSize.height > 0 else {
+            return
         }
 
         traverser.update(elapsed, node: root)

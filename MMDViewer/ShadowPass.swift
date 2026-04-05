@@ -34,6 +34,7 @@ class ShadowPass: RenderPass {
             height: 1024,
             mipmapped: false)
         shadowTextureDesc.usage = [.renderTarget, .shaderRead]
+        shadowTextureDesc.storageMode = .private
         shadowTexture = device.makeTexture(descriptor: shadowTextureDesc)!
         shadowTexture.label = "shadow map"
 
