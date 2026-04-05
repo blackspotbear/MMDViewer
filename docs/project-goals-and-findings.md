@@ -176,6 +176,24 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 つまり、このアプリは Bullet の巨大な機能集合のうち、剛体、基本 shape、6DoF spring constraint だけを使っています。依存範囲が狭いため、「理論上は更新可能」である可能性が高いです。
 
+一方で、[`MMDViewer.xcodeproj/project.pbxproj`](/Users/kmi/devel/MMDViewer/MMDViewer.xcodeproj/project.pbxproj) を確認すると、Xcode target に追加されている Bullet ソースは実使用 API よりかなり広く、合計 143 本の `.cpp` / `.c` をコンパイルしています。内訳は次の通りです。
+
+- `BulletCollision/BroadphaseCollision`: 10
+- `BulletCollision/CollisionDispatch`: 26
+- `BulletCollision/CollisionShapes`: 36
+- `BulletCollision/Gimpact`: 11
+- `BulletCollision/NarrowPhaseCollision`: 12
+- `BulletDynamics/Character`: 1
+- `BulletDynamics/ConstraintSolver`: 16
+- `BulletDynamics/Dynamics`: 3
+- `BulletDynamics/Featherstone`: 7
+- `BulletDynamics/MLCPSolvers`: 3
+- `BulletDynamics/Vehicle`: 2
+- `BulletSoftBody`: 8
+- `LinearMath`: 8
+
+つまり、アプリが本当に必要としている剛体 + 基本 shape + 6DoF spring constraint まわりよりも、target 設定側は「Bullet 2 系のかなり広い範囲を丸ごと抱えている」状態です。vendor 更新時の差分や warning の量は、この広さの影響を強く受けます。
+
 一方で、更新には次のリスクがあります。
 
 - Xcode プロジェクトへ手で追加している Bullet ソース一覧の更新が必要
@@ -187,12 +205,12 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 このため、更新方針としては次の順が妥当です。
 
-1. まず現行の vendored Bullet ソース一覧を文書化する
-2. 次に公式 release tag を基準に、`src` 配下の差分だけを比較する
+1. まず現行 target に含まれている Bullet ソース範囲を固定し、可能なら本当に必要な下位 module だけに絞る
+2. 次に公式 release tag を基準に、必要な `src` 配下だけの差分を比較する
 3. `PhysicsSolver.mm` が依存する API に差分がなければ、小さいイテレーションで差し替える
 4. 置換後はビルド、単体テスト、シミュレータ表示、物理付きモーションの実動作確認を行う
 
-現時点の結論は、「Bullet 更新は検討価値が高いが、レンダリング近代化とは別イテレーションで実施すべき」です。
+現時点の結論は、「Bullet 更新は検討価値が高いが、レンダリング近代化とは別イテレーションで実施し、できれば先に target 依存面積を縮小してから更新するべき」です。
 
 ## Apple の新しいフレームワークへの移行判断
 
