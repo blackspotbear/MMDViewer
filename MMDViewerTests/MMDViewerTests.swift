@@ -151,6 +151,60 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertEqual(roundTrip.m33, matrix.m33, accuracy: 1e-6)
     }
 
+    func testCurveValueReturnsExactKeyFrameValues() {
+        let key = makeKeyFrame(
+            frameNum: 12,
+            position: GLKVector3Make(1, 2, 3),
+            rotation: GLKQuaternionNormalize(GLKQuaternionMake(0.1, 0.2, 0.3, 0.9))
+        )
+        let tie = CurveTie()
+        tie.keys = [key]
+
+        let (rotation, position) = GetCurveValue(tie, frameNum: 12)
+        guard let position, let rotation else {
+            XCTFail("Expected exact keyframe values")
+            return
+        }
+
+        XCTAssertEqual(position.x, 1, accuracy: 1e-6)
+        XCTAssertEqual(position.y, 2, accuracy: 1e-6)
+        XCTAssertEqual(position.z, 3, accuracy: 1e-6)
+        XCTAssertEqual(rotation.x, key.segments[BoneAttr.QX].value, accuracy: 1e-6)
+        XCTAssertEqual(rotation.y, key.segments[BoneAttr.QY].value, accuracy: 1e-6)
+        XCTAssertEqual(rotation.z, key.segments[BoneAttr.QZ].value, accuracy: 1e-6)
+        XCTAssertEqual(rotation.w, key.segments[BoneAttr.QW].value, accuracy: 1e-6)
+    }
+
+    func testCurveValueInterpolatesLinearlyBetweenKeyFrames() {
+        let start = makeKeyFrame(
+            frameNum: 0,
+            position: GLKVector3Make(1, 2, 3),
+            rotation: GLKQuaternionIdentity
+        )
+        let end = makeKeyFrame(
+            frameNum: 10,
+            position: GLKVector3Make(11, 22, 33),
+            rotation: GLKQuaternionMakeWithAngleAndVector3Axis(.pi, GLKVector3Make(0, 1, 0))
+        )
+        let tie = CurveTie()
+        tie.keys = [start, end]
+
+        let (rotation, position) = GetCurveValue(tie, frameNum: 5)
+        guard let position, let rotation else {
+            XCTFail("Expected interpolated keyframe values")
+            return
+        }
+
+        XCTAssertEqual(position.x, 6, accuracy: 1e-4)
+        XCTAssertEqual(position.y, 12, accuracy: 1e-4)
+        XCTAssertEqual(position.z, 18, accuracy: 1e-4)
+
+        let rotated = rotation.rotate(GLKVector3Make(0, 0, 1))
+        XCTAssertEqual(rotated.x, 1, accuracy: 1e-4)
+        XCTAssertEqual(rotated.y, 0, accuracy: 1e-4)
+        XCTAssertEqual(rotated.z, 0, accuracy: 1e-4)
+    }
+
     func testLoadModelAndMotionFixtures() {
         guard let pmxData = fixtureData(at: "data/mmd/Alicia_solid.pmx") else {
             XCTFail("Missing PMX fixture")
@@ -185,5 +239,23 @@ final class MatrixBridgingTests: XCTestCase {
             .deletingLastPathComponent()
         let url = projectRoot.appendingPathComponent(relativePath)
         return try? Data(contentsOf: url)
+    }
+
+    private func makeKeyFrame(frameNum: Int, position: GLKVector3, rotation: GLKQuaternion) -> KeyFrame {
+        var key = KeyFrame(frameNum)
+        key.segments[BoneAttr.TX].value = position.x
+        key.segments[BoneAttr.TY].value = position.y
+        key.segments[BoneAttr.TZ].value = position.z
+        key.segments[BoneAttr.QX].value = rotation.x
+        key.segments[BoneAttr.QY].value = rotation.y
+        key.segments[BoneAttr.QZ].value = rotation.z
+        key.segments[BoneAttr.QW].value = rotation.w
+
+        for attr in 0..<BoneAttr.count {
+            key.segments[attr].controlPoint[0] = GLKVector2Make(0, 0)
+            key.segments[attr].controlPoint[1] = GLKVector2Make(127, 127)
+        }
+
+        return key
     }
 }
