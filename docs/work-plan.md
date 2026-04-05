@@ -165,9 +165,10 @@
 - [ ] テストコードに意図、前提、期待結果が分かるコメントを書く
 - [ ] 責務分離の優先順位を決める
 - [ ] 最終的なテスト不足領域を埋める
-- [ ] Bullet 2 系の公式 release を基準に、vendor を丸ごと更新できるか調査する
-- [ ] Bullet 2.89 を第一候補として、API 差分と移行コストを確認する
+- [x] Bullet 2 系の公式 release を基準に、vendor を丸ごと更新できるか調査する
+- [x] Bullet 2.89 を第一候補として、API 差分と移行コストを確認する
 - [ ] 丸ごと更新が重すぎる場合に備えて、target 依存面積の縮小を第 2 案として整理する
+- [ ] Bullet 2.89 更新後の描画、モーション、物理挙動をシミュレータで確認する
 
 ### 最終棚卸し
 
@@ -199,11 +200,12 @@
 - `PhysicsSolver.mm` の Bullet include を umbrella header から明示的な個別 header 群へ絞っても simulator build が通ることを確認した
 - Bullet 更新方針を見直し、「先に縮小」より「まず丸ごと更新を試し、難しければ縮小へ切り替える」方針に改めた
 - Bullet の版付きパス依存は Xcode project 内で主に group path 4 箇所と `HEADER_SEARCH_PATHS` 2 箇所に集中しており、vendor 差し替え自体は比較的機械的に進められそうだと分かった
+- Bullet 2.89 への vendor 丸ごと更新を試し、`btMultiSapBroadphase` の参照削除と `btSdfCollisionShape` / `btMiniSDF` の追加で simulator build と単体テスト成功まで確認した
 
 ## 次のイテレーション候補
 
 - `GLKMatrix4` の演算 API 置換
-- Bullet 2.89 を前提にした vendor 丸ごと更新の準備
+- Bullet 2.89 更新後のシミュレータ実動作確認
 - Bullet と bridge 境界の型変換整理
 
 ## イテレーションの完了条件

@@ -225,6 +225,15 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 現時点の結論は、「Bullet 更新は検討価値が高く、まずは丸ごと更新を第一候補として試すべき」です。target 依存面積の縮小は有効な改善ですが、更新前の必須条件ではなく、更新が重すぎる場合の第 2 案として扱うのが合理的です。
 
+実際に 2026-04-06 時点で、vendor ディレクトリの中身を Bullet 2.89 へ差し替え、Xcode project では以下の最小追従で simulator build と単体テスト成功まで確認できました。
+
+- 廃止された `btMultiSapBroadphase` の project 参照削除
+- 2.89 で新たに link に必要になった `btSdfCollisionShape.cpp` と `btMiniSDF.cpp` の project 追加
+
+この結果、少なくとも「Bullet 2.89 への丸ごと更新は、限定的な project 追従で成立する」ことが確認できました。`xcodebuild` による simulator build、`MMDViewerTests` 16 件成功、`simctl launch` による起動成功までは確認済みです。
+
+未確認なのは、あなたの目で見るシミュレータ上の描画と物理の実動作です。ここはモデル表示、モーション再生、Play / Pause、カメラ操作、物理付きシーンの見た目に回帰がないかを確認する必要があります。
+
 ## Apple の新しいフレームワークへの移行判断
 
 ### 採用有力

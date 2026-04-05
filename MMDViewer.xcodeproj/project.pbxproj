@@ -59,7 +59,6 @@
 		ABDB8D001CE87DD600BD28AD /* btDbvt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8B821CE87DD500BD28AD /* btDbvt.cpp */; };
 		ABDB8D011CE87DD600BD28AD /* btDbvtBroadphase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8B841CE87DD500BD28AD /* btDbvtBroadphase.cpp */; };
 		ABDB8D021CE87DD600BD28AD /* btDispatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8B861CE87DD500BD28AD /* btDispatcher.cpp */; };
-		ABDB8D031CE87DD600BD28AD /* btMultiSapBroadphase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8B881CE87DD500BD28AD /* btMultiSapBroadphase.cpp */; };
 		ABDB8D041CE87DD600BD28AD /* btOverlappingPairCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8B8A1CE87DD500BD28AD /* btOverlappingPairCache.cpp */; };
 		ABDB8D051CE87DD600BD28AD /* btQuantizedBvh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8B8D1CE87DD500BD28AD /* btQuantizedBvh.cpp */; };
 		ABDB8D061CE87DD600BD28AD /* btSimpleBroadphase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8B8F1CE87DD500BD28AD /* btSimpleBroadphase.cpp */; };
@@ -113,6 +112,8 @@
 		ABDB8D371CE87DD600BD28AD /* btOptimizedBvh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8BF71CE87DD500BD28AD /* btOptimizedBvh.cpp */; };
 		ABDB8D381CE87DD600BD28AD /* btPolyhedralConvexShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8BF91CE87DD500BD28AD /* btPolyhedralConvexShape.cpp */; };
 		ABDB8D391CE87DD600BD28AD /* btScaledBvhTriangleMeshShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8BFB1CE87DD500BD28AD /* btScaledBvhTriangleMeshShape.cpp */; };
+		ABE7C1032F00000200000001 /* btMiniSDF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABE7C1042F00000200000001 /* btMiniSDF.cpp */; };
+		ABE7C1012F00000200000001 /* btSdfCollisionShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABE7C1002F00000200000001 /* btSdfCollisionShape.cpp */; };
 		ABDB8D3A1CE87DD600BD28AD /* btShapeHull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8BFD1CE87DD500BD28AD /* btShapeHull.cpp */; };
 		ABDB8D3B1CE87DD600BD28AD /* btSphereShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8BFF1CE87DD500BD28AD /* btSphereShape.cpp */; };
 		ABDB8D3C1CE87DD600BD28AD /* btStaticPlaneShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABDB8C011CE87DD500BD28AD /* btStaticPlaneShape.cpp */; };
@@ -303,8 +304,6 @@
 		ABDB8B851CE87DD500BD28AD /* btDbvtBroadphase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btDbvtBroadphase.h; sourceTree = "<group>"; };
 		ABDB8B861CE87DD500BD28AD /* btDispatcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btDispatcher.cpp; sourceTree = "<group>"; };
 		ABDB8B871CE87DD500BD28AD /* btDispatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btDispatcher.h; sourceTree = "<group>"; };
-		ABDB8B881CE87DD500BD28AD /* btMultiSapBroadphase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btMultiSapBroadphase.cpp; sourceTree = "<group>"; };
-		ABDB8B891CE87DD500BD28AD /* btMultiSapBroadphase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btMultiSapBroadphase.h; sourceTree = "<group>"; };
 		ABDB8B8A1CE87DD500BD28AD /* btOverlappingPairCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btOverlappingPairCache.cpp; sourceTree = "<group>"; };
 		ABDB8B8B1CE87DD500BD28AD /* btOverlappingPairCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btOverlappingPairCache.h; sourceTree = "<group>"; };
 		ABDB8B8C1CE87DD500BD28AD /* btOverlappingPairCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btOverlappingPairCallback.h; sourceTree = "<group>"; };
@@ -411,12 +410,16 @@
 		ABDB8BF41CE87DD500BD28AD /* btMultimaterialTriangleMeshShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btMultimaterialTriangleMeshShape.h; sourceTree = "<group>"; };
 		ABDB8BF51CE87DD500BD28AD /* btMultiSphereShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btMultiSphereShape.cpp; sourceTree = "<group>"; };
 		ABDB8BF61CE87DD500BD28AD /* btMultiSphereShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btMultiSphereShape.h; sourceTree = "<group>"; };
+		ABE7C1042F00000200000001 /* btMiniSDF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btMiniSDF.cpp; sourceTree = "<group>"; };
+		ABE7C1052F00000200000001 /* btMiniSDF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btMiniSDF.h; sourceTree = "<group>"; };
 		ABDB8BF71CE87DD500BD28AD /* btOptimizedBvh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btOptimizedBvh.cpp; sourceTree = "<group>"; };
 		ABDB8BF81CE87DD500BD28AD /* btOptimizedBvh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btOptimizedBvh.h; sourceTree = "<group>"; };
 		ABDB8BF91CE87DD500BD28AD /* btPolyhedralConvexShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btPolyhedralConvexShape.cpp; sourceTree = "<group>"; };
 		ABDB8BFA1CE87DD500BD28AD /* btPolyhedralConvexShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btPolyhedralConvexShape.h; sourceTree = "<group>"; };
 		ABDB8BFB1CE87DD500BD28AD /* btScaledBvhTriangleMeshShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btScaledBvhTriangleMeshShape.cpp; sourceTree = "<group>"; };
 		ABDB8BFC1CE87DD500BD28AD /* btScaledBvhTriangleMeshShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btScaledBvhTriangleMeshShape.h; sourceTree = "<group>"; };
+		ABE7C1002F00000200000001 /* btSdfCollisionShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btSdfCollisionShape.cpp; sourceTree = "<group>"; };
+		ABE7C1022F00000200000001 /* btSdfCollisionShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSdfCollisionShape.h; sourceTree = "<group>"; };
 		ABDB8BFD1CE87DD500BD28AD /* btShapeHull.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btShapeHull.cpp; sourceTree = "<group>"; };
 		ABDB8BFE1CE87DD500BD28AD /* btShapeHull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btShapeHull.h; sourceTree = "<group>"; };
 		ABDB8BFF1CE87DD500BD28AD /* btSphereShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btSphereShape.cpp; sourceTree = "<group>"; };
@@ -937,8 +940,6 @@
 				ABDB8B851CE87DD500BD28AD /* btDbvtBroadphase.h */,
 				ABDB8B861CE87DD500BD28AD /* btDispatcher.cpp */,
 				ABDB8B871CE87DD500BD28AD /* btDispatcher.h */,
-				ABDB8B881CE87DD500BD28AD /* btMultiSapBroadphase.cpp */,
-				ABDB8B891CE87DD500BD28AD /* btMultiSapBroadphase.h */,
 				ABDB8B8A1CE87DD500BD28AD /* btOverlappingPairCache.cpp */,
 				ABDB8B8B1CE87DD500BD28AD /* btOverlappingPairCache.h */,
 				ABDB8B8C1CE87DD500BD28AD /* btOverlappingPairCallback.h */,
@@ -1057,6 +1058,8 @@
 				ABDB8BF21CE87DD500BD28AD /* btMinkowskiSumShape.h */,
 				ABDB8BF31CE87DD500BD28AD /* btMultimaterialTriangleMeshShape.cpp */,
 				ABDB8BF41CE87DD500BD28AD /* btMultimaterialTriangleMeshShape.h */,
+				ABE7C1042F00000200000001 /* btMiniSDF.cpp */,
+				ABE7C1052F00000200000001 /* btMiniSDF.h */,
 				ABDB8BF51CE87DD500BD28AD /* btMultiSphereShape.cpp */,
 				ABDB8BF61CE87DD500BD28AD /* btMultiSphereShape.h */,
 				ABDB8BF71CE87DD500BD28AD /* btOptimizedBvh.cpp */,
@@ -1065,6 +1068,8 @@
 				ABDB8BFA1CE87DD500BD28AD /* btPolyhedralConvexShape.h */,
 				ABDB8BFB1CE87DD500BD28AD /* btScaledBvhTriangleMeshShape.cpp */,
 				ABDB8BFC1CE87DD500BD28AD /* btScaledBvhTriangleMeshShape.h */,
+				ABE7C1002F00000200000001 /* btSdfCollisionShape.cpp */,
+				ABE7C1022F00000200000001 /* btSdfCollisionShape.h */,
 				ABDB8BFD1CE87DD500BD28AD /* btShapeHull.cpp */,
 				ABDB8BFE1CE87DD500BD28AD /* btShapeHull.h */,
 				ABDB8BFF1CE87DD500BD28AD /* btSphereShape.cpp */,
@@ -1615,6 +1620,8 @@
 				ABDB8D061CE87DD600BD28AD /* btSimpleBroadphase.cpp in Sources */,
 				ABDB8D0B1CE87DD600BD28AD /* btBoxBoxDetector.cpp in Sources */,
 				ABDB8D391CE87DD600BD28AD /* btScaledBvhTriangleMeshShape.cpp in Sources */,
+				ABE7C1032F00000200000001 /* btMiniSDF.cpp in Sources */,
+				ABE7C1012F00000200000001 /* btSdfCollisionShape.cpp in Sources */,
 				ABDB8D2F1CE87DD600BD28AD /* btConvexShape.cpp in Sources */,
 				AB307C4B1CB0D93B007C4343 /* GLKVector4+MMD.swift in Sources */,
 				ABDB8D461CE87DD600BD28AD /* btContactProcessing.cpp in Sources */,
@@ -1733,7 +1740,6 @@
 				AB076EA21C67059D00E22F03 /* VMD.swift in Sources */,
 				ABDB8D371CE87DD600BD28AD /* btOptimizedBvh.cpp in Sources */,
 				ABDB8D841CE87DD600BD28AD /* btSoftBodyRigidBodyCollisionConfiguration.cpp in Sources */,
-				ABDB8D031CE87DD600BD28AD /* btMultiSapBroadphase.cpp in Sources */,
 				ABDB8D161CE87DD600BD28AD /* btDefaultCollisionConfiguration.cpp in Sources */,
 				ABDB8D401CE87DD600BD28AD /* btTriangleCallback.cpp in Sources */,
 				ABDB8D0A1CE87DD600BD28AD /* btBoxBoxCollisionAlgorithm.cpp in Sources */,

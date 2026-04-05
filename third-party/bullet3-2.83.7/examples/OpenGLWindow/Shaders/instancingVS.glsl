@@ -8,7 +8,7 @@ layout (location = 2) in vec4 instance_quaternion;
 layout (location = 3) in vec2 uvcoords;
 layout (location = 4) in vec3 vertexnormal;
 layout (location = 5) in vec4 instance_color;
-layout (location = 6) in vec3 instance_scale;
+layout (location = 6) in vec4 instance_scale_obUid;
 
 
 uniform mat4 ModelViewMatrix;
@@ -61,14 +61,14 @@ out vec3 lightDir,normal,ambient;
 void main(void)
 {
 	vec4 q = instance_quaternion;
-	ambient = vec3(0.6,.6,0.6);
+	ambient = vec3(0.5,.5,0.5);
 	
 	vec4 worldNormal =  (quatRotate3( vertexnormal,q));
 	normal = normalize(worldNormal).xyz;
 	
 	lightDir = lightDirIn;
 	
-	vec4 localcoord = quatRotate3( position.xyz*instance_scale,q);
+	vec4 localcoord = quatRotate3( position.xyz*instance_scale_obUid.xyz,q);
 	vec4 vertexPos = ProjectionMatrix * ModelViewMatrix *(instance_position+localcoord);
 
 	gl_Position = vertexPos;

@@ -1,6 +1,5 @@
 
 
-
 #include "RobotControlExample.h"
 
 #if 0
@@ -15,7 +14,6 @@
 #include <string>
 
 //const char* blaatnaam = "basename";
-#define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE 1024
 
 struct MyMotorInfo
 {
@@ -666,5 +664,3 @@ class CommonExampleInterface*    RobotControlExampleCreateFunc(struct CommonExam
 	return example;
 }
 #endif
-
-
