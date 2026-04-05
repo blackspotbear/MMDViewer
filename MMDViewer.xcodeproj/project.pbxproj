@@ -1441,7 +1441,6 @@
 				AB8230E91C2FE34D008691E0 /* Sources */,
 				AB8230EA1C2FE34D008691E0 /* Frameworks */,
 				AB8230EB1C2FE34D008691E0 /* Resources */,
-				AB80F7961DB3746E00AC6A69 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1562,22 +1561,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		AB80F7961DB3746E00AC6A69 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Disable temporarily to identify \"source editor functionality is limited xcode\" problem\n#if which swiftlint >/dev/null; then\n#    swiftlint\n#else\n#    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\n#fi\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AB8230E91C2FE34D008691E0 /* Sources */ = {
