@@ -3,7 +3,7 @@ import GLKit
 
 typealias UV = GLKVector2
 
-extension GLKVector2: CustomStringConvertible {
+extension GLKVector2: @retroactive CustomStringConvertible {
     public var description: String { return String(format: "(%f,%f)", u, v) }
 
     var u: Float { return self.s }

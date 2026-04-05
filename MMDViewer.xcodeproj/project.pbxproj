@@ -43,6 +43,7 @@
 		AB8230FB1C2FE34D008691E0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AB8230F91C2FE34D008691E0 /* LaunchScreen.storyboard */; };
 		AB8231061C2FE34D008691E0 /* MMDViewerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8231051C2FE34D008691E0 /* MMDViewerTests.swift */; };
 		AB8231111C2FE34D008691E0 /* MMDViewerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8231101C2FE34D008691E0 /* MMDViewerUITests.swift */; };
+		ABE7C0012F00000100000001 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE7C0002F00000100000001 /* SceneDelegate.swift */; };
 		AB82311F1C2FE380008691E0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB82311E1C2FE380008691E0 /* QuartzCore.framework */; };
 		AB8231211C2FE38A008691E0 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8231201C2FE38A008691E0 /* Metal.framework */; };
 		AB8231231C2FE394008691E0 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8231221C2FE394008691E0 /* MetalKit.framework */; };
@@ -271,6 +272,7 @@
 		AB8230F71C2FE34D008691E0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AB8230FA1C2FE34D008691E0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AB8230FC1C2FE34D008691E0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ABE7C0002F00000100000001 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		AB8231011C2FE34D008691E0 /* MMDViewer.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MMDViewer.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB8231051C2FE34D008691E0 /* MMDViewerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMDViewerTests.swift; sourceTree = "<group>"; };
 		AB8231071C2FE34D008691E0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -798,6 +800,7 @@
 				ABDA7B341C6233250023EF89 /* math */,
 				ABDA7B361C6233AC0023EF89 /* melt */,
 				AB8230F01C2FE34D008691E0 /* AppDelegate.swift */,
+				ABE7C0002F00000100000001 /* SceneDelegate.swift */,
 				AB8230F21C2FE34D008691E0 /* ViewController.swift */,
 				AB8230F41C2FE34D008691E0 /* Main.storyboard */,
 				AB8230F71C2FE34D008691E0 /* Assets.xcassets */,
@@ -1698,6 +1701,7 @@
 				ABE075B01C39296E00213CB4 /* PMXObject.swift in Sources */,
 				ABDB8D6A1CE87DD600BD28AD /* btPoint2PointConstraint.cpp in Sources */,
 				AB8230F11C2FE34D008691E0 /* AppDelegate.swift in Sources */,
+				ABE7C0012F00000100000001 /* SceneDelegate.swift in Sources */,
 				AB307C471CAF97FD007C4343 /* IKSolver.swift in Sources */,
 				ABDB8D1B1CE87DD600BD28AD /* btManifoldResult.cpp in Sources */,
 				ABDB8D771CE87DD600BD28AD /* btMultiBodyJointLimitConstraint.cpp in Sources */,

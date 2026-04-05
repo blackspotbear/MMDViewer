@@ -1,7 +1,7 @@
 import Foundation
 import GLKit
 
-extension GLKMatrix4: CustomStringConvertible {
+extension GLKMatrix4: @retroactive CustomStringConvertible {
     public var description: String {
         return String(
             format: "|%f,%f,%f,%f|\n|%f,%f,%f,%f|\n|%f,%f,%f,%f|\n|%f,%f,%f,%f|",

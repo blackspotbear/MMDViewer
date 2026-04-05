@@ -139,13 +139,17 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 ビルドと基本動作は復旧しましたが、まだ以下は残っています。
 
+- `float3` / `float4` など古い型名の警告
+- Bullet 2.83.7 由来の大量 warning
+- テスト未整備
+- `GLKit` / UIKit / 自前 MetalView 依存の近代化未着手
+
+一方で、第1段階の後片付けとして以下は解消済みです。
+
 - `UIScene` lifecycle 未対応の警告
 - toolbar の Auto Layout 警告
 - `GLKit` 拡張の retroactive conformance 警告
-- `float3` / `float4` など古い型名の警告
 - `statusBarOrientation` の deprecated 警告
-- テスト未整備
-- `GLKit` / UIKit / 自前 MetalView 依存の近代化未着手
 
 ## Apple の新しいフレームワークへの移行判断
 

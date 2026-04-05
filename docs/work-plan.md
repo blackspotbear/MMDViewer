@@ -109,8 +109,10 @@
 - [x] アプリがシミュレータで起動する状態まで戻す
 - [x] あなたに iPhone シミュレータで初回動作確認を依頼する
 - [x] モデル表示とモーション再生が復旧したことを確認する
-- [ ] `UIScene` lifecycle 警告を解消する
-- [ ] toolbar の Auto Layout 警告を解消する
+- [x] `UIScene` lifecycle 警告を解消する
+- [x] toolbar の Auto Layout 警告を解消する
+- [x] `statusBarOrientation` の deprecated 依存を解消する
+- [x] `GLKit` 拡張の retroactive conformance 警告を解消する
 
 ### テスト
 
@@ -153,13 +155,13 @@
 - iPhone Simulator 上でアプリ起動を確認した
 - PMX モデル表示と VMD モーション再生を確認した
 - 現行 Metal validator に合わせて depth/stencil texture と fragment buffer の扱いを修正した
+- `UIScene` 対応と toolbar ボタン構成の見直しを行い、外周の警告を一段整理した
 
 ## 次のイテレーション候補
 
-- `UIScene` 警告の解消
-- toolbar の制約警告の解消
-- ビルド警告のうち影響が小さいものから整理
 - `DataReader` など純ロジック層のテスト追加
+- PMX / VMD パーサの最小テスト追加
+- `float3` / `float4` など `simd` 置換の足がかりになる警告整理
 
 ## イテレーションの完了条件
 

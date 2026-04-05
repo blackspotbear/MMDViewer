@@ -40,7 +40,7 @@ class BasicRenderer: Renderer {
     private var shaderLibrary: MTLLibrary?
 
     private let inflightSemaphore: DispatchSemaphore
-    private var mnOrientation = UIInterfaceOrientation.unknown
+    private var lastViewportSize = CGSize.zero
 
     private var onEndHandler: ((Renderer) -> Void)?
 
@@ -78,17 +78,18 @@ class BasicRenderer: Renderer {
     }
 
     func reshape(_ bounds: CGRect) {
-        let orientation = UIApplication.shared.statusBarOrientation
+        let viewportSize = bounds.integral.size
+        guard viewportSize.width > 0, viewportSize.height > 0 else { return }
+        guard viewportSize != lastViewportSize else { return }
 
-        if mnOrientation != orientation {
-            mnOrientation = orientation
-            let aspect = Float(bounds.size.width / bounds.size.height)
-            projectionMatrix = GLKMatrix4MakePerspective(
-                GLKMathDegreesToRadians(85.0),
-                aspect,
-                0.01,
-                100.0)
-        }
+        lastViewportSize = viewportSize
+
+        let aspect = Float(viewportSize.width / viewportSize.height)
+        projectionMatrix = GLKMatrix4MakePerspective(
+            GLKMathDegreesToRadians(85.0),
+            aspect,
+            0.01,
+            100.0)
     }
 
     func setEndHandler(_ handler: @escaping (Renderer) -> Void) {

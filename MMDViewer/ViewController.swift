@@ -3,9 +3,11 @@ import UIKit
 class ViewController: UIViewController {
     @IBOutlet weak var mmdView: MMDView!
     @IBOutlet weak var toolBar: UIToolbar!
+    @IBOutlet weak var playPauseButton: UIBarButtonItem!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        updatePlayPauseButtonTitle()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -27,10 +29,12 @@ class ViewController: UIViewController {
 
     @objc func viewWillEnterForeground(_ notification: Notification?) {
         mmdView.pmxUpdater?.playing = true
+        updatePlayPauseButtonTitle()
     }
 
     @objc func viewDidEnterBackground(_ notification: Notification?) {
         mmdView.pmxUpdater?.playing = false
+        updatePlayPauseButtonTitle()
     }
 
     override func didReceiveMemoryWarning() {
@@ -41,12 +45,11 @@ class ViewController: UIViewController {
     @IBAction func onPlayButtonPushed(_ sender: AnyObject) {
         if let pmxUpdater = mmdView.pmxUpdater {
             pmxUpdater.playing = !pmxUpdater.playing
-            if let index = toolBar.items?.firstIndex(of: sender as! UIBarButtonItem) {
-                let btnSystemItem = mmdView.pmxUpdater!.playing ? UIBarButtonItem.SystemItem.pause : UIBarButtonItem.SystemItem.play
-                let btnItem = UIBarButtonItem(barButtonSystemItem: btnSystemItem, target: self, action: #selector(ViewController.onPlayButtonPushed(_:)))
-                toolBar.items?.insert(btnItem, at: index)
-                toolBar.items?.remove(at: index + 1)
-            }
+            updatePlayPauseButtonTitle()
         }
+    }
+
+    private func updatePlayPauseButtonTitle() {
+        playPauseButton?.title = (mmdView?.pmxUpdater?.playing ?? true) ? "Pause" : "Play"
     }
 }

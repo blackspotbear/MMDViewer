@@ -39,7 +39,7 @@ extension GLKVector3 {
     }
 }
 
-extension GLKVector3 : CustomStringConvertible {
+extension GLKVector3: @retroactive CustomStringConvertible {
     public var description: String { return String(format: "(%f,%f,%f)", x, y, z) }
 
     func dot(_ other: GLKVector3) -> Float {

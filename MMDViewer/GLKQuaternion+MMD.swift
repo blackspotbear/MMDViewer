@@ -1,7 +1,7 @@
 import Foundation
 import GLKit
 
-extension GLKQuaternion: CustomStringConvertible {
+extension GLKQuaternion: @retroactive CustomStringConvertible {
     public var description: String {
         return String(format: "(%f,%f,%f,%f)", x, y, z, w)
     }

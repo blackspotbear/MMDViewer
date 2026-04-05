@@ -28,7 +28,7 @@
                                 </constraints>
                                 <items>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="8bG-Mw-Xby"/>
-                                    <barButtonItem systemItem="pause" id="atE-0s-Ezb">
+                                    <barButtonItem title="Pause" id="atE-0s-Ezb">
                                         <connections>
                                             <action selector="onPlayButtonPushed:" destination="BYZ-38-t0r" id="00s-s7-BPA"/>
                                         </connections>
@@ -52,6 +52,7 @@
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="mmdView" destination="a9W-t0-1Zm" id="qrQ-w2-Yse"/>
+                        <outlet property="playPauseButton" destination="atE-0s-Ezb" id="M0d-GG-MzV"/>
                         <outlet property="toolBar" destination="bMu-xc-eWF" id="uau-iQ-3x5"/>
                     </connections>
                 </viewController>
