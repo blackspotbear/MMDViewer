@@ -208,6 +208,7 @@
 - `BasicRenderer` の model matrix stack 参照バグを修正し、あわせて `GLKMathDegreesToRadians` 依存を外した
 - 無効化されたまま残っていた lint 用 build phase を削除し、毎回出ていた `Run Script` 警告を解消した
 - `Traverser` の update / draw 順序を固定する単体テストを追加し、renderer 周辺のリファクタリングに備えた足場を増やした
+- `GLKMatrix4` の `simd_mul` をそのまま使うと GLKit のベクトル適用規約とずれることをテストで確認し、factory / transpose と演算 helper を分けて移行する方針を固めた
 
 ## 次のイテレーション候補
 

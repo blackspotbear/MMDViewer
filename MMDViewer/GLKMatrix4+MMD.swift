@@ -4,6 +4,8 @@ import simd
 
 /// `GLKMatrix4` を大量に抱える既存コードから段階的に離脱するための橋渡し層。
 /// factory 系を `simd` に寄せつつ、乗算順序が絡む helper は当面 GLKit 実装を維持する。
+/// `simd_mul` をそのまま使うと GLKit のベクトル適用規約とずれる箇所があるため、
+/// 互換テストで縛れていない経路は慎重に残す。
 extension GLKMatrix4: @retroactive CustomStringConvertible {
     public var description: String {
         return String(
@@ -104,15 +106,15 @@ extension GLKMatrix4: @retroactive CustomStringConvertible {
     }
 
     func multiply(_ other: GLKMatrix4) -> GLKMatrix4 {
-        return GLKMatrix4Multiply(self, other)
+        GLKMatrix4Multiply(self, other)
     }
 
     func multiplyLeft(_ other: GLKMatrix4) -> GLKMatrix4 {
-        return GLKMatrix4Multiply(other, self)
+        GLKMatrix4Multiply(other, self)
     }
 
     func transpose() -> GLKMatrix4 {
-        return GLKMatrix4Transpose(self)
+        GLKMatrix4(simd: simd_transpose(simdMatrix))
     }
 
     func translate() -> GLKVector3 {
@@ -120,7 +122,7 @@ extension GLKMatrix4: @retroactive CustomStringConvertible {
     }
 
     func multiplyVector4(_ other: GLKVector4) -> GLKVector4 {
-        return GLKMatrix4MultiplyVector4(self, other)
+        GLKMatrix4MultiplyVector4(self, other)
     }
 
     func xAxis() -> GLKVector3 {
