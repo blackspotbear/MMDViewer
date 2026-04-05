@@ -1,5 +1,6 @@
 import XCTest
 import GLKit
+import Metal
 import simd
 @testable import MMDViewer
 
@@ -267,6 +268,58 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertEqual(roundTrip.y, vector.y, accuracy: 1e-6)
     }
 
+    func testTraverserUpdateTraversesParentBeforeChildren() {
+        let renderer = RendererSpy()
+        let traverser = Traverser(renderer: renderer)
+        let root = Node()
+        let child = Node()
+        let grandchild = Node()
+
+        root.updater = RecordingUpdater(name: "root", events: renderer.events)
+        child.updater = RecordingUpdater(name: "child", events: renderer.events)
+        grandchild.updater = RecordingUpdater(name: "grandchild", events: renderer.events)
+        child.children = [grandchild]
+        root.children = [child]
+
+        traverser.update(1.0 / 60.0, node: root)
+
+        XCTAssertEqual(renderer.events.values, [
+            "update:root",
+            "update:child",
+            "update:grandchild",
+        ])
+    }
+
+    func testTraverserDrawBalancesPassesAndModelMatrixStack() {
+        let renderer = RendererSpy()
+        let traverser = Traverser(renderer: renderer)
+        let root = Node()
+        let child = Node()
+
+        root.pass = RecordingPass(name: "root", events: renderer.events)
+        root.drawer = RecordingDrawer(name: "root", events: renderer.events)
+        child.modelMatrix = GLKMatrix4MakeTranslation(1, 2, 3)
+        child.pass = RecordingPass(name: "child", events: renderer.events)
+        child.drawer = RecordingDrawer(name: "child", events: renderer.events)
+        root.children = [child]
+
+        traverser.draw(root)
+
+        XCTAssertEqual(renderer.events.values, [
+            "renderer.begin",
+            "pass.begin:root",
+            "draw:root",
+            "pass.begin:child",
+            "pushModelMatrix",
+            "draw:child",
+            "popModelMatrix",
+            "pass.end:child",
+            "pass.end:root",
+            "renderer.end",
+        ])
+        XCTAssertEqual(renderer.modelMatrixStackDepth, 1)
+    }
+
     func testBasicRendererModelMatrixTracksTopOfStack() {
         let renderer = BasicRenderer()
         let pushed = GLKMatrix4MakeTranslation(1, 2, 3)
@@ -412,5 +465,102 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertEqual(lhs.x, rhs.x, accuracy: accuracy, file: file, line: line)
         XCTAssertEqual(lhs.y, rhs.y, accuracy: accuracy, file: file, line: line)
         XCTAssertEqual(lhs.z, rhs.z, accuracy: accuracy, file: file, line: line)
+    }
+}
+
+private final class RendererSpy: Renderer {
+    let events = EventLog()
+
+    private var modelMatrixStack = [GLKMatrix4Identity]
+
+    var modelMatrixStackDepth: Int { modelMatrixStack.count }
+
+    func pushModelMatrix(_ mtrx: GLKMatrix4) {
+        events.add("pushModelMatrix")
+        modelMatrixStack.append(mtrx)
+    }
+
+    @discardableResult
+    func popModelMatrix() -> GLKMatrix4 {
+        events.add("popModelMatrix")
+        return modelMatrixStack.popLast() ?? GLKMatrix4Identity
+    }
+
+    var modelMatrix: GLKMatrix4 {
+        get { modelMatrixStack.last ?? GLKMatrix4Identity }
+        set { modelMatrixStack[modelMatrixStack.index(before: modelMatrixStack.endIndex)] = newValue }
+    }
+
+    var viewMatrix = GLKMatrix4Identity
+    var projectionMatrix = GLKMatrix4Identity
+    var textureResources = [String: MTLTexture]()
+    var commandBuffer: MTLCommandBuffer?
+    var renderCommandEncoderStack = [MTLRenderCommandEncoder]()
+    var renderCommandEncoder: MTLRenderCommandEncoder? { renderCommandEncoderStack.last }
+
+    func begin() {
+        events.add("renderer.begin")
+    }
+
+    func end() {
+        events.add("renderer.end")
+    }
+
+    func reshape(_ bounds: CGRect) {}
+
+    func setEndHandler(_ handler: @escaping (Renderer) -> Void) {}
+}
+
+private final class EventLog {
+    private(set) var values: [String] = []
+
+    func add(_ value: String) {
+        values.append(value)
+    }
+}
+
+private final class RecordingUpdater: Updater {
+    private let name: String
+    private let events: EventLog
+
+    init(name: String, events: EventLog) {
+        self.name = name
+        self.events = events
+    }
+
+    func update(_ dt: CFTimeInterval, renderer: Renderer, node: Node) {
+        events.add("update:\(name)")
+    }
+}
+
+private final class RecordingDrawer: Drawer {
+    private let name: String
+    private let events: EventLog
+
+    init(name: String, events: EventLog) {
+        self.name = name
+        self.events = events
+    }
+
+    func draw(_ renderer: Renderer) {
+        events.add("draw:\(name)")
+    }
+}
+
+private final class RecordingPass: RenderPass {
+    private let name: String
+    private let events: EventLog
+
+    init(name: String, events: EventLog) {
+        self.name = name
+        self.events = events
+    }
+
+    func begin(_ renderer: Renderer) {
+        events.add("pass.begin:\(name)")
+    }
+
+    func end(_ renderer: Renderer) {
+        events.add("pass.end:\(name)")
     }
 }

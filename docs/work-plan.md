@@ -207,6 +207,7 @@
 - `GLKVector2` と VMD の Bezier 補間計算も `simd` ベースの内部実装へ寄せ、補間ロジックを描画非依存のまま近代化した
 - `BasicRenderer` の model matrix stack 参照バグを修正し、あわせて `GLKMathDegreesToRadians` 依存を外した
 - 無効化されたまま残っていた lint 用 build phase を削除し、毎回出ていた `Run Script` 警告を解消した
+- `Traverser` の update / draw 順序を固定する単体テストを追加し、renderer 周辺のリファクタリングに備えた足場を増やした
 
 ## 次のイテレーション候補
 
