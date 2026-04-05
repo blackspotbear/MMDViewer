@@ -17,17 +17,40 @@
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
 namespace {
-    
+
     btVector3 glkvec2btvec(GLKVector3 from)
     {
         return btVector3(from.x, from.y, from.z);
     }
-    
+
+    GLKVector3 btvec2glkvec(const btVector3& from)
+    {
+        return GLKVector3Make(from.x(), from.y(), from.z());
+    }
+
     btQuaternion glkq2btq(GLKQuaternion from)
     {
         return btQuaternion(from.x, from.y, from.z, from.w);
     }
-    
+
+    GLKQuaternion btq2glkq(const btQuaternion& from)
+    {
+        return GLKQuaternionMake(from.getX(), from.getY(), from.getZ(), from.getW());
+    }
+
+    btTransform makeRigidBodyOffsetTransform(RigidBody* rigidBody, Bone* bone)
+    {
+        btTransform offset;
+        offset.setIdentity();
+        offset.setOrigin(btVector3(rigidBody.pos.x - bone.pos.x,
+                                   rigidBody.pos.y - bone.pos.y,
+                                   rigidBody.pos.z - bone.pos.z));
+
+        btMatrix3x3 rotation;
+        rotation.setEulerZYX(rigidBody.rot.x, rigidBody.rot.y, rigidBody.rot.z);
+        offset.setBasis(rotation);
+        return offset;
+    }
 }
 
 @interface PhysicsSolver: NSObject <PhysicsSolving>
@@ -263,14 +286,7 @@ namespace {
             
             Bone * bone = _bones[rigidBody.boneIndex];
             
-            btTransform offset;
-            offset.setIdentity();
-            offset.setOrigin(btVector3(rigidBody.pos.x - bone.pos.x, rigidBody.pos.y - bone.pos.y, rigidBody.pos.z - bone.pos.z));
-            btMatrix3x3	btmRotationMat;
-            btmRotationMat.setEulerZYX(rigidBody.rot.x, rigidBody.rot.y, rigidBody.rot.z);
-            offset.setBasis(btmRotationMat);
-            
-            worldTransform = worldTransform * offset;
+            worldTransform = worldTransform * makeRigidBodyOffsetTransform(rigidBody, bone);
             
             if (body->getMotionState())
             {
@@ -318,26 +334,10 @@ namespace {
             
             Bone * bone = self.bones[rigidBody.boneIndex];
             
-            btTransform offset;
-            offset.setIdentity();
-            offset.setOrigin(btVector3(rigidBody.pos.x - bone.pos.x, rigidBody.pos.y - bone.pos.y, rigidBody.pos.z - bone.pos.z));
-            btMatrix3x3	btmRotationMat;
-            btmRotationMat.setEulerZYX(rigidBody.rot.x, rigidBody.rot.y, rigidBody.rot.z);
-            offset.setBasis(btmRotationMat);
-            
-            trans = trans * offset.inverse();
-            
-            const btVector3 & bodyPos = trans.getOrigin();
-            const btQuaternion & bodyRot = trans.getRotation();
-            //
-            pos->x = bodyPos.x();
-            pos->y = bodyPos.y();
-            pos->z = bodyPos.z();
-            //
-            rot->x = bodyRot.getX();
-            rot->y = bodyRot.getY();
-            rot->z = bodyRot.getZ();
-            rot->w = bodyRot.getW();
+            trans = trans * makeRigidBodyOffsetTransform(rigidBody, bone).inverse();
+
+            *pos = btvec2glkvec(trans.getOrigin());
+            *rot = btq2glkq(trans.getRotation());
         }
     }
 }
