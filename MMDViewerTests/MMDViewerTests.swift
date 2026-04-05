@@ -151,6 +151,47 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertEqual(roundTrip.m33, matrix.m33, accuracy: 1e-6)
     }
 
+    func testMatrixHelpersMatchLegacyGLKOperations() {
+        let base = GLKMatrix4Multiply(
+            GLKMatrix4MakeTranslation(1, 2, 3),
+            GLKMatrix4MakeRotation(.pi / 7, 0, 1, 0)
+        )
+        let other = GLKMatrix4MakeTranslation(2, -3, 4)
+
+        let scaled = base.scale(1.5, y: 2.0, z: 2.5)
+        assertEqualMatrix(scaled, GLKMatrix4Scale(base, 1.5, 2.0, 2.5))
+
+        let translated = base.translate(3, y: -4, z: 5)
+        assertEqualMatrix(translated, GLKMatrix4Translate(base, 3, -4, 5))
+
+        let rotated = base.rotateAroundX(.pi / 8, y: .pi / 6, z: .pi / 4)
+        let legacyRotated = GLKMatrix4Rotate(
+            GLKMatrix4Rotate(
+                GLKMatrix4Rotate(base, .pi / 8, 1, 0, 0),
+                .pi / 6, 0, 1, 0
+            ),
+            .pi / 4, 0, 0, 1
+        )
+        assertEqualMatrix(rotated, legacyRotated)
+
+        assertEqualMatrix(base.multiply(other), GLKMatrix4Multiply(base, other))
+        assertEqualMatrix(base.multiplyLeft(other), GLKMatrix4Multiply(other, base))
+        assertEqualMatrix(base.transpose(), GLKMatrix4Transpose(base))
+    }
+
+    func testMultiplyVector4MatchesLegacyGLKOperation() {
+        let matrix = GLKMatrix4MakeRotation(.pi / 3, 0, 1, 0)
+        let vector = GLKVector4Make(1, 2, 3, 1)
+
+        let result = matrix.multiplyVector4(vector)
+        let expected = GLKMatrix4MultiplyVector4(matrix, vector)
+
+        XCTAssertEqual(result.x, expected.x, accuracy: 1e-6)
+        XCTAssertEqual(result.y, expected.y, accuracy: 1e-6)
+        XCTAssertEqual(result.z, expected.z, accuracy: 1e-6)
+        XCTAssertEqual(result.w, expected.w, accuracy: 1e-6)
+    }
+
     func testCurveValueReturnsExactKeyFrameValues() {
         let key = makeKeyFrame(
             frameNum: 12,
@@ -257,5 +298,24 @@ final class MatrixBridgingTests: XCTestCase {
         }
 
         return key
+    }
+
+    private func assertEqualMatrix(_ lhs: GLKMatrix4, _ rhs: GLKMatrix4, accuracy: Float = 1e-5, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertEqual(lhs.m00, rhs.m00, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m01, rhs.m01, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m02, rhs.m02, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m03, rhs.m03, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m10, rhs.m10, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m11, rhs.m11, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m12, rhs.m12, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m13, rhs.m13, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m20, rhs.m20, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m21, rhs.m21, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m22, rhs.m22, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m23, rhs.m23, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m30, rhs.m30, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m31, rhs.m31, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m32, rhs.m32, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhs.m33, rhs.m33, accuracy: accuracy, file: file, line: line)
     }
 }
