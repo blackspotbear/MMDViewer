@@ -58,6 +58,34 @@ extension GLKMatrix4: @retroactive CustomStringConvertible {
         GLKMatrix4(simd: simd_transpose(simd_float4x4(quaternion.simdQuaternion)))
     }
 
+    static func lookAt(eye: GLKVector3, center: GLKVector3, up: GLKVector3) -> GLKMatrix4 {
+        let forward = eye.sub(center).normal()
+        let right = up.outer(forward).normal()
+        let cameraUp = forward.outer(right)
+
+        let matrix = simd_float4x4(rows: [
+            SIMD4(right.x, cameraUp.x, forward.x, 0),
+            SIMD4(right.y, cameraUp.y, forward.y, 0),
+            SIMD4(right.z, cameraUp.z, forward.z, 0),
+            SIMD4(-right.inner(eye), -cameraUp.inner(eye), -forward.inner(eye), 1)
+        ])
+        return GLKMatrix4(simd: matrix)
+    }
+
+    static func perspective(fovyRadians: Float, aspect: Float, near: Float, far: Float) -> GLKMatrix4 {
+        let yScale = 1 / tan(fovyRadians * 0.5)
+        let xScale = yScale / aspect
+        let zRange = far - near
+
+        let matrix = simd_float4x4(rows: [
+            SIMD4(xScale, 0, 0, 0),
+            SIMD4(0, yScale, 0, 0),
+            SIMD4(0, 0, -(far + near) / zRange, -1),
+            SIMD4(0, 0, -(2 * far * near) / zRange, 0)
+        ])
+        return GLKMatrix4(simd: matrix)
+    }
+
     func scale(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
         return GLKMatrix4Scale(self, x, y, z)
     }

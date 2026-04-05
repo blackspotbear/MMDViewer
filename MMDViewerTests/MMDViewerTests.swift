@@ -191,6 +191,24 @@ final class MatrixBridgingTests: XCTestCase {
         )
         let rotation = GLKMatrix4.rotation(quaternion)
         assertEqualMatrix(rotation, GLKMatrix4MakeWithQuaternion(quaternion))
+
+        let lookAt = GLKMatrix4.lookAt(
+            eye: GLKVector3Make(0, 10, 20),
+            center: GLKVector3Make(0, 10, 0),
+            up: GLKVector3Make(0, 1, 0)
+        )
+        assertEqualMatrix(lookAt, GLKMatrix4MakeLookAt(0, 10, 20, 0, 10, 0, 0, 1, 0))
+
+        let perspective = GLKMatrix4.perspective(
+            fovyRadians: GLKMathDegreesToRadians(85.0),
+            aspect: 1.5,
+            near: 0.01,
+            far: 100.0
+        )
+        assertEqualMatrix(
+            perspective,
+            GLKMatrix4MakePerspective(GLKMathDegreesToRadians(85.0), 1.5, 0.01, 100.0)
+        )
     }
 
     func testMultiplyVector4MatchesLegacyGLKOperation() {

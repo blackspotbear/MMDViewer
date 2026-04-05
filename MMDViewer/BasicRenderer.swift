@@ -57,8 +57,17 @@ class BasicRenderer: Renderer {
         self.device = device
         commandQueue = device.makeCommandQueue()
 
-        viewMatrix = GLKMatrix4MakeLookAt(0, 10, 20, 0, 10, 0, 0, 1, 0)
-        projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(85.0), 1.0, 0.01, 100.0)
+        viewMatrix = GLKMatrix4.lookAt(
+            eye: GLKVector3Make(0, 10, 20),
+            center: GLKVector3Make(0, 10, 0),
+            up: GLKVector3Make(0, 1, 0)
+        )
+        projectionMatrix = GLKMatrix4.perspective(
+            fovyRadians: GLKMathDegreesToRadians(85.0),
+            aspect: 1.0,
+            near: 0.01,
+            far: 100.0
+        )
     }
 
     func begin() {
@@ -85,11 +94,12 @@ class BasicRenderer: Renderer {
         lastViewportSize = viewportSize
 
         let aspect = Float(viewportSize.width / viewportSize.height)
-        projectionMatrix = GLKMatrix4MakePerspective(
-            GLKMathDegreesToRadians(85.0),
-            aspect,
-            0.01,
-            100.0)
+        projectionMatrix = GLKMatrix4.perspective(
+            fovyRadians: GLKMathDegreesToRadians(85.0),
+            aspect: aspect,
+            near: 0.01,
+            far: 100.0
+        )
     }
 
     func setEndHandler(_ handler: @escaping (Renderer) -> Void) {

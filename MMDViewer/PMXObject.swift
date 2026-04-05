@@ -424,7 +424,11 @@ class PMXObject {
         // see https://goo.gl/vgIYTf
 
         let modelViewMatrix = renderer.viewMatrix.multiply(modelMatrix)
-        let sunMatrix = GLKMatrix4MakeLookAt(-10, 12, 0, 0, 12, 0, 0, 1, 0) // right-handed
+        let sunMatrix = GLKMatrix4.lookAt(
+            eye: GLKVector3Make(-10, 12, 0),
+            center: GLKVector3Make(0, 12, 0),
+            up: GLKVector3Make(0, 1, 0)
+        ) // right-handed
         let orthoMatrix = MakeOrthoOC(-12, 12, -12, 12, 1, 20)
         let shadowMatrix = orthoMatrix.multiply(sunMatrix)
         let shadowMatrixGB = GLKMatrix4MakeTranslation(0.5, 0.5, 0.0).multiply(GLKMatrix4MakeScale(0.5, -0.5, 1.0)).multiply(shadowMatrix)
