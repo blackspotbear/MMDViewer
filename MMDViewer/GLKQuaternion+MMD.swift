@@ -2,6 +2,7 @@ import Foundation
 import GLKit
 import simd
 
+/// 呼び出し側の型を維持したまま、クォータニオン演算だけ `simd_quatf` へ寄せる。
 extension GLKQuaternion: @retroactive CustomStringConvertible {
     public var description: String {
         return String(format: "(%f,%f,%f,%f)", x, y, z, w)
@@ -25,6 +26,7 @@ extension GLKQuaternion: @retroactive CustomStringConvertible {
         GLKQuaternion(simd: simd_inverse(simdQuaternion))
     }
 
+    /// 入力の `w` は位置ベクトルや属性値の意味を壊さないよう保持する。
     func rotate(_ other: GLKVector4) -> GLKVector4 {
         let rotated = simd_act(simdQuaternion, SIMD3(other.x, other.y, other.z))
         return GLKVector4Make(rotated.x, rotated.y, rotated.z, other.w)

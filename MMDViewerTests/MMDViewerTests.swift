@@ -180,6 +180,7 @@ final class MatrixBridgingTests: XCTestCase {
     }
 
     func testMatrixFactoriesMatchLegacyGLKConstructors() {
+        // ここは GLKit の factory を `simd` 実装で置き換える時の安全網。
         let translation = GLKMatrix4.translation(1, 2, 3)
         assertEqualMatrix(translation, GLKMatrix4MakeTranslation(1, 2, 3))
 
@@ -225,6 +226,7 @@ final class MatrixBridgingTests: XCTestCase {
     }
 
     func testVectorHelpersMatchLegacyGLKOperations() {
+        // ベクトル helper は実装だけ `simd` 化したので、GLKit と同値であることを固定する。
         let left = GLKVector3Make(1, 2, 3)
         let right = GLKVector3Make(-4, 5, -6)
 
@@ -243,6 +245,7 @@ final class MatrixBridgingTests: XCTestCase {
     }
 
     func testVector4HelpersMatchLegacyGLKOperations() {
+        // fragment / light 系で使う `GLKVector4` helper も同じ方針で監視する。
         let left = GLKVector4Make(1, 2, 3, 4)
         let right = GLKVector4Make(-4, 5, -6, 7)
 

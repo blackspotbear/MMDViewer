@@ -203,6 +203,7 @@
 - Bullet 2.89 への vendor 丸ごと更新を試し、`btMultiSapBroadphase` の参照削除と `btSdfCollisionShape` / `btMiniSDF` の追加で simulator build と単体テスト成功まで確認した
 - Bullet 2.89 更新後も、シミュレータ上でモデル表示、モーション再生、Pause / Play、カメラ操作に問題がないことを確認した
 - `GLKVector3` / `GLKVector4` の基本 helper の内部実装を `simd` ベースへ寄せ、既存 GLK 演算との差分を回帰テストで監視できるようにした
+- 数学互換レイヤーとその回帰テストにドキュメンテーションコメントを追加し、`GLKit` 置換の意図と制約を追いやすくした
 
 ## 次のイテレーション候補
 

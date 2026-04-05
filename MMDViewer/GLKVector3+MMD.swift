@@ -2,6 +2,8 @@ import Foundation
 import GLKit
 import simd
 
+/// GLKit 依存をすぐに消せない間の互換レイヤーとして、
+/// 呼び出し側は `GLKVector3` のまま `simd` 実装を利用する。
 extension GLKVector3 {
     init(glkv4: GLKVector4) {
         self = GLKVector3Make(glkv4.x, glkv4.y, glkv4.z)
@@ -15,6 +17,7 @@ extension GLKVector3 {
         SIMD3(x, y, z)
     }
 
+    /// 既存の GLKit API と同じ値を返しつつ、内部では `simd` 加算を使う。
     func add(_ rhs: GLKVector3) -> GLKVector3 {
         GLKVector3(simd: simdValue + rhs.simdValue)
     }
@@ -31,6 +34,7 @@ extension GLKVector3 {
         GLKVector3(simd: simdValue * s)
     }
 
+    /// 零ベクトルだけは GLKit 実装と同様にそのまま返して NaN を避ける。
     func normal() -> GLKVector3 {
         return x != 0 || y != 0 || z != 0 ? GLKVector3(simd: simd_normalize(simdValue)) : self
     }

@@ -2,6 +2,8 @@ import Foundation
 import GLKit
 import simd
 
+/// `GLKMatrix4` を大量に抱える既存コードから段階的に離脱するための橋渡し層。
+/// factory 系を `simd` に寄せつつ、乗算順序が絡む helper は当面 GLKit 実装を維持する。
 extension GLKMatrix4: @retroactive CustomStringConvertible {
     public var description: String {
         return String(

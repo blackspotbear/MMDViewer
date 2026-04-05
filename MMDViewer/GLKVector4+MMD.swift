@@ -4,6 +4,8 @@ import simd
 
 typealias Color = GLKVector4
 
+/// shader 入力や色表現ではまだ `GLKVector4` を使っているため、
+/// 変換と基本演算だけを `simd` ベースに寄せておく。
 extension GLKVector4 {
     init(simd value: SIMD4<Float>) {
         self = GLKVector4Make(value.x, value.y, value.z, value.w)
