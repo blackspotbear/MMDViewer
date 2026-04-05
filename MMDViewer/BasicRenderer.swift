@@ -3,6 +3,7 @@ import GLKit
 import Metal
 
 private let kInFlightCommandBuffers = 3
+private let defaultFieldOfViewRadians = 85.0 * .pi / 180.0
 
 class BasicRenderer: Renderer {
     private var modelMatrixStack = [GLKMatrix4](repeating: GLKMatrix4Identity, count: 1)
@@ -17,10 +18,10 @@ class BasicRenderer: Renderer {
     
     var modelMatrix: GLKMatrix4 {
         get {
-            return modelMatrixStack[modelMatrixStack.endIndex]
+            return modelMatrixStack[modelMatrixStack.index(before: modelMatrixStack.endIndex)]
         }
         set (value) {
-            modelMatrixStack[modelMatrixStack.endIndex] = value
+            modelMatrixStack[modelMatrixStack.index(before: modelMatrixStack.endIndex)] = value
         }
     }
 
@@ -63,7 +64,7 @@ class BasicRenderer: Renderer {
             up: GLKVector3Make(0, 1, 0)
         )
         projectionMatrix = GLKMatrix4.perspective(
-            fovyRadians: GLKMathDegreesToRadians(85.0),
+            fovyRadians: Float(defaultFieldOfViewRadians),
             aspect: 1.0,
             near: 0.01,
             far: 100.0
@@ -95,7 +96,7 @@ class BasicRenderer: Renderer {
 
         let aspect = Float(viewportSize.width / viewportSize.height)
         projectionMatrix = GLKMatrix4.perspective(
-            fovyRadians: GLKMathDegreesToRadians(85.0),
+            fovyRadians: Float(defaultFieldOfViewRadians),
             aspect: aspect,
             near: 0.01,
             far: 100.0

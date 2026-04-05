@@ -267,6 +267,20 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertEqual(roundTrip.y, vector.y, accuracy: 1e-6)
     }
 
+    func testBasicRendererModelMatrixTracksTopOfStack() {
+        let renderer = BasicRenderer()
+        let pushed = GLKMatrix4MakeTranslation(1, 2, 3)
+        let replacement = GLKMatrix4MakeTranslation(4, 5, 6)
+
+        renderer.pushModelMatrix(pushed)
+        assertEqualMatrix(renderer.modelMatrix, pushed)
+
+        renderer.modelMatrix = replacement
+        assertEqualMatrix(renderer.modelMatrix, replacement)
+        assertEqualMatrix(renderer.popModelMatrix(), replacement)
+        assertEqualMatrix(renderer.modelMatrix, GLKMatrix4Identity)
+    }
+
     func testCurveValueReturnsExactKeyFrameValues() {
         let key = makeKeyFrame(
             frameNum: 12,
