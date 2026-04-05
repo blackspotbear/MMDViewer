@@ -141,7 +141,7 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 - Bullet 2.83.7 由来の大量 warning
 - テスト未整備
-- `GLKit` / UIKit / 自前 MetalView 依存の近代化未着手
+- `GLKit` / 自前 MetalView 依存の近代化は継続中
 
 一方で、第1段階の後片付けとして以下は解消済みです。
 
@@ -156,7 +156,9 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 - テストターゲットの `PRODUCT_NAME` が誤って `MMDViewer` になっていた設定を修正
 - `xcodebuild test -only-testing:MMDViewerTests` で 6 件の単体テスト成功を確認
 
-第3段階の最初の反映として、Swift 側の `float3` / `float4` は `SIMD3<Float>` / `SIMD4<Float>` へ置き換え済みです。これにより、`simd` への段階的移行を始めつつ、Xcode 26.4 上の該当 warning を解消しました。
+第3段階では、Swift 側の `float3` / `float4` を `SIMD3<Float>` / `SIMD4<Float>` へ置き換えたうえで、`GLKQuaternion` の積・回転・補間経路も `simd` ベースの実装へ寄せました。現時点では API 境界に `GLKQuaternion` を残しつつ内部実装を差し替える形にしており、既存呼び出し側への影響を抑えながら段階的な移行を進めています。
+
+また、クォータニオン変換・合成・ベクトル回転の回帰テストを追加し、`xcodebuild test -only-testing:MMDViewerTests` で成功を確認済みです。
 
 ## Apple の新しいフレームワークへの移行判断
 

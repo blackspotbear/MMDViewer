@@ -206,7 +206,7 @@ private func InterpolateRot(_ left: KeyFrame, _ right: KeyFrame, _ t: Float) -> 
         right.segments[BoneAttr.QZ].value,
         right.segments[BoneAttr.QW].value
     )
-    return GLKQuaternionSlerp(q1, q2, qw.y / 127) // ??
+    return q1.slerp(q2, t: qw.y / 127) // ??
 }
 
 private func LoadVMDMeta(_ vmd: VMD, _ reader: DataReader) {

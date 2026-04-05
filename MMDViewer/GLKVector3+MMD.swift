@@ -1,9 +1,18 @@
 import Foundation
 import GLKit
+import simd
 
 extension GLKVector3 {
     init(glkv4: GLKVector4) {
         self = GLKVector3Make(glkv4.x, glkv4.y, glkv4.z)
+    }
+
+    init(simd value: SIMD3<Float>) {
+        self = GLKVector3Make(value.x, value.y, value.z)
+    }
+
+    var simdValue: SIMD3<Float> {
+        SIMD3(x, y, z)
     }
 
     func add(_ rhs: GLKVector3) -> GLKVector3 {

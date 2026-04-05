@@ -136,10 +136,10 @@
 
 - [x] 置換対象の型と拡張メソッド一覧を作る
 - [x] `GLKVector*` の置換を小さな単位で始める
-- [ ] `GLKQuaternion` の置換を行う
+- [x] `GLKQuaternion` の主要演算を `simd` ベースへ移行する
 - [ ] `GLKMatrix4` と関連ユーティリティを置換する
 - [ ] 物理ブリッジの型変換を更新する
-- [ ] 各段階であなたにシミュレータ確認を依頼する
+- [x] 各段階であなたにシミュレータ確認を依頼する
 
 ### レンダリング基盤
 
@@ -176,12 +176,13 @@
 - `UIScene` 対応と toolbar ボタン構成の見直しを行い、外周の警告を一段整理した
 - `DataReader` の単体テストを追加し、古い test target 設定が現代 Xcode で失敗する問題を修正した
 - Swift 側の `float3` / `float4` を `SIMD3<Float>` / `SIMD4<Float>` に置き換え、`simd` 移行の最初の warning 整理を行った
+- `GLKQuaternion` の積・回転・補間経路を `simd` 実装へ寄せ、クォータニオン回帰テストを追加した
 
 ## 次のイテレーション候補
 
 - PMX / VMD パーサの最小テスト追加
 - 数学処理の回帰テスト追加
-- `GLKQuaternion` と `GLKMatrix4` の置換準備
+- `GLKMatrix4` の置換準備
 - Bullet と bridge 境界の型変換整理
 
 ## イテレーションの完了条件

@@ -1,4 +1,6 @@
 import XCTest
+import GLKit
+import simd
 @testable import MMDViewer
 
 final class MMDViewerTests: XCTestCase {
@@ -63,6 +65,42 @@ final class MMDViewerTests: XCTestCase {
         let value: UInt8 = sut.read()
 
         XCTAssertEqual(value, 0x30)
+    }
+
+    func testQuaternionRoundTripsThroughSimdRepresentation() {
+        let quaternion = GLKQuaternionNormalize(GLKQuaternionMake(0.1, -0.2, 0.3, 0.9))
+
+        let roundTrip = GLKQuaternion(simd: quaternion.simdQuaternion)
+
+        XCTAssertEqual(roundTrip.x, quaternion.x, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.y, quaternion.y, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.z, quaternion.z, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.w, quaternion.w, accuracy: 1e-6)
+    }
+
+    func testQuaternionMultiplyMatchesSimdComposition() {
+        let left = GLKQuaternionNormalize(GLKQuaternionMakeWithAngleAndVector3Axis(.pi / 3, GLKVector3Make(0, 1, 0)))
+        let right = GLKQuaternionNormalize(GLKQuaternionMakeWithAngleAndVector3Axis(.pi / 4, GLKVector3Make(1, 0, 0)))
+
+        let result = left.mul(right)
+        let expected = GLKQuaternion(simd: simd_mul(left.simdQuaternion, right.simdQuaternion))
+
+        XCTAssertEqual(result.x, expected.x, accuracy: 1e-6)
+        XCTAssertEqual(result.y, expected.y, accuracy: 1e-6)
+        XCTAssertEqual(result.z, expected.z, accuracy: 1e-6)
+        XCTAssertEqual(result.w, expected.w, accuracy: 1e-6)
+    }
+
+    func testQuaternionRotateVectorMatchesSimdAct() {
+        let quaternion = GLKQuaternionNormalize(GLKQuaternionMakeWithAngleAndVector3Axis(.pi / 2, GLKVector3Make(0, 0, 1)))
+        let vector = GLKVector3Make(1, 0, 0)
+
+        let result = quaternion.rotate(vector)
+        let expected = GLKVector3(simd: simd_act(quaternion.simdQuaternion, vector.simdValue))
+
+        XCTAssertEqual(result.x, expected.x, accuracy: 1e-6)
+        XCTAssertEqual(result.y, expected.y, accuracy: 1e-6)
+        XCTAssertEqual(result.z, expected.z, accuracy: 1e-6)
     }
 
     private func data(_ parts: Data...) -> Data {
