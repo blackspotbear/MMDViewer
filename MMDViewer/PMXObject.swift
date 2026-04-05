@@ -173,11 +173,9 @@ class Posture {
     }
 
     func updateTransformMatrix(_ postures: [Posture]) {
-        var m = GLKMatrix4Multiply(
-            GLKMatrix4MakeTranslation(pos.x, pos.y, pos.z),
-            GLKMatrix4Multiply(
-                GLKMatrix4MakeWithQuaternion(self.q),
-                GLKMatrix4MakeTranslation(-bone.pos.x, -bone.pos.y, -bone.pos.z)
+        var m = GLKMatrix4.translation(pos.x, pos.y, pos.z).multiply(
+            GLKMatrix4.rotation(self.q).multiply(
+                GLKMatrix4.translation(-bone.pos.x, -bone.pos.y, -bone.pos.z)
             )
         )
         if self.bone.parentBoneIndex < postures.count {

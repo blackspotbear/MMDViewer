@@ -36,14 +36,36 @@ extension GLKMatrix4: @retroactive CustomStringConvertible {
         )
     }
 
+    static func translation(_ x: Float, _ y: Float, _ z: Float) -> GLKMatrix4 {
+        let matrix = simd_float4x4(rows: [
+            SIMD4(1, 0, 0, 0),
+            SIMD4(0, 1, 0, 0),
+            SIMD4(0, 0, 1, 0),
+            SIMD4(x, y, z, 1)
+        ])
+        return GLKMatrix4(simd: matrix)
+    }
+
+    static func scale(_ x: Float, _ y: Float, _ z: Float) -> GLKMatrix4 {
+        var matrix = matrix_identity_float4x4
+        matrix.columns.0.x = x
+        matrix.columns.1.y = y
+        matrix.columns.2.z = z
+        return GLKMatrix4(simd: matrix)
+    }
+
+    static func rotation(_ quaternion: GLKQuaternion) -> GLKMatrix4 {
+        GLKMatrix4(simd: simd_transpose(simd_float4x4(quaternion.simdQuaternion)))
+    }
+
     func scale(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
         return GLKMatrix4Scale(self, x, y, z)
     }
 
     func rotateAroundX(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
         let rx = GLKMatrix4Rotate(self, x, 1, 0, 0)
-        let ry = GLKMatrix4Rotate(  rx, y, 0, 1, 0)
-        let rz = GLKMatrix4Rotate(  ry, z, 0, 0, 1)
+        let ry = GLKMatrix4Rotate(rx, y, 0, 1, 0)
+        let rz = GLKMatrix4Rotate(ry, z, 0, 0, 1)
         return rz
     }
 

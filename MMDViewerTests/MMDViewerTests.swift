@@ -179,6 +179,20 @@ final class MatrixBridgingTests: XCTestCase {
         assertEqualMatrix(base.transpose(), GLKMatrix4Transpose(base))
     }
 
+    func testMatrixFactoriesMatchLegacyGLKConstructors() {
+        let translation = GLKMatrix4.translation(1, 2, 3)
+        assertEqualMatrix(translation, GLKMatrix4MakeTranslation(1, 2, 3))
+
+        let scale = GLKMatrix4.scale(4, 5, 6)
+        assertEqualMatrix(scale, GLKMatrix4MakeScale(4, 5, 6))
+
+        let quaternion = GLKQuaternionNormalize(
+            GLKQuaternionMakeWithAngleAndVector3Axis(.pi / 3, GLKVector3Make(0, 1, 0))
+        )
+        let rotation = GLKMatrix4.rotation(quaternion)
+        assertEqualMatrix(rotation, GLKMatrix4MakeWithQuaternion(quaternion))
+    }
+
     func testMultiplyVector4MatchesLegacyGLKOperation() {
         let matrix = GLKMatrix4MakeRotation(.pi / 3, 0, 1, 0)
         let vector = GLKVector4Make(1, 2, 3, 1)

@@ -272,12 +272,12 @@ class PointLightDrawer: Drawer {
 
         for i in 0..<self.pointLightCount {
             pointLightMatrices[i].mvMatrix = structureCameraMatrix.multiply(
-                GLKMatrix4MakeTranslation(
+                GLKMatrix4.translation(
                     lightData.lightPosition[0],
                     lightData.lightPosition[1],
                     lightData.lightPosition[2]))
 
-            pointLightMatrices[i].mvMatrix = pointLightMatrices[i].mvMatrix.multiply(GLKMatrix4MakeScale(lightData.lightColorRadius[3], lightData.lightColorRadius[3], lightData.lightColorRadius[3]))
+            pointLightMatrices[i].mvMatrix = pointLightMatrices[i].mvMatrix.multiply(GLKMatrix4.scale(lightData.lightColorRadius[3], lightData.lightColorRadius[3], lightData.lightColorRadius[3]))
             pointLightMatrices[i].mvpMatrix = renderer.projectionMatrix.multiply(pointLightMatrices[i].mvMatrix)
 
             memcpy(matrixData.advanced(by: i), &pointLightMatrices[i], MemoryLayout<LightModelMatrices>.size)

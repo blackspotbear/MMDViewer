@@ -29,11 +29,9 @@ func PhysicsSolver(_ postures: [Posture], physicsSolving solver: PhysicsSolving)
         solver.getTransform(rigidBody.boneIndex, rot:&rot, pos:&pos)
 
         let bone = postures[rigidBody.boneIndex].bone
-        let m = GLKMatrix4Multiply(
-            GLKMatrix4MakeTranslation(pos.x, pos.y, pos.z),
-            GLKMatrix4Multiply(
-                GLKMatrix4MakeWithQuaternion(rot),
-                GLKMatrix4MakeTranslation(-bone.pos.x, -bone.pos.y, -bone.pos.z)
+        let m = GLKMatrix4.translation(pos.x, pos.y, pos.z).multiply(
+            GLKMatrix4.rotation(rot).multiply(
+                GLKMatrix4.translation(-bone.pos.x, -bone.pos.y, -bone.pos.z)
             )
         )
 
