@@ -196,6 +196,16 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 また、[`PhysicsSolver.mm`](/Users/kmi/devel/MMDViewer/MMDViewer/PhysicsSolver.mm) はもともと umbrella header の `btBulletDynamicsCommon.h` を読み込んでいましたが、現時点では明示的な個別 header 群へ差し替えても simulator build は通ります。つまり、コード側の include 依存は先に狭められる見込みがあり、target 側の縮小前準備として有効です。
 
+さらに、版付き vendor パス `third-party/bullet3-2.83.7` への直接依存を確認すると、Xcode project 側では主に次の 6 箇所に集中していました。
+
+- group path: `BulletCollision`
+- group path: `BulletDynamics`
+- group path: `BulletSoftBody`
+- group path: `LinearMath`
+- `HEADER_SEARCH_PATHS` 2 箇所
+
+このため、vendor 差し替え作業そのものは「版付きディレクトリ名に引きずられて project 全体を大改造する」ほど重くはなく、少なくともパス更新の観点では比較的機械的に進められる見込みです。
+
 一方で、更新には次のリスクがあります。
 
 - Xcode プロジェクトへ手で追加している Bullet ソース一覧の更新が必要
@@ -207,12 +217,13 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 このため、更新方針としては次の順が妥当です。
 
-1. まず現行 target に含まれている Bullet ソース範囲を固定し、可能なら本当に必要な下位 module だけに絞る
-2. 次に公式 release tag を基準に、必要な `src` 配下だけの差分を比較する
-3. `PhysicsSolver.mm` が依存する API に差分がなければ、小さいイテレーションで差し替える
+1. まず Bullet 2 系の公式 release を基準に、vendor ディレクトリを丸ごと更新する方針を第一候補として見積もる
+2. 更新対象は、現行コードとの距離を考えて `PyBullet 3.2.5` よりも [`Bullet 2.89`](https://github.com/bulletphysics/bullet3/releases/tag/2.89) を先に試す
+3. `PhysicsSolver.mm` が依存する API に大きな差分がなければ、小さいイテレーションで差し替える
 4. 置換後はビルド、単体テスト、シミュレータ表示、物理付きモーションの実動作確認を行う
+5. もし warning や差分の切り分けが重すぎると分かったら、その時点で target 依存面積の縮小を第 2 案として実施する
 
-現時点の結論は、「Bullet 更新は検討価値が高いが、レンダリング近代化とは別イテレーションで実施し、できれば先に target 依存面積を縮小してから更新するべき」です。
+現時点の結論は、「Bullet 更新は検討価値が高く、まずは丸ごと更新を第一候補として試すべき」です。target 依存面積の縮小は有効な改善ですが、更新前の必須条件ではなく、更新が重すぎる場合の第 2 案として扱うのが合理的です。
 
 ## Apple の新しいフレームワークへの移行判断
 
