@@ -128,7 +128,7 @@
 
 - [x] 単体テスト対象をロジック層から切り出す
 - [x] `DataReader` のテストを書く
-- [ ] PMX/VMD ローダの基礎テストを書く
+- [x] PMX/VMD ローダの基礎テストを書く
 - [ ] 数学処理の回帰テストを書く
 - [ ] 最小限の UI 起動テストを書く
 
@@ -180,10 +180,10 @@
 - `GLKQuaternion` の積・回転・補間経路を `simd` 実装へ寄せ、クォータニオン回帰テストを追加した
 - `GLKMatrix4` と `simd_float4x4` の相互変換を追加し、uniform / matrix palette の GPU 転送経路を `simd` ベースへ寄せた
 - `GLKMatrix4` <-> `simd_float4x4` の round-trip テストを追加し、単体テストは 10 件になった
+- 実データの PMX / VMD fixture を使ったローダ確認テストを追加し、単体テストは 11 件になった
 
 ## 次のイテレーション候補
 
-- PMX / VMD パーサの最小テスト追加
 - 数学処理の回帰テスト追加
 - `GLKMatrix4` の演算 API 置換
 - Bullet と bridge 境界の型変換整理

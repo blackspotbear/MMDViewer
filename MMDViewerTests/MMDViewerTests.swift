@@ -113,6 +113,14 @@ final class MMDViewerTests: XCTestCase {
         var value = value
         return withUnsafeBytes(of: &value) { Data($0) }
     }
+    
+    private func fixtureData(at relativePath: String) -> Data? {
+        let projectRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let url = projectRoot.appendingPathComponent(relativePath)
+        return try? Data(contentsOf: url)
+    }
 }
 
 final class MatrixBridgingTests: XCTestCase {
@@ -143,4 +151,39 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertEqual(roundTrip.m33, matrix.m33, accuracy: 1e-6)
     }
 
+    func testLoadModelAndMotionFixtures() {
+        guard let pmxData = fixtureData(at: "data/mmd/Alicia_solid.pmx") else {
+            XCTFail("Missing PMX fixture")
+            return
+        }
+        let pmx = PMX(data: pmxData)
+
+        XCTAssertEqual(pmx.meta.format, "PMX ")
+        XCTAssertGreaterThanOrEqual(pmx.meta.version, 2.0)
+        XCTAssertFalse(pmx.meta.modelName.isEmpty)
+        XCTAssertFalse(pmx.vertices.isEmpty)
+        XCTAssertFalse(pmx.indices.isEmpty)
+        XCTAssertFalse(pmx.materials.isEmpty)
+        XCTAssertFalse(pmx.bones.isEmpty)
+        XCTAssertFalse(pmx.texturePaths.isEmpty)
+
+        guard let vmdData = fixtureData(at: "data/vmd/2分ループステップ1.vmd") else {
+            XCTFail("Missing VMD fixture")
+            return
+        }
+        let vmd = VMD(data: vmdData)
+
+        XCTAssertFalse(vmd.meta.content.isEmpty)
+        XCTAssertGreaterThan(vmd.meta.totalFrameCount, 0)
+        XCTAssertGreaterThan(vmd.meta.frameCount, 0)
+        XCTAssertFalse(vmd.curveTies.isEmpty)
+    }
+
+    private func fixtureData(at relativePath: String) -> Data? {
+        let projectRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let url = projectRoot.appendingPathComponent(relativePath)
+        return try? Data(contentsOf: url)
+    }
 }
