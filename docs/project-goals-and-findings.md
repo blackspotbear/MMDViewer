@@ -151,6 +151,12 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 - `GLKit` 拡張の retroactive conformance 警告
 - `statusBarOrientation` の deprecated 警告
 
+また、第2段階の着手として以下を実施済みです。
+
+- `DataReader` に対する基本的な単体テストを追加
+- テストターゲットの `PRODUCT_NAME` が誤って `MMDViewer` になっていた設定を修正
+- `xcodebuild test -only-testing:MMDViewerTests` で 6 件の単体テスト成功を確認
+
 ## Apple の新しいフレームワークへの移行判断
 
 ### 採用有力

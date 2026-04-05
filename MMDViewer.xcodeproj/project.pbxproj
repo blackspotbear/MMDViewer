@@ -1983,7 +1983,7 @@
 				INFOPLIST_FILE = MMDViewerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewerTests;
-				PRODUCT_NAME = MMDViewer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MMDViewer.app/MMDViewer";
 			};
@@ -1996,7 +1996,7 @@
 				INFOPLIST_FILE = MMDViewerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewerTests;
-				PRODUCT_NAME = MMDViewer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MMDViewer.app/MMDViewer";
 			};
@@ -2008,7 +2008,7 @@
 				INFOPLIST_FILE = MMDViewerUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewerUITests;
-				PRODUCT_NAME = MMDViewer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = MMDViewer;
 				USES_XCTRUNNER = YES;
@@ -2021,7 +2021,7 @@
 				INFOPLIST_FILE = MMDViewerUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = localdomain.localhost.MMDViewerUITests;
-				PRODUCT_NAME = MMDViewer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = MMDViewer;
 				USES_XCTRUNNER = YES;
