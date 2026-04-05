@@ -17,34 +17,23 @@ private func CopyMatrices(_ buffer: MTLBuffer,
                           _ normalMatrix: GLKMatrix4,
                           _ shadowMatrix: GLKMatrix4,
                           _ shadowMatrixGB: GLKMatrix4) {
-    let matrixBufferSize = MemoryLayout<GLKMatrix4>.stride
-    var dst = buffer.contents()
+    let normalMatrix4x4 = normalMatrix.simdMatrix
+    let normalMatrix3x3 = float3x3(
+        SIMD3(normalMatrix4x4.columns.0.x, normalMatrix4x4.columns.0.y, normalMatrix4x4.columns.0.z),
+        SIMD3(normalMatrix4x4.columns.1.x, normalMatrix4x4.columns.1.y, normalMatrix4x4.columns.1.z),
+        SIMD3(normalMatrix4x4.columns.2.x, normalMatrix4x4.columns.2.y, normalMatrix4x4.columns.2.z)
+    )
 
-    var modelMatrix = modelMatrix
-    var modelViewMatrix = modelViewMatrix
-    var projectionMatrix = projectionMatrix
-    var shadowMatrix = shadowMatrix
-    var shadowMatrixGB = shadowMatrixGB
-    var normalMatrix = normalMatrix
+    var uniforms = ShaderUniforms(
+        modelMatrix: modelMatrix.simdMatrix,
+        modelViewMatrix: modelViewMatrix.simdMatrix,
+        projectionMatrix: projectionMatrix.simdMatrix,
+        shadowMatrix: shadowMatrix.simdMatrix,
+        shadowMatrixGB: shadowMatrixGB.simdMatrix,
+        normalMatrix: normalMatrix3x3
+    )
 
-    memcpy(dst, &modelMatrix, matrixBufferSize)
-    dst = dst.advanced(by: matrixBufferSize)
-
-    memcpy(dst, &modelViewMatrix, matrixBufferSize)
-    dst = dst.advanced(by: matrixBufferSize)
-
-    memcpy(dst, &projectionMatrix, matrixBufferSize)
-    dst = dst.advanced(by: matrixBufferSize)
-
-    memcpy(dst, &shadowMatrix, matrixBufferSize)
-    dst = dst.advanced(by: matrixBufferSize)
-
-    memcpy(dst, &shadowMatrixGB, matrixBufferSize)
-    dst = dst.advanced(by: matrixBufferSize)
-
-    // shader's normal matrix is of type float3x3
-    // SIMD3<Float> alignment is 16 bytes (= sizeof(Float) * 4)
-    memcpy(dst, &normalMatrix, MemoryLayout<float3x3>.size)
+    memcpy(buffer.contents(), &uniforms, MemoryLayout<ShaderUniforms>.stride)
 }
 
 private func DefaultSampler(_ device: MTLDevice) -> MTLSamplerState {
@@ -448,8 +437,9 @@ class PMXObject {
         var dst = palette.contents()
 
         for posture in postures {
-            memcpy(dst, &posture.wm, MemoryLayout<GLKMatrix4>.size)
-            dst = dst.advanced(by: MemoryLayout<GLKMatrix4>.stride)
+            var worldMatrix = posture.wm.simdMatrix
+            memcpy(dst, &worldMatrix, MemoryLayout<float4x4>.stride)
+            dst = dst.advanced(by: MemoryLayout<float4x4>.stride)
         }
 
         return palette

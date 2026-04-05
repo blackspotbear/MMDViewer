@@ -138,6 +138,7 @@
 - [x] `GLKVector*` の置換を小さな単位で始める
 - [x] `GLKQuaternion` の主要演算を `simd` ベースへ移行する
 - [ ] `GLKMatrix4` と関連ユーティリティを置換する
+  - `simd_float4x4` との相互変換と uniform / palette 転送の橋は導入済み
 - [ ] 物理ブリッジの型変換を更新する
 - [x] 各段階であなたにシミュレータ確認を依頼する
 
@@ -177,12 +178,14 @@
 - `DataReader` の単体テストを追加し、古い test target 設定が現代 Xcode で失敗する問題を修正した
 - Swift 側の `float3` / `float4` を `SIMD3<Float>` / `SIMD4<Float>` に置き換え、`simd` 移行の最初の warning 整理を行った
 - `GLKQuaternion` の積・回転・補間経路を `simd` 実装へ寄せ、クォータニオン回帰テストを追加した
+- `GLKMatrix4` と `simd_float4x4` の相互変換を追加し、uniform / matrix palette の GPU 転送経路を `simd` ベースへ寄せた
+- `GLKMatrix4` <-> `simd_float4x4` の round-trip テストを追加し、単体テストは 10 件になった
 
 ## 次のイテレーション候補
 
 - PMX / VMD パーサの最小テスト追加
 - 数学処理の回帰テスト追加
-- `GLKMatrix4` の置換準備
+- `GLKMatrix4` の演算 API 置換
 - Bullet と bridge 境界の型変換整理
 
 ## イテレーションの完了条件

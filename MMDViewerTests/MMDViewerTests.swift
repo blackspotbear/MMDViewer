@@ -114,3 +114,33 @@ final class MMDViewerTests: XCTestCase {
         return withUnsafeBytes(of: &value) { Data($0) }
     }
 }
+
+final class MatrixBridgingTests: XCTestCase {
+
+    func testRoundTripsThroughSimdRepresentation() {
+        let matrix = GLKMatrix4Make(1, 2, 3, 4,
+                                    5, 6, 7, 8,
+                                    9, 10, 11, 12,
+                                    13, 14, 15, 16)
+
+        let roundTrip = GLKMatrix4(simd: matrix.simdMatrix)
+
+        XCTAssertEqual(roundTrip.m00, matrix.m00, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m01, matrix.m01, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m02, matrix.m02, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m03, matrix.m03, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m10, matrix.m10, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m11, matrix.m11, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m12, matrix.m12, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m13, matrix.m13, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m20, matrix.m20, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m21, matrix.m21, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m22, matrix.m22, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m23, matrix.m23, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m30, matrix.m30, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m31, matrix.m31, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m32, matrix.m32, accuracy: 1e-6)
+        XCTAssertEqual(roundTrip.m33, matrix.m33, accuracy: 1e-6)
+    }
+
+}

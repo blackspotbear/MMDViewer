@@ -158,7 +158,9 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 第3段階では、Swift 側の `float3` / `float4` を `SIMD3<Float>` / `SIMD4<Float>` へ置き換えたうえで、`GLKQuaternion` の積・回転・補間経路も `simd` ベースの実装へ寄せました。現時点では API 境界に `GLKQuaternion` を残しつつ内部実装を差し替える形にしており、既存呼び出し側への影響を抑えながら段階的な移行を進めています。
 
-また、クォータニオン変換・合成・ベクトル回転の回帰テストを追加し、`xcodebuild test -only-testing:MMDViewerTests` で成功を確認済みです。
+加えて、`GLKMatrix4` と `simd_float4x4` の相互変換を導入し、shader uniforms と matrix palette を GPU へ送る経路は `simd` ベースへ寄せました。こちらも API 境界は `GLKMatrix4` のまま保ち、まずは描画系のデータ受け渡しから近代化しています。
+
+また、クォータニオン変換・合成・ベクトル回転の回帰テストに加えて、`GLKMatrix4` <-> `simd_float4x4` の round-trip テストを追加し、`xcodebuild test -only-testing:MMDViewerTests` で 10 件の単体テスト成功を確認済みです。
 
 ## Apple の新しいフレームワークへの移行判断
 

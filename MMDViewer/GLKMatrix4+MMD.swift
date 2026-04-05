@@ -1,5 +1,6 @@
 import Foundation
 import GLKit
+import simd
 
 extension GLKMatrix4: @retroactive CustomStringConvertible {
     public var description: String {
@@ -15,6 +16,24 @@ extension GLKMatrix4: @retroactive CustomStringConvertible {
     init(other: GLKMatrix4) {
         self.init()
         self.m = other.m
+    }
+
+    init(simd matrix: simd_float4x4) {
+        self = GLKMatrix4Make(
+            matrix.columns.0.x, matrix.columns.1.x, matrix.columns.2.x, matrix.columns.3.x,
+            matrix.columns.0.y, matrix.columns.1.y, matrix.columns.2.y, matrix.columns.3.y,
+            matrix.columns.0.z, matrix.columns.1.z, matrix.columns.2.z, matrix.columns.3.z,
+            matrix.columns.0.w, matrix.columns.1.w, matrix.columns.2.w, matrix.columns.3.w
+        )
+    }
+
+    var simdMatrix: simd_float4x4 {
+        simd_float4x4(
+            SIMD4(m00, m10, m20, m30),
+            SIMD4(m01, m11, m21, m31),
+            SIMD4(m02, m12, m22, m32),
+            SIMD4(m03, m13, m23, m33)
+        )
     }
 
     func scale(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
