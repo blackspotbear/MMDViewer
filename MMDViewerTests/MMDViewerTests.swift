@@ -528,6 +528,25 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertEqual(updater.angularVelocity.y, 0.95, accuracy: 1e-5)
     }
 
+    func testCameraUpdaterBuildsViewMatrixFromInverseRotationAndTranslation() {
+        // camera updater は gesture 由来の回転と位置から view 行列を組み立てる責務だけを持つ。
+        // ここが崩れると描画自体は成功しても視点だけが破綻するので、純ロジックとして固定する。
+        let rotation = GLKQuaternionNormalize(
+            GLKQuaternionMakeWithAngleAndVector3Axis(.pi / 3, GLKVector3Make(0, 1, 0))
+        )
+        let position = GLKVector3Make(3, 4, 5)
+        let updater = CameraUpdater(rot: rotation, pos: position)
+        let renderer = RendererSpy()
+
+        updater.update(1.0 / 60.0, renderer: renderer, node: Node())
+
+        let expected = GLKMatrix4.rotation(rotation.inverse()).multiply(
+            GLKMatrix4.translation(-position.x, -position.y, -position.z)
+        )
+        assertEqualMatrix(renderer.viewMatrix, expected)
+        assertEqualMatrix(updater.viewMatrix, expected)
+    }
+
     private func fixtureData(at relativePath: String) -> Data? {
         let projectRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
