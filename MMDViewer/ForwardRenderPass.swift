@@ -1,5 +1,6 @@
 import Foundation
 import Metal
+import QuartzCore
 
 private let depthTextureSampleCount = 1
 
@@ -87,20 +88,30 @@ class ForwardRenderPass: RenderPass {
         passRes = PassResource(device: view.device!)
     }
 
-    func begin(_ renderer: Renderer) {
+    /// view / drawable / command buffer の 3 つが揃ったときだけ encoder を開始する。
+    /// begin 条件をまとめておくと、将来 drawable 管理や MTKView 移行を試すときに差し替えやすい。
+    private func beginContext(for renderer: Renderer) -> (drawable: CAMetalDrawable, commandBuffer: MTLCommandBuffer)? {
         guard let drawable = view.currentDrawable else {
-            return
+            return nil
         }
         guard drawable.texture.width > 0, drawable.texture.height > 0 else {
             view.releaseCurrentDrawable()
-            return
+            return nil
         }
         guard let commandBuffer = renderer.commandBuffer else {
+            return nil
+        }
+
+        return (drawable, commandBuffer)
+    }
+
+    func begin(_ renderer: Renderer) {
+        guard let context = beginContext(for: renderer) else {
             return
         }
 
-        let renderPassDescriptor = passRes.renderPassDescriptorForDrawable(drawable.texture)
-        let renderEncoder = (commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor))!
+        let renderPassDescriptor = passRes.renderPassDescriptorForDrawable(context.drawable.texture)
+        let renderEncoder = (context.commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor))!
 
         var renderer = renderer
         renderer.renderCommandEncoderStack.append(renderEncoder)

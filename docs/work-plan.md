@@ -251,6 +251,8 @@
 - `MMDView` の main loop で timestamp 更新と draw 前提条件判定を helper に分離し、frame 駆動の流れをさらに段取り中心で追いやすくした
 - `PMXObject` の morph 更新で keyframe 取得と morph 解決を helper 境界へ寄せ、VMD / PMX 依存点を局所化した
 - `MetalView` の system default device 作成と layer 初期設定を helper に分離し、`melt` view 入口の差し替え点を明確にした
+- `ForwardRenderPass` の begin 条件を helper にまとめ、drawable / command buffer / view の前提条件を 1 箇所で追えるようにした
+- `PMXDrawer` の material ごとの texture / pipeline / fragment material 設定を helper に集約し、forward draw loop の段取りを追いやすくした
 
 ## 次のイテレーション候補
 

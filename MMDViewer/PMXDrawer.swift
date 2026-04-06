@@ -107,6 +107,39 @@ class PMXDrawer: Drawer {
         (opaquePipelineState, alphaPipelineState) = MakePipelineStates(device)
     }
 
+    private func textureIndex(for material: Material) -> Int {
+        return material.textureIndex != 255 ? material.textureIndex : 0
+    }
+
+    private func makeShaderMaterial(from material: Material) -> ShaderMaterial {
+        return ShaderMaterial(
+            ambientColor: SIMD3(material.ambient.r, material.ambient.g, material.ambient.b),
+            diffuseColor: SIMD3(material.diffuse.r, material.diffuse.g, material.diffuse.b),
+            specularColor: SIMD3(material.specular.r, material.specular.g, material.specular.b),
+            specularPower: material.specularPower
+        )
+    }
+
+    /// material ごとの texture / pipeline / fragment material 差し替えを 1 箇所へ集約する。
+    private func encodeMaterial(_ material: Material,
+                                indexByteOffset: Int,
+                                renderEncoder: MTLRenderCommandEncoder) {
+        let texture = pmxObj.textures[textureIndex(for: material)]
+        let renderPipelineState = texture.hasAlpha ? alphaPipelineState : opaquePipelineState
+        var shaderMaterial = makeShaderMaterial(from: material)
+
+        renderEncoder.setRenderPipelineState(renderPipelineState)
+        renderEncoder.setFragmentTexture(texture.texture, index: 0)
+        renderEncoder.setFragmentBytes(&shaderMaterial, length: MemoryLayout<ShaderMaterial>.stride, index: 1)
+
+        renderEncoder.drawIndexedPrimitives(
+            type: .triangle,
+            indexCount: Int(material.vertexCount),
+            indexType: .uint16,
+            indexBuffer: pmxObj.indexBuffer,
+            indexBufferOffset: indexByteOffset)
+    }
+
     func draw(_ renderer: Renderer) {
         guard let renderEncoder = renderer.renderCommandEncoder else {
             return
@@ -128,27 +161,7 @@ class PMXDrawer: Drawer {
         // material ごとに texture / pipeline を切り替える forward path の本体。
         var indexByteOffset = 0
         for material in pmxObj.pmx.materials {
-            let textureIndex = material.textureIndex != 255 ? material.textureIndex : 0
-            let texture = pmxObj.textures[textureIndex]
-            let renderPipelineState = texture.hasAlpha ? alphaPipelineState : opaquePipelineState
-            var shaderMaterial = ShaderMaterial(
-                ambientColor: SIMD3(material.ambient.r, material.ambient.g, material.ambient.b),
-                diffuseColor: SIMD3(material.diffuse.r, material.diffuse.g, material.diffuse.b),
-                specularColor: SIMD3(material.specular.r, material.specular.g, material.specular.b),
-                specularPower: material.specularPower
-            )
-
-            renderEncoder.setRenderPipelineState(renderPipelineState)
-            renderEncoder.setFragmentTexture(texture.texture, index: 0)
-            renderEncoder.setFragmentBytes(&shaderMaterial, length: MemoryLayout<ShaderMaterial>.stride, index: 1)
-
-            renderEncoder.drawIndexedPrimitives(
-                type: .triangle,
-                indexCount: Int(material.vertexCount),
-                indexType: .uint16,
-                indexBuffer: pmxObj.indexBuffer,
-                indexBufferOffset: indexByteOffset)
-
+            encodeMaterial(material, indexByteOffset: indexByteOffset, renderEncoder: renderEncoder)
             indexByteOffset += Int(material.vertexCount) * 2 // 2 bytes per index
         }
     }
