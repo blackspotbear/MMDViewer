@@ -42,6 +42,10 @@ private struct MMDFrameTiming {
 }
 
 private struct MMDFrameCompletion {
+    let presentation: MMDFramePresentation
+}
+
+private struct MMDFramePresentation {
     let drawable: CAMetalDrawable
     let commandBuffer: MTLCommandBuffer
 }
@@ -377,12 +381,15 @@ class MMDView: MetalView {
             return nil
         }
 
-        return MMDFrameCompletion(drawable: drawable, commandBuffer: commandBuffer)
+        return MMDFrameCompletion(
+            presentation: MMDFramePresentation(
+                drawable: drawable,
+                commandBuffer: commandBuffer))
     }
 
     private func completeFrame(_ completion: MMDFrameCompletion) {
-        completion.commandBuffer.present(completion.drawable)
-        completion.commandBuffer.commit()
+        completion.presentation.commandBuffer.present(completion.presentation.drawable)
+        completion.presentation.commandBuffer.commit()
     }
 
     private func startDisplayLink(configuration: MMDWindowConfiguration) {

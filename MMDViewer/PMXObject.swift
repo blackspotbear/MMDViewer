@@ -261,7 +261,7 @@ private struct PMXModelTransforms {
 }
 
 private struct PMXMorphFrameContext {
-    let keyFrames: MorphKeyFramePair
+    let frames: MorphKeyFramePair
     let weights: MorphFrameWeights
 }
 
@@ -649,19 +649,19 @@ class PMXObject {
 
     private func resolveMorphUpdates(_ context: PMXMorphFrameContext) -> PMXMorphUpdates {
         return PMXMorphUpdates(
-            left: resolveMorphUpdatesIfPresent(context.keyFrames.left, weightScale: context.weights.left),
-            right: resolveMorphUpdatesIfPresent(context.keyFrames.right, weightScale: context.weights.right))
+            left: resolveMorphUpdatesIfPresent(context.frames.left, weightScale: context.weights.left),
+            right: resolveMorphUpdatesIfPresent(context.frames.right, weightScale: context.weights.right))
     }
 
     private func currentMorphFrameContext(tick: PMXAnimationTick) -> PMXMorphFrameContext? {
-        let keyFrames = currentMorphKeyFrames(tick: tick)
-        guard hasMorphKeyFrames(keyFrames) else {
+        let frames = currentMorphKeyFrames(tick: tick)
+        guard hasMorphKeyFrames(frames) else {
             return nil
         }
 
         return PMXMorphFrameContext(
-            keyFrames: keyFrames,
-            weights: morphFrameWeights(tick: tick, leftMorphs: keyFrames.left, rightMorphs: keyFrames.right))
+            frames: frames,
+            weights: morphFrameWeights(tick: tick, leftMorphs: frames.left, rightMorphs: frames.right))
     }
 
     private func hasMorphKeyFrames(_ keyFrames: MorphKeyFramePair) -> Bool {

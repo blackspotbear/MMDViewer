@@ -324,6 +324,8 @@
 - `MMDView` の draw 可否判定も `MMDDrawableLayout` を入力にして、frame 準備結果と drawable 前提条件を同じ値で追えるようにした
 - `MMDPreparedFrame` の時間情報も `MMDFrameTiming` に分け、display link の経過時間計算結果を frame 準備値の一部として追えるようにした
 - `PMXObject` の render buffer 生成結果も `PMXFrameRenderBufferAssembly` を介す形にし、draw 前の GPU バッファ組み立て段を専用の値として扱えるようにした
+- `PMXMorphFrameContext` では左右 keyframe 群を `frames` として扱う形にそろえ、morph 文脈値の役割を読み取りやすくした
+- `MMDView` の frame 完了値でも present 用の組を `MMDFramePresentation` として分離し、drawable 提示と command buffer commit の責務を明確にした
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
 
 ## 次のイテレーション候補
