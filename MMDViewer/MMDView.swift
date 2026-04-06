@@ -204,10 +204,22 @@ class MMDView: MetalView {
         return PMXUpdater(pmxObj: miku)
     }
 
+    private func loadPMXResource() -> PMX {
+        return LoadPMD("data/mmd/Alicia_solid")
+    }
+
+    private func loadVMDResource() -> VMD {
+        return LoadVMD("data/vmd/2分ループステップ17")
+    }
+
+    private func makePMXObject(pmx: PMX, vmd: VMD) -> PMXObject {
+        return PMXObject(device: device!, pmx: pmx, vmd: vmd)
+    }
+
     private func loadSceneResources() {
-        pmx = LoadPMD("data/mmd/Alicia_solid")
-        vmd = LoadVMD("data/vmd/2分ループステップ17")
-        miku = PMXObject(device: device!, pmx: pmx!, vmd: vmd)
+        pmx = loadPMXResource()
+        vmd = loadVMDResource()
+        miku = makePMXObject(pmx: pmx!, vmd: vmd)
     }
 
     /// `MMDView` が window に乗ったタイミングで、描画レイヤーと scene graph の初期化を束ねる。

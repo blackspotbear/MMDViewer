@@ -278,6 +278,7 @@
 - `ViewController` の lifecycle notification 登録と playback button 文言決定を helper に寄せ、UI 外周の重複を減らした
 - `MMDView` の gesture recognizer 登録を helper に分離し、view 初期化時の入力セットアップを追いやすくした
 - `PMXObject` の 1 frame 更新を animation state / geometry state / render buffer の段に分け、`AppDelegate` でも Main.storyboard 生成を helper 化して UI 外周の入口をそろえた
+- `MMDView` の scene resource 読み込みを PMX / VMD / PMXObject 生成 helper に分け、scene 準備時の差し替え点を明確にした
 
 ## 次のイテレーション候補
 
