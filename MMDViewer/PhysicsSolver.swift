@@ -1,6 +1,8 @@
 import Foundation
 import GLKit
 
+/// FK/IK 後の posture を Bullet world へ反映し、simulation 後の dynamic body だけを戻す。
+/// MMD の制御ボーンは kinematic body として先に押し込み、揺れ物などの結果だけを引き戻す。
 func PhysicsSolver(_ postures: [Posture], physicsSolving solver: PhysicsSolving) {
     for rigidBody in solver.rigidBodies {
         if rigidBody.boneIndex < 0 {
@@ -14,6 +16,7 @@ func PhysicsSolver(_ postures: [Posture], physicsSolving solver: PhysicsSolving)
         solver.move(rigidBody.boneIndex, rot:posture.worldRot, pos:posture.worldPos)
     }
 
+    // 現行実装は MMD の 30fps 前提に合わせた刻みで world を進める。
     solver.step()
 
     for rigidBody in solver.rigidBodies {

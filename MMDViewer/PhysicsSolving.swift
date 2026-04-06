@@ -5,6 +5,8 @@ import GLKit
 protocol PhysicsSolving {
     var rigidBodies: [RigidBody] { get }
     var constraints: [Constraint] { get }
+    /// PMX 由来の剛体・constraint 定義から Bullet world を構築する初期化段。
+    /// 生成後の solver は Swift 側から opaque な bridge として扱う。
     func build(_ rigidBodies: [RigidBody], constraints: [Constraint], bones: [Bone])
     /// Swift 側はまだ GLKit 型を使っているが、物理ブリッジはここを唯一の往復点に保つ。
     func move(_ boneIndex: Int, rot: GLKQuaternion, pos: GLKVector3)
