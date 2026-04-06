@@ -10,6 +10,9 @@ protocol AnimationCounter {
     func maxIt() -> Int
 }
 
+/// shader が参照する行列群を 1 つの uniform buffer に詰める。
+/// ここは Swift 側の行列表現と shader 側のメモリ配置が直接出会う境界なので、
+/// `simd` 化を進める時も生バイト列の詰め方は別イテレーションで扱う。
 private func CopyMatrices(_ buffer: MTLBuffer,
                           _ modelMatrix: GLKMatrix4,
                           _ modelViewMatrix: GLKMatrix4,
@@ -150,11 +153,15 @@ class Posture {
     var pos: GLKVector3
     var wm: GLKMatrix4 // world matrix
 
+    /// ボーン原点を world へ押し出した結果。
+    /// 物理ブリッジはこの値を基準に Bullet へ kinematic transform を送る。
     var worldPos: GLKVector3 {
         let p = GLKMatrix4MultiplyVector4(wm, GLKVector4MakeWithVector3(bone.pos, 1))
         return GLKVector3Make(p.x, p.y, p.z)
     }
 
+    /// 現在姿勢の world 回転。
+    /// FK/IK/物理の各段が最終的にここへ畳み込まれる。
     var worldRot: GLKQuaternion {
         return GLKQuaternionMakeWithMatrix4(wm)
     }
@@ -273,10 +280,14 @@ class PMXObject {
 
     var postures: [Posture] = []
 
+    /// アプリ側の平行移動、回転、拡大縮小をまとめたモデル行列。
+    /// ボーン姿勢とは別に、モデル全体をシーン内へ置くために使う。
     var modelMatrix: GLKMatrix4 {
         return GLKMatrix4Identity.scale(scale, y: scale, z: scale).rotateAroundX(rotationX, y: rotationY, z: rotationZ).translate(positionX, y: positionY, z: positionZ)
     }
 
+    /// 法線用の行列。
+    /// 現状は非一様スケールを使わない前提なので回転成分だけを抜き出している。
     var normalMatrix: GLKMatrix4 {
         return GLKMatrix4Identity.rotateAroundX(rotationX, y: rotationY, z: rotationZ)
     }
@@ -337,6 +348,8 @@ class PMXObject {
         solver = PhysicsSolverMake(pmx)
     }
 
+    /// 1 frame 分のアニメーション、物理、morph、GPU 転送をまとめて進める。
+    /// 呼び出し側は draw 前に毎フレームこれを実行する前提。
     func calc(_ renderer: Renderer) {
 //        FKSolver(postures, vmd: vmd, frameNum: counter.currentFrame())
         FKSolver(postures, curveTies: self.curveTies, frameNum: counter.currentFrame())
@@ -359,6 +372,8 @@ class PMXObject {
         materialBuffer = sendMaterials()
     }
 
+    /// 頂点 morph を CPU 側 vertex buffer へ直接加算する。
+    /// 現状は毎フレーム CPU で頂点を書き換える実装なので、性能改善候補でもある。
     private func updateVertex(_ morph: Morph, _ weight: Float) {
         let p = currentVertexBuffer!.contents()
         let size = PMXVertex.packedSize
@@ -412,6 +427,8 @@ class PMXObject {
         counter.increment()
     }
 
+    /// 描画に必要な camera / shadow 行列をまとめて uniform buffer へ転送する。
+    /// shadowMatrixGB は Metal のテクスチャ座標系に合わせて Y 反転込みで作っている。
     private func sendUniforms(_ renderer: Renderer) -> MTLBuffer {
         let uniformBuffer = uniformBufferProvider.nextBuffer()
 
@@ -445,6 +462,8 @@ class PMXObject {
         return uniformBuffer
     }
 
+    /// 各ボーンの world matrix を matrix palette buffer へ詰める。
+    /// shader 側の skinning はこの palette を前提にしている。
     private func sendMatrixPalette() -> MTLBuffer {
         let palette = self.mtrxBufferProvider.nextBuffer()
         var dst = palette.contents()
@@ -457,6 +476,8 @@ class PMXObject {
         return palette
     }
 
+    /// material ごとの色パラメータを shader 用の連続領域へ詰める。
+    /// texture index や sphere map などは別経路で扱うため、ここでは色だけ送る。
     private func sendMaterials() -> MTLBuffer {
         let materialBuffer = materialBufferProvider.nextBuffer()
 

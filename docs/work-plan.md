@@ -211,6 +211,7 @@
 - `GLKMatrix4` の `simd_mul` をそのまま使うと GLKit のベクトル適用規約とずれることをテストで確認し、factory / transpose と演算 helper を分けて移行する方針を固めた
 - Physics と Bullet の境界で使う GLKit 型変換と rigid body offset 計算を helper に集約し、将来の `simd` 置換ポイントを見通しやすくした
 - `Traverser`、`BasicRenderer`、回帰テストに、renderer 規約やテスト意図が分かるドキュメンテーションコメントを追加し始めた
+- `PMXObject` に、アニメーション更新、物理連携、morph、uniform / palette / material 転送の役割が追えるドキュメンテーションコメントを追加し始めた
 
 ## 次のイテレーション候補
 
