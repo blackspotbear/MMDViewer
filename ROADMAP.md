@@ -29,6 +29,33 @@
 4. SwiftUI を使うなら、まず設定画面や補助 UI のような描画外 UI から入る
 5. 最後に formatter のような差分の大きい変更を段階適用する
 
+## 将来の目標: レンダリング方式の切り替え UI
+
+README にある 2 種類の見た目は、forward rendering と deferred rendering に対応している可能性が高い。現時点のコードでは [`/Users/kmi/devel/MMDViewer/MMDViewer/melt/view/MMDView.swift`](/Users/kmi/devel/MMDViewer/MMDViewer/melt/view/MMDView.swift) に `#if true // forward rendering` と `#else // deferred rendering` が残っており、切り替えはコンパイル時分岐になっている。
+
+将来的には、現在の Play / Pause ボタンの並びに「rendering mode 切り替え」ボタンを追加し、実行時に見た目を切り替えられるようにしたい。
+
+### 実現性の判断
+
+- 技術的には実現可能
+- ただし、今のままでは単純な boolean 1 個ではなく、`MMDView` 側で scene graph を再構築できるようにする必要がある
+- forward / deferred の両方とも最終的には `Node` 木と `Traverser` を使うため、renderer 全体を別実装に分ける必要はない
+
+### 必要になる変更
+
+1. `MMDView` に `RenderMode` のような enum を導入する
+2. `#if true` / `#else` をやめて、render mode を引数に scene graph を構築する
+3. mode 変更時に root node, pass, drawer, updater をまとめて再生成する `rebuildSceneGraph` を用意する
+4. 必要なら pass が保持する texture / attachment cache を切り替え時に解放する
+5. `ViewController` に切り替えボタンを追加し、`MMDView` へ mode 変更を通知する
+6. simulator 上で forward / deferred の両方について、表示、モーション、Play / Pause、操作、描画継続を確認する
+
+### 注意点
+
+- deferred 側は forward 側ほど継続的に実行確認されていないため、掘り起こし時に不具合が出る可能性がある
+- drawable, depth texture, G-buffer の寿命管理は runtime 依存が強く、単体テストより simulator 目視確認が重要
+- したがって、この機能追加は「UI を足す作業」ではなく、「scene graph の実行時再構築を安全に導入する作業」として扱うべき
+
 ## まだやっていない理由
 
 - `SwiftUI` への全面移行は、描画 loop、gesture、toolbar、lifecycle の再配線を同時に招きやすく、今回の「小さいイテレーションで壊さず進める」方針と相性が悪かった
