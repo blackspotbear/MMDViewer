@@ -255,6 +255,11 @@ private struct PMXFrameUpdateSession {
     let render: PMXRenderUpdateContext
 }
 
+private struct PMXFramePipelineSession {
+    let context: PMXFrameContext
+    let update: PMXFrameUpdateSession
+}
+
 private struct PMXAnimationContext {
     let tick: PMXAnimationTick
 }
@@ -523,7 +528,8 @@ class PMXObject {
     /// 1 frame 分のアニメーション、物理、morph、GPU 転送をまとめて進める。
     /// 呼び出し側は draw 前に毎フレームこれを実行する前提。
     func calc(_ renderer: Renderer) {
-        updateFrame(currentFrameContext(renderer))
+        let session = makeFramePipelineSession(renderer)
+        updateFrame(session.context)
     }
 
     private func currentFrameContext(_ renderer: Renderer) -> PMXFrameContext {
@@ -554,6 +560,13 @@ class PMXObject {
             animation: currentAnimationUpdateContext(context),
             geometry: currentGeometryUpdateContext(context),
             render: currentRenderUpdateContext(context))
+    }
+
+    private func makeFramePipelineSession(_ renderer: Renderer) -> PMXFramePipelineSession {
+        let context = currentFrameContext(renderer)
+        return PMXFramePipelineSession(
+            context: context,
+            update: makeFrameUpdateSession(context))
     }
 
     private func updateAnimationState(_ session: PMXAnimationUpdateSession) {

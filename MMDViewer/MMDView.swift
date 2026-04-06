@@ -97,6 +97,11 @@ private struct MMDWindowSetupSession {
     let displayLink: MMDDisplayLinkConfiguration
 }
 
+private struct MMDWindowConfigurationSession {
+    let configuration: MMDWindowConfiguration
+    let setup: MMDWindowSetupSession
+}
+
 private struct MMDForwardSceneGraphSession {
     let updater: PMXUpdater
     let configuration: MMDSceneGraphConfiguration
@@ -377,10 +382,10 @@ class MMDView: MetalView {
     /// `MMDView` が window に乗ったタイミングで、描画レイヤーと scene graph の初期化を束ねる。
     /// UIKit lifecycle の入り口を 1 箇所へ寄せ、後で scene 再構成や `MTKView` 置換を試しやすくする。
     private func configureForWindow(_ window: UIWindow) {
-        let configuration = makeWindowConfiguration(for: window)
-        applyWindowConfiguration(configuration)
+        let session = makeWindowConfigurationSession(for: window)
+        applyWindowConfiguration(session.configuration)
         configureRendererEndHandler()
-        applyWindowSetup(makeWindowSetupSession(configuration))
+        applyWindowSetup(session.setup)
     }
 
     private func makeWindowConfiguration(for window: UIWindow) -> MMDWindowConfiguration {
@@ -388,6 +393,13 @@ class MMDView: MetalView {
             displayScale: window.screen.nativeScale,
             preparedScene: prepareScene(),
             preferredFramesPerSecond: 30)
+    }
+
+    private func makeWindowConfigurationSession(for window: UIWindow) -> MMDWindowConfigurationSession {
+        let configuration = makeWindowConfiguration(for: window)
+        return MMDWindowConfigurationSession(
+            configuration: configuration,
+            setup: makeWindowSetupSession(configuration))
     }
 
     private func applyWindowConfiguration(_ configuration: MMDWindowConfiguration) {
