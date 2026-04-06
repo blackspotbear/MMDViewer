@@ -9,6 +9,10 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        configurePlaybackUI()
+    }
+
+    private func configurePlaybackUI() {
         playPauseButton.accessibilityIdentifier = "playPauseButton"
         registerLifecycleNotifications()
         updatePlayPauseButtonTitle()
@@ -47,15 +51,19 @@ class ViewController: UIViewController {
     }
 
     @IBAction func onPlayButtonPushed(_ sender: AnyObject) {
-        if let pmxUpdater = mmdView.pmxUpdater {
-            setPlaybackState(isPlaying: !pmxUpdater.playing)
-        }
+        togglePlaybackState()
     }
 
     /// scene ライフサイクル通知と toolbar 操作の両方から再生状態を揃える。
     private func setPlaybackState(isPlaying: Bool) {
         mmdView.pmxUpdater?.playing = isPlaying
         updatePlayPauseButtonTitle()
+    }
+
+    private func togglePlaybackState() {
+        if let pmxUpdater = mmdView.pmxUpdater {
+            setPlaybackState(isPlaying: !pmxUpdater.playing)
+        }
     }
 
     private func updatePlayPauseButtonTitle() {

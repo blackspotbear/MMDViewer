@@ -225,6 +225,7 @@
 - `MMDView` の frame 完了処理と current frame 実行を helper に分離し、display link から renderer commit までの責務を追いやすくした
 - `PMXObject` initializer の vertex/buffer/texture 準備を `PMXObjectResources` にまとめ、resource 初期化のまとまりを 1 箇所に寄せた
 - `AppDelegate` の scene configuration 生成と `SceneDelegate` の foreground/background 通知発火を helper に分け、lifecycle 外周の責務を揃えた
+- `ViewController` の playback UI 初期化と play/pause toggle を helper に寄せ、UI 外周の状態同期入口を読みやすくした
 - `GLKMatrix4` の off-center orthographic factory を `GLKMatrix4+MMD` へ移し、shadow 行列生成から残っていた `GLKMatrix4Make*` 依存を削った
 - `GLKMatrix4.multiplyVector4` は `simd` 実装へ寄せられた一方、matrix-matrix multiply は規約差が大きく、当面は GLKit 実装を維持する方針を回帰テストで確認した
 - Physics と Bullet の境界で使う GLKit 型変換と rigid body offset 計算を helper に集約し、将来の `simd` 置換ポイントを見通しやすくした
