@@ -438,8 +438,8 @@ class MMDView: MetalView {
 
     /// 現在の layer / renderer 状態で draw を進めてよいかを判定する。
     /// drawable サイズ 0 のフレームを早期 return して、Metal 側の invalid texture 作成を避ける。
-    private func isReadyToDrawCurrentFrame() -> Bool {
-        return drawableSize.width > 0 && drawableSize.height > 0
+    private func isReadyToDrawCurrentFrame(layout: MMDDrawableLayout) -> Bool {
+        return layout.drawableSize.width > 0 && layout.drawableSize.height > 0
     }
 
     private func drawPreparedFrame(_ frame: MMDPreparedFrame) {
@@ -451,14 +451,15 @@ class MMDView: MetalView {
         let elapsed = elapsedTime(since: displayLink)
 
         updateDrawableSizeIfNeeded()
+        let layout = currentDrawableLayout()
 
-        guard isReadyToDrawCurrentFrame() else {
+        guard isReadyToDrawCurrentFrame(layout: layout) else {
             return nil
         }
 
         return MMDPreparedFrame(
             elapsed: elapsed,
-            layout: currentDrawableLayout())
+            layout: layout)
     }
 
     @objc func mainLoop(_ displayLink: CADisplayLink) {

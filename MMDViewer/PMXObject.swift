@@ -252,7 +252,12 @@ private struct PMXGeometryContext {
 
 private struct PMXRenderContext {
     let renderer: Renderer
+    let transforms: PMXModelTransforms
+}
+
+private struct PMXModelTransforms {
     let modelMatrix: GLKMatrix4
+    let normalMatrix: GLKMatrix4
 }
 
 private struct PMXMorphFrameContext {
@@ -434,7 +439,11 @@ class PMXObject {
     private func currentFrameContext(_ renderer: Renderer) -> PMXFrameContext {
         return PMXFrameContext(
             tick: currentAnimationTick(),
-            render: PMXRenderContext(renderer: renderer, modelMatrix: modelMatrix))
+            render: PMXRenderContext(
+                renderer: renderer,
+                transforms: PMXModelTransforms(
+                    modelMatrix: modelMatrix,
+                    normalMatrix: normalMatrix)))
     }
 
     private func currentAnimationTick() -> PMXAnimationTick {
@@ -729,14 +738,16 @@ class PMXObject {
         //
         // see https://goo.gl/vgIYTf
 
-        let renderMatrices = PMXRenderDataEncoder.makeRenderMatrices(context.renderer, context.modelMatrix)
+        let renderMatrices = PMXRenderDataEncoder.makeRenderMatrices(
+            context.renderer,
+            context.transforms.modelMatrix)
 
         CopyMatrices(
             uniformBuffer,
-            context.modelMatrix,
+            context.transforms.modelMatrix,
             renderMatrices.modelViewMatrix,
             context.renderer.projectionMatrix,
-            normalMatrix,
+            context.transforms.normalMatrix,
             renderMatrices.shadowMatrix,
             renderMatrices.shadowMatrixGB)
 
