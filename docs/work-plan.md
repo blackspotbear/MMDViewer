@@ -328,6 +328,8 @@
 - `MMDView` の frame 完了値でも present 用の組を `MMDFramePresentation` として分離し、drawable 提示と command buffer commit の責務を明確にした
 - `MMDView` の draw 実行段でも `MMDFrameExecution` を介し、frame 準備値から実行時に参照する時間情報を別段で扱えるようにした
 - `PMXFrameContext` では animation 入力を `PMXAnimationContext` に分け、毎フレーム更新の中でアニメーション依存の値を render 文脈と分離した
+- `MMDView` の resize / reshape 更新でも `MMDLayoutUpdate` を介し、drawable layout の反映段を専用の更新値として扱えるようにした
+- `PMXObject` の morph 適用入口でも `PMXMorphApplicationContext` を介し、morph 文脈の取得と適用段をさらに分けた
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
 
 ## 次のイテレーション候補

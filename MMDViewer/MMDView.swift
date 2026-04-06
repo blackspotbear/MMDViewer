@@ -63,6 +63,10 @@ private struct MMDDisplayLinkConfiguration {
     let preferredFramesPerSecond: Int
 }
 
+private struct MMDLayoutUpdate {
+    let layout: MMDDrawableLayout
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -427,10 +431,14 @@ class MMDView: MetalView {
             return
         }
 
-        let layout = currentDrawableLayout()
-        self.drawableSize = layout.drawableSize
-        renderer.reshape(layout.bounds)
+        let update = currentLayoutUpdate()
+        self.drawableSize = update.layout.drawableSize
+        renderer.reshape(update.layout.bounds)
         layerSizeDidUpdate = false
+    }
+
+    private func currentLayoutUpdate() -> MMDLayoutUpdate {
+        return MMDLayoutUpdate(layout: currentDrawableLayout())
     }
 
     private func currentDrawableLayout() -> MMDDrawableLayout {

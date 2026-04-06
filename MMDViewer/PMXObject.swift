@@ -269,6 +269,10 @@ private struct PMXMorphFrameContext {
     let weights: MorphFrameWeights
 }
 
+private struct PMXMorphApplicationContext {
+    let frame: PMXMorphFrameContext
+}
+
 private struct PMXObjectResources {
     let vertexData: Data
     let bufferProviders: PMXBufferProviders
@@ -643,12 +647,20 @@ class PMXObject {
     }
 
     private func applyMorph(tick: PMXAnimationTick) {
-        guard let context = currentMorphFrameContext(tick: tick) else {
+        guard let context = currentMorphApplicationContext(tick: tick) else {
             return
         }
 
-        let updates = resolveMorphUpdates(context)
+        let updates = resolveMorphUpdates(context.frame)
         applyMorphUpdates(updates.left + updates.right)
+    }
+
+    private func currentMorphApplicationContext(tick: PMXAnimationTick) -> PMXMorphApplicationContext? {
+        guard let frame = currentMorphFrameContext(tick: tick) else {
+            return nil
+        }
+
+        return PMXMorphApplicationContext(frame: frame)
     }
 
     private func resolveMorphUpdates(_ context: PMXMorphFrameContext) -> PMXMorphUpdates {
