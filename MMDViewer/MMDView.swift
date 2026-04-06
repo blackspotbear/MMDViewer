@@ -474,7 +474,7 @@ class MMDView: MetalView {
             return
         }
 
-        completeFrame(session.completion)
+        completeFrame(session)
         releaseCurrentDrawable()
     }
 
@@ -510,9 +510,9 @@ class MMDView: MetalView {
                 commandBuffer: commandBuffer))
     }
 
-    private func completeFrame(_ completion: MMDFrameCompletion) {
-        completion.presentation.commandBuffer.present(completion.presentation.drawable)
-        completion.presentation.commandBuffer.commit()
+    private func completeFrame(_ session: MMDFrameCompletionSession) {
+        session.completion.presentation.commandBuffer.present(session.completion.presentation.drawable)
+        session.completion.presentation.commandBuffer.commit()
     }
 
     private func startDisplayLink(configuration: MMDDisplayLinkConfiguration) {
@@ -608,6 +608,10 @@ class MMDView: MetalView {
             return nil
         }
 
+        return preparedFrame(session)
+    }
+
+    private func preparedFrame(_ session: MMDFramePreparationSession) -> MMDPreparedFrame {
         return session.frame
     }
 
@@ -632,7 +636,7 @@ class MMDView: MetalView {
             return
         }
 
-        drawPreparedFrame(session.frame)
+        drawFrameLoop(session)
     }
 
     private func makeFrameLoopSession(_ displayLink: CADisplayLink) -> MMDFrameLoopSession? {
@@ -641,5 +645,9 @@ class MMDView: MetalView {
         }
 
         return MMDFrameLoopSession(frame: frame)
+    }
+
+    private func drawFrameLoop(_ session: MMDFrameLoopSession) {
+        drawPreparedFrame(session.frame)
     }
 }
