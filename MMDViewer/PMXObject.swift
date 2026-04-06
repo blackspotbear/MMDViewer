@@ -340,6 +340,10 @@ private struct PMXFrameRenderBufferAssembly {
     let buffers: PMXFrameRenderBuffers
 }
 
+private struct PMXRenderBufferUpdateSession {
+    let assembly: PMXFrameRenderBufferAssembly
+}
+
 /// `PMXObject` が shader 向けに送る生バイト列の準備を集約する。
 /// ここは still-legacy な `GLKMatrix4` 表現と `MTLBuffer` 書き込みが出会う境界で、
 /// 後で別型へ切り出す時も呼び出し側の流れを崩さずに移行できるようにしている。
@@ -768,12 +772,17 @@ class PMXObject {
 
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
     private func updateRenderBuffers(_ context: PMXRenderUpdateContext) {
-        let assembly = makeFrameRenderBufferAssembly(context)
-        storeRenderBuffers(assembly.buffers)
+        let session = makeRenderBufferUpdateSession(context)
+        storeRenderBuffers(session.assembly.buffers)
     }
 
     private func currentRenderUpdateContext(_ context: PMXFrameContext) -> PMXRenderUpdateContext {
         return PMXRenderUpdateContext(render: context.render)
+    }
+
+    private func makeRenderBufferUpdateSession(_ context: PMXRenderUpdateContext) -> PMXRenderBufferUpdateSession {
+        return PMXRenderBufferUpdateSession(
+            assembly: makeFrameRenderBufferAssembly(context))
     }
 
     private func withNextBuffer(_ provider: BufferProvider) -> MTLBuffer {
