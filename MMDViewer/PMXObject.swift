@@ -266,6 +266,11 @@ private struct PMXBufferProviders {
     let materials: BufferProvider
 }
 
+private struct PMXObjectSetup {
+    let resources: PMXObjectResources
+    let animationState: PMXObjectAnimationState
+}
+
 /// `PMXObject` が shader 向けに送る生バイト列の準備を集約する。
 /// ここは still-legacy な `GLKMatrix4` 表現と `MTLBuffer` 書き込みが出会う境界で、
 /// 後で別型へ切り出す時も呼び出し側の流れを崩さずに移行できるようにしている。
@@ -377,26 +382,21 @@ class PMXObject {
         self.pmx = pmx
         self.vmd = vmd
 
-        let resources = Self.makeResources(device: device, pmx: pmx)
-        let animationState = Self.makeAnimationState(pmx: pmx, vmd: vmd)
-        let storedResources = Self.makeStoredResources(from: resources)
-        let storedAnimationState = Self.makeStoredAnimationState(from: animationState)
-        vertexData = storedResources.vertexData
-        bufferProviders = storedResources.bufferProviders
-        indexBuffer = storedResources.indexBuffer
-        self.textures = storedResources.textures
-        self.curveTies = storedAnimationState.curveTies
-        self.postures = storedAnimationState.postures
-        counter = storedAnimationState.counter
-        solver = storedAnimationState.solver
+        let setup = Self.makeSetup(device: device, pmx: pmx, vmd: vmd)
+        vertexData = setup.resources.vertexData
+        bufferProviders = setup.resources.bufferProviders
+        indexBuffer = setup.resources.indexBuffer
+        self.textures = setup.resources.textures
+        self.curveTies = setup.animationState.curveTies
+        self.postures = setup.animationState.postures
+        counter = setup.animationState.counter
+        solver = setup.animationState.solver
     }
 
-    private static func makeStoredResources(from resources: PMXObjectResources) -> PMXObjectResources {
-        return resources
-    }
-
-    private static func makeStoredAnimationState(from animationState: PMXObjectAnimationState) -> PMXObjectAnimationState {
-        return animationState
+    private static func makeSetup(device: MTLDevice, pmx: PMX, vmd: VMD) -> PMXObjectSetup {
+        return PMXObjectSetup(
+            resources: Self.makeResources(device: device, pmx: pmx),
+            animationState: Self.makeAnimationState(pmx: pmx, vmd: vmd))
     }
 
     /// 1 frame 分のアニメーション、物理、morph、GPU 転送をまとめて進める。

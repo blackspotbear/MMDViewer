@@ -294,6 +294,7 @@
 - `MMDView` の scene graph 構成は保持済みプロパティ `miku` に暗黙依存させず、準備済み `PMXObject` を明示的に受け渡す形へ直した
 - `PMXObject` の 1 フレーム更新で `PMXFrameContext` を導入し、renderer と animation tick をまとめた文脈を各更新段へ渡すようにした
 - `MMDView` の frame 完了処理で drawable 取得と command buffer 完了を helper に分け、present / commit の最終段を追いやすくした
+- `PMXObject` の constructor では `PMXObjectSetup` に resource/animation state 生成を束ね、初期化段取りを 1 つの setup 値として読める形にした
 
 ## 次のイテレーション候補
 
