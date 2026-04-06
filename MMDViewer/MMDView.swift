@@ -64,7 +64,7 @@ class MMDView: MetalView {
     override var contentScaleFactor: CGFloat {
         set(v) {
             super.contentScaleFactor = v
-            layerSizeDidUpdate = true
+            markDrawableSizeNeedsUpdate()
         }
         get {
             return super.contentScaleFactor
@@ -73,7 +73,10 @@ class MMDView: MetalView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        metalLayer?.frame = bounds
+        markDrawableSizeNeedsUpdate()
+    }
+
+    private func markDrawableSizeNeedsUpdate() {
         layerSizeDidUpdate = true
     }
 
