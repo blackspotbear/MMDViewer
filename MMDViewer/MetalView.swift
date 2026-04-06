@@ -3,6 +3,11 @@ import UIKit
 import Metal
 import QuartzCore
 
+private struct MetalViewLayerConfiguration {
+    let metalLayer: CAMetalLayer
+    let device: MTLDevice
+}
+
 /// `melt` の UIView 側エントリポイント。
 /// CAMetalLayer の所有と current drawable の取得だけを担当し、描画内容の管理は pass / renderer 側へ委ねる。
 class MetalView: UIView {
@@ -69,17 +74,22 @@ class MetalView: UIView {
     }
 
     private final func initMetalLayer() {
-        guard let metalLayer = makeMetalLayer() else {
+        guard let configuration = makeLayerConfiguration() else {
             return
         }
 
-        let device = makeSystemDefaultDevice()
-        configure(metalLayer: metalLayer, device: device)
-        store(metalLayer: metalLayer, device: device)
+        configure(metalLayer: configuration.metalLayer, device: configuration.device)
+        store(metalLayer: configuration.metalLayer, device: configuration.device)
     }
 
-    private func makeMetalLayer() -> CAMetalLayer? {
-        return self.layer as? CAMetalLayer
+    private func makeLayerConfiguration() -> MetalViewLayerConfiguration? {
+        guard let metalLayer = self.layer as? CAMetalLayer else {
+            return nil
+        }
+
+        return MetalViewLayerConfiguration(
+            metalLayer: metalLayer,
+            device: makeSystemDefaultDevice())
     }
 
     private func store(metalLayer: CAMetalLayer, device: MTLDevice) {

@@ -27,6 +27,10 @@ private struct MMDWindowConfiguration {
     let preferredFramesPerSecond: Int
 }
 
+private struct MMDPreparedFrame {
+    let elapsed: CFTimeInterval
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -386,12 +390,12 @@ class MMDView: MetalView {
         return drawableSize.width > 0 && drawableSize.height > 0
     }
 
-    private func drawCurrentFrame(elapsed: CFTimeInterval) {
-        traverser.update(elapsed, node: root)
+    private func drawPreparedFrame(_ frame: MMDPreparedFrame) {
+        traverser.update(frame.elapsed, node: root)
         traverser.draw(root)
     }
 
-    private func prepareCurrentFrame(_ displayLink: CADisplayLink) -> CFTimeInterval? {
+    private func prepareCurrentFrame(_ displayLink: CADisplayLink) -> MMDPreparedFrame? {
         let elapsed = elapsedTime(since: displayLink)
 
         updateDrawableSizeIfNeeded()
@@ -400,14 +404,14 @@ class MMDView: MetalView {
             return nil
         }
 
-        return elapsed
+        return MMDPreparedFrame(elapsed: elapsed)
     }
 
     @objc func mainLoop(_ displayLink: CADisplayLink) {
-        guard let elapsed = prepareCurrentFrame(displayLink) else {
+        guard let frame = prepareCurrentFrame(displayLink) else {
             return
         }
 
-        drawCurrentFrame(elapsed: elapsed)
+        drawPreparedFrame(frame)
     }
 }
