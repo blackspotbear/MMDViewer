@@ -67,12 +67,7 @@ class BasicRenderer: Renderer {
             center: GLKVector3Make(0, 10, 0),
             up: GLKVector3Make(0, 1, 0)
         )
-        projectionMatrix = GLKMatrix4.perspective(
-            fovyRadians: Float(defaultFieldOfViewRadians),
-            aspect: 1.0,
-            near: 0.01,
-            far: 100.0
-        )
+        updateProjectionMatrix(aspect: 1.0)
     }
 
     /// 1 frame 分の command buffer を確保する。
@@ -102,15 +97,20 @@ class BasicRenderer: Renderer {
         lastViewportSize = viewportSize
 
         let aspect = Float(viewportSize.width / viewportSize.height)
+        updateProjectionMatrix(aspect: aspect)
+    }
+
+    func setEndHandler(_ handler: @escaping (Renderer) -> Void) {
+        self.onEndHandler = handler
+    }
+
+    /// renderer 全体で共有する透視投影の既定値を 1 箇所に集める。
+    private func updateProjectionMatrix(aspect: Float) {
         projectionMatrix = GLKMatrix4.perspective(
             fovyRadians: Float(defaultFieldOfViewRadians),
             aspect: aspect,
             near: 0.01,
             far: 100.0
         )
-    }
-
-    func setEndHandler(_ handler: @escaping (Renderer) -> Void) {
-        self.onEndHandler = handler
     }
 }
