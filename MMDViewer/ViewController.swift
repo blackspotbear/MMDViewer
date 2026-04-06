@@ -22,13 +22,13 @@ class ViewController: UIViewController {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(ViewController.viewWillEnterForeground(_:)),
-            name: NSNotification.Name(rawValue: "applicationWillEnterForeground"),
+            name: .mmdViewerWillEnterForeground,
             object: nil
         )
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(ViewController.viewDidEnterBackground(_:)),
-            name: NSNotification.Name(rawValue: "applicationDidEnterBackground"),
+            name: .mmdViewerDidEnterBackground,
             object: nil
         )
     }
