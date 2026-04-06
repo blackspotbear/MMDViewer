@@ -37,6 +37,12 @@
 - `MMDViewer.xcodeproj/`
   - Xcode プロジェクト設定
 
+## 命名メモ
+
+- `melt` は `Metal` に掛けた、MMDViewer 専用の描画基盤レイヤーの名前として扱う
+- 現在の作業でも、この名前は「PMX データ処理や math 補助ではなく、renderer / pass / drawer / updater / view など描画基盤側のまとまり」を指す論理名として維持する
+- 実体は作業ツリー上の `melt/` ディレクトリではなく、Xcode project 内の仮想 group である
+
 ## 実装アーキテクチャの理解
 
 ### アプリ起動と UI

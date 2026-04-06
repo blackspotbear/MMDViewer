@@ -16,6 +16,7 @@
 - 問題があれば、その場で原因を限定してから修正する
 - 数学 API の置換と、GPU に渡すバッファ配置や生バイト列の変更は同じイテレーションで混ぜない
 - 描画バッファ、uniform、matrix palette、render pass を触った変更は、単体テストだけで完了扱いにせずシミュレータ確認を必須にする
+- `melt` は MMDViewer 専用の描画基盤レイヤー名として維持し、renderer / pass / drawer / updater / view など描画側の整理単位として扱う
 
 ## 想定する確認項目
 
