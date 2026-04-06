@@ -245,6 +245,11 @@ private struct PMXFrameContext {
     let render: PMXRenderContext
 }
 
+private struct PMXGeometryContext {
+    let tick: PMXAnimationTick
+    let vertexBuffer: MTLBuffer
+}
+
 private struct PMXRenderContext {
     let renderer: Renderer
 }
@@ -438,7 +443,13 @@ class PMXObject {
     }
 
     private func updateGeometryState(_ context: PMXFrameContext) {
-        prepareVertexBufferForCurrentFrame(tick: context.tick)
+        prepareVertexBufferForCurrentFrame(currentGeometryContext(tick: context.tick))
+    }
+
+    private func currentGeometryContext(tick: PMXAnimationTick) -> PMXGeometryContext {
+        return PMXGeometryContext(
+            tick: tick,
+            vertexBuffer: makeCurrentVertexBuffer())
     }
 
     /// FK / IK / Grant 解決後に、全ボーンの world matrix を現在フレームへ揃える。
@@ -544,10 +555,10 @@ class PMXObject {
 
     /// ベース頂点を inflight buffer へコピーし、現在フレームの morph を上書き適用する。
     /// CPU morph 実装の責務を `calc` 本体から切り離し、将来の GPU 化や計測をしやすくする。
-    private func prepareVertexBufferForCurrentFrame(tick: PMXAnimationTick) {
-        currentVertexBuffer = makeCurrentVertexBuffer()
-        copyBaseVertexData(into: currentVertexBuffer!)
-        applyMorph(tick: tick)
+    private func prepareVertexBufferForCurrentFrame(_ context: PMXGeometryContext) {
+        currentVertexBuffer = context.vertexBuffer
+        copyBaseVertexData(into: context.vertexBuffer)
+        applyMorph(tick: context.tick)
     }
 
     /// 頂点 morph を CPU 側 vertex buffer へ直接加算する。
