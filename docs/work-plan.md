@@ -231,6 +231,7 @@
 - `PMXObject` の morph pipeline / render buffer storage でも session から更新集合や保存値を取り出す helper をそろえ、更新段の書き味を統一した
 - `MMDView` / `PMXObject` の主要 session について、入口が session を直接消費する形と naming をそろえ、今回の内部整理の区切り条件を満たした
 - `PhysicsSolver(_:, physicsSolving:)` について、kinematic rigid body は Bullet 側へ push され、dynamic rigid body は step 後に pull されることを spy ベースの単体テストで固定した
+- fixture ベースの `PMXUpdater` 単体テストを追加し、再生中だけ frame counter が進むことと、角速度減衰が毎フレーム適用されることを固定した
 - `GLKVector2` と VMD の Bezier 補間計算も `simd` ベースの内部実装へ寄せ、補間ロジックを描画非依存のまま近代化した
 - `BasicRenderer` の model matrix stack 参照バグを修正し、あわせて `GLKMathDegreesToRadians` 依存を外した
 - 無効化されたまま残っていた lint 用 build phase を削除し、毎回出ていた `Run Script` 警告を解消した

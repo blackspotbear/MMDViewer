@@ -493,6 +493,41 @@ final class MatrixBridgingTests: XCTestCase {
         assertEqualMatrix(postures[1].wm, expectedMatrix)
     }
 
+    func testPMXUpdaterAdvancesFrameAndAppliesAngularDecayWhenPlaying() {
+        // updater は input 由来の角速度を減衰しつつ、再生中だけ frame を進める。
+        let updater = makeFixturePMXUpdater()
+        let renderer = RendererSpy()
+        let initialFrame = updater.pmxObj.counter.currentFrame()
+        updater.angularVelocity = CGPoint(x: 2, y: -3)
+        updater.playing = true
+
+        updater.update(1.0, renderer: renderer, node: Node())
+
+        XCTAssertEqual(updater.pmxObj.counter.currentFrame(), initialFrame + 1)
+        XCTAssertEqual(updater.pmxObj.rotationX, -3, accuracy: 1e-5)
+        XCTAssertEqual(updater.pmxObj.rotationY, 2, accuracy: 1e-5)
+        XCTAssertEqual(updater.angularVelocity.x, 1.9, accuracy: 1e-5)
+        XCTAssertEqual(updater.angularVelocity.y, -2.85, accuracy: 1e-5)
+        XCTAssertNotNil(updater.pmxObj.currentVertexBuffer)
+    }
+
+    func testPMXUpdaterKeepsFrameWhenPaused() {
+        // 背景遷移や UI pause 中は、姿勢更新は走っても frame counter は進めない。
+        let updater = makeFixturePMXUpdater()
+        let renderer = RendererSpy()
+        let initialFrame = updater.pmxObj.counter.currentFrame()
+        updater.angularVelocity = CGPoint(x: 1, y: 1)
+        updater.playing = false
+
+        updater.update(1.0 / 60.0, renderer: renderer, node: Node())
+
+        XCTAssertEqual(updater.pmxObj.counter.currentFrame(), initialFrame)
+        XCTAssertEqual(updater.pmxObj.rotationX, Float(1.0 / 60.0), accuracy: 1e-5)
+        XCTAssertEqual(updater.pmxObj.rotationY, Float(1.0 / 60.0), accuracy: 1e-5)
+        XCTAssertEqual(updater.angularVelocity.x, 0.95, accuracy: 1e-5)
+        XCTAssertEqual(updater.angularVelocity.y, 0.95, accuracy: 1e-5)
+    }
+
     private func fixtureData(at relativePath: String) -> Data? {
         let projectRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
@@ -560,6 +595,25 @@ final class MatrixBridgingTests: XCTestCase {
             friction: 0,
             type: type
         )
+    }
+
+    private func makeFixturePMXUpdater(file: StaticString = #filePath, line: UInt = #line) -> PMXUpdater {
+        guard let device = MTLCreateSystemDefaultDevice() else {
+            XCTFail("Missing Metal device", file: file, line: line)
+            fatalError("Missing Metal device")
+        }
+        guard let pmxData = fixtureData(at: "data/mmd/Alicia_solid.pmx") else {
+            XCTFail("Missing PMX fixture", file: file, line: line)
+            fatalError("Missing PMX fixture")
+        }
+        guard let vmdData = fixtureData(at: "data/vmd/2分ループステップ1.vmd") else {
+            XCTFail("Missing VMD fixture", file: file, line: line)
+            fatalError("Missing VMD fixture")
+        }
+
+        let pmx = PMX(data: pmxData)
+        let vmd = VMD(data: vmdData)
+        return PMXUpdater(pmxObj: PMXObject(device: device, pmx: pmx, vmd: vmd))
     }
 
     private func assertEqualMatrix(_ lhs: GLKMatrix4, _ rhs: GLKMatrix4, accuracy: Float = 1e-5, file: StaticString = #filePath, line: UInt = #line) {
