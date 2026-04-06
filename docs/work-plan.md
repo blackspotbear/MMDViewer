@@ -342,6 +342,7 @@
 - `MMDView` の scene resource 読み込みと `PMXObject` の render buffer 保存でも、それぞれ読み込みセッション / 保存セッションを導入し、準備値と適用値の境界をさらにそろえた
 - `MMDView` の draw 実行と `PMXObject` の render buffer 組み立てもセッション経由にそろえ、frame 実行と GPU 更新の最後の段取りも値として追いやすくした
 - `MMDView` の frame 完了も current completion session 経由にし、`PMXObject` の animation / geometry 更新でも更新セッションを明示して、1 フレーム更新の各段を同じ書き味にそろえた
+- `PMXObject` の morph 適用でも結合済み更新集合の application session を導入し、`MMDView` の forward scene graph 構築でも updater と node を同じセッションで扱うようにした
 
 ## 次のイテレーション候補
 

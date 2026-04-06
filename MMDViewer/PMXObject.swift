@@ -303,6 +303,10 @@ private struct PMXMorphResolutionSession {
     let updates: PMXMorphUpdates
 }
 
+private struct PMXMorphApplicationSession {
+    let updates: [MorphUpdate]
+}
+
 private struct PMXObjectResources {
     let vertexData: Data
     let bufferProviders: PMXBufferProviders
@@ -714,8 +718,8 @@ class PMXObject {
             return
         }
 
-        let session = makeMorphResolutionSession(context)
-        applyMorphUpdates(session.updates.left + session.updates.right)
+        let session = makeMorphApplicationSession(context)
+        applyMorphUpdates(session.updates)
     }
 
     private func currentMorphApplicationContext(tick: PMXAnimationTick) -> PMXMorphApplicationContext? {
@@ -728,6 +732,11 @@ class PMXObject {
 
     private func makeMorphResolutionSession(_ context: PMXMorphApplicationContext) -> PMXMorphResolutionSession {
         return PMXMorphResolutionSession(updates: resolveMorphUpdates(context.frame))
+    }
+
+    private func makeMorphApplicationSession(_ context: PMXMorphApplicationContext) -> PMXMorphApplicationSession {
+        let resolution = makeMorphResolutionSession(context)
+        return PMXMorphApplicationSession(updates: resolution.updates.left + resolution.updates.right)
     }
 
     private func resolveMorphUpdates(_ context: PMXMorphFrameContext) -> PMXMorphUpdates {
