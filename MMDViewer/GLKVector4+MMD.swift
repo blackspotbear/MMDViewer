@@ -1,9 +1,20 @@
 import Foundation
 import GLKit
+import simd
 
 typealias Color = GLKVector4
 
+/// shader 入力や色表現ではまだ `GLKVector4` を使っているため、
+/// 変換と基本演算だけを `simd` ベースに寄せておく。
 extension GLKVector4 {
+    init(simd value: SIMD4<Float>) {
+        self = GLKVector4Make(value.x, value.y, value.z, value.w)
+    }
+
+    var simdValue: SIMD4<Float> {
+        SIMD4(x, y, z, w)
+    }
+
     init(other: GLKVector4) {
         self.init()
         self.v = other.v
@@ -14,7 +25,7 @@ extension GLKVector4 {
     }
 
     func sub(_ other: GLKVector4) -> GLKVector4 {
-        return GLKVector4Subtract(self, other)
+        GLKVector4(simd: simdValue - other.simdValue)
     }
 
     func toGLKVector3() -> GLKVector3 {

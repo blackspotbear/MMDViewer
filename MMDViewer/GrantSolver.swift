@@ -6,7 +6,7 @@ func GrantSolver(_ postures: [Posture]) {
         var dirty = false
         if posture.bone.bitFlag.contains(.RotationAdd) {
             let pb = postures[posture.bone.affectingParentBoneIndex]
-            let q = GLKQuaternionSlerp(GLKQuaternionIdentity, pb.q, posture.bone.affectingRate)
+            let q = GLKQuaternionIdentity.slerp(pb.q, t: posture.bone.affectingRate)
             posture.q = posture.q.mul(q)
             dirty = true
         }

@@ -1,0 +1,393 @@
+import Foundation
+import Metal
+import simd
+
+private let depthTextureSampleCount = 1
+
+/// deferred 用の render target 群を drawable サイズに追従させるキャッシュ。
+/// `GBufferPass` から見れば、毎フレーム必要な attachment の再確保を隠蔽する役割を持つ。
+private class PassResource {
+    var pixelFormatSpec = PixelFormatSpec()
+    let device: MTLDevice
+    var colorTextures = [MTLTexture?](repeating:nil, count: 3)
+    var depthTex: MTLTexture?
+    var stencilTex: MTLTexture?
+
+    private var renderPassDescriptor = MTLRenderPassDescriptor()
+
+    init(device: MTLDevice) {
+        self.device = device
+    }
+
+    func releaseTextures() {
+        print("releasing textures...")
+
+        depthTex = nil
+        stencilTex = nil
+        for i in 0..<colorTextures.count {
+            colorTextures[i] = nil
+        }
+
+        print("done")
+    }
+
+    private func configurePrimaryColorAttachment(with drawable: MTLTexture) {
+        if let colorAttachment = renderPassDescriptor.colorAttachments[0] {
+            colorAttachment.texture = drawable
+            colorAttachment.loadAction = .clear
+            colorAttachment.clearColor = pixelFormatSpec.clearColors[0]
+            colorAttachment.storeAction = .store
+        }
+    }
+
+    private func configureSecondaryColorAttachments(with drawable: MTLTexture) {
+        for i in 1...3 {
+            let format = pixelFormatSpec.colorAttachmentFormats[i]
+            if format == .invalid {
+                continue
+            }
+
+            var doUpdate = false
+            if let colorTexture = colorTextures[i - 1] {
+                doUpdate = colorTexture.width != drawable.width || colorTexture.height != drawable.height
+            } else {
+                doUpdate = true
+            }
+
+            if doUpdate {
+                let desc = MTLTextureDescriptor.texture2DDescriptor(
+                    pixelFormat: pixelFormatSpec.colorAttachmentFormats[i],
+                    width: drawable.width, height: drawable.height,
+                    mipmapped: false)
+                desc.usage = .renderTarget
+                colorTextures[i - 1] = device.makeTexture(descriptor: desc)
+
+                if let colorTexture = colorTextures[i - 1] {
+                    print(String(format:"update color texture [%d] (%d, %d)", i, colorTexture.width, colorTexture.height))
+
+                    if let attachment = renderPassDescriptor.colorAttachments[i] {
+                        attachment.texture = colorTexture
+                        attachment.loadAction = .clear
+                        attachment.storeAction = .dontCare
+                        attachment.clearColor = pixelFormatSpec.clearColors[i]
+                    }
+                }
+            }
+        }
+    }
+
+    private func configureDepthAttachment(with drawable: MTLTexture) {
+        if pixelFormatSpec.depthPixelFormat != .invalid {
+            var doUpdate = false
+            if let tex = depthTex {
+                doUpdate =
+                    (tex.width       != drawable.width)  ||
+                    (tex.height      != drawable.height) ||
+                    (tex.sampleCount != depthTextureSampleCount)
+            } else {
+                doUpdate = true
+            }
+
+            if doUpdate {
+                let desc = MTLTextureDescriptor.texture2DDescriptor(
+                    pixelFormat: pixelFormatSpec.depthPixelFormat,
+                    width: drawable.width,
+                    height: drawable.height,
+                    mipmapped: false)
+                desc.usage = .renderTarget
+                desc.textureType = (depthTextureSampleCount > 1) ? .type2DMultisample : .type2D
+                desc.sampleCount = depthTextureSampleCount
+                desc.storageMode = .private
+                depthTex = device.makeTexture(descriptor: desc)
+
+                if let depthTex = depthTex {
+                    print(String(format:"update depth texture (%d, %d)", depthTex.width, depthTex.height))
+
+                    if let attachment = renderPassDescriptor.depthAttachment {
+                        attachment.texture = depthTex
+                        attachment.loadAction = .clear
+                        attachment.storeAction = .store
+                        attachment.clearDepth = 1.0
+                    }
+                }
+            }
+        }
+    }
+
+    private func configureStencilAttachment(with drawable: MTLTexture) {
+        if pixelFormatSpec.stencilPixelFormat != .invalid {
+            var doUpdate = false
+            if let tex = stencilTex {
+                doUpdate = tex.width != drawable.width || tex.height != drawable.height
+            } else {
+                doUpdate = true
+            }
+
+            if doUpdate {
+                let desc = MTLTextureDescriptor.texture2DDescriptor(
+                    pixelFormat: pixelFormatSpec.stencilPixelFormat,
+                    width: drawable.width,
+                    height: drawable.height,
+                    mipmapped: false)
+                desc.textureType = .type2D
+                desc.usage = .renderTarget
+                desc.storageMode = .private
+                stencilTex = device.makeTexture(descriptor: desc)
+
+                if let stencilTex = stencilTex {
+                    print(String(format:"update stencil texture (%d, %d)", stencilTex.width, stencilTex.height))
+
+                    if let attachment = renderPassDescriptor.stencilAttachment {
+                        attachment.texture = stencilTex
+                        attachment.loadAction = .clear
+                        attachment.storeAction = .dontCare
+                        attachment.clearStencil = 0
+                    }
+                }
+            }
+        }
+    }
+
+    func renderPassDescriptorForDrawable(_ drawable: MTLTexture) -> MTLRenderPassDescriptor {
+        configurePrimaryColorAttachment(with: drawable)
+        configureSecondaryColorAttachments(with: drawable)
+        configureDepthAttachment(with: drawable)
+        configureStencilAttachment(with: drawable)
+        return renderPassDescriptor
+    }
+}
+
+struct MaterialSunData {
+    var sunDirection: SIMD4<Float>
+    var sunColor: SIMD4<Float>
+}
+
+private func newFunctionFromLibrary(_ library: MTLLibrary, name: String) -> MTLFunction {
+    guard let fn = library.makeFunction(name: name) else {
+        fatalError(String(format: "faled to load function %s", name))
+    }
+    return fn
+}
+
+private func MakeDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState {
+    let desc = MTLDepthStencilDescriptor()
+    desc.isDepthWriteEnabled = true
+    desc.depthCompareFunction = .lessEqual
+    return device.makeDepthStencilState(descriptor: desc)!
+}
+
+/// `melt` の deferred path を担当する pass。
+/// geometry を G-buffer へ描き出し、その後 fullscreen composition で最終色へ畳み込む。
+class GBufferPass: RenderPass {
+    private let passRes: PassResource
+
+    private var view: MetalView
+    private var compositionPipeline: MTLRenderPipelineState
+    private var sunDataBuffers: [MTLBuffer] = []
+    private var compositionDepthState: MTLDepthStencilState
+    private var currentFrame = 0
+    private let numFrames = 3
+    private var quadPositionBuffer: MTLBuffer
+    private var shadowDepthStencilState: MTLDepthStencilState
+    private var gbufferRenderRipeline: MTLRenderPipelineState
+    private var gBufferDepthStencilState: MTLDepthStencilState
+
+    class private func createGBufferRenderPipelineState(_ device: MTLDevice, library: MTLLibrary, passRes: PassResource) -> MTLRenderPipelineState {
+        let desc = MTLRenderPipelineDescriptor()
+        desc.label = "GBuffer Render"
+
+        // pixel format
+        for i in 0...3 {
+            desc.colorAttachments[i].pixelFormat = passRes.pixelFormatSpec.colorAttachmentFormats[i]
+        }
+        desc.depthAttachmentPixelFormat = passRes.pixelFormatSpec.depthPixelFormat
+        desc.stencilAttachmentPixelFormat = passRes.pixelFormatSpec.stencilPixelFormat
+
+        // shader function
+        desc.vertexFunction = newFunctionFromLibrary(library, name: "gBufferVert")
+        desc.fragmentFunction = newFunctionFromLibrary(library, name: "gBufferFrag")
+
+        return try! device.makeRenderPipelineState(descriptor: desc)
+    }
+
+    class private func createCompositionRenderPipelineState(_ device: MTLDevice, library: MTLLibrary, passRes: PassResource) -> MTLRenderPipelineState {
+        let desc = MTLRenderPipelineDescriptor()
+
+        desc.label = "Composition Render"
+
+        for i in 0...3 {
+            desc.colorAttachments[i].pixelFormat = passRes.pixelFormatSpec.colorAttachmentFormats[i]
+        }
+        desc.depthAttachmentPixelFormat = passRes.pixelFormatSpec.depthPixelFormat
+        desc.stencilAttachmentPixelFormat = passRes.pixelFormatSpec.stencilPixelFormat
+        desc.vertexFunction = newFunctionFromLibrary(library, name: "compositionVertex")
+        desc.fragmentFunction = newFunctionFromLibrary(library, name: "compositionFrag")
+
+        return try! device.makeRenderPipelineState(descriptor: desc)
+    }
+
+    class private func createCompositionDepthState(_ device: MTLDevice) -> MTLDepthStencilState {
+        let desc = MTLDepthStencilDescriptor()
+        let stencilState = MTLStencilDescriptor()
+
+        desc.isDepthWriteEnabled = false
+        stencilState.stencilCompareFunction = .equal
+        stencilState.stencilFailureOperation = .keep
+        stencilState.depthFailureOperation = .keep
+        stencilState.depthStencilPassOperation = .keep
+        stencilState.readMask = 0xFF
+        stencilState.writeMask = 0
+        desc.depthCompareFunction = .always
+        desc.frontFaceStencil = stencilState
+        desc.backFaceStencil = stencilState
+
+        return device.makeDepthStencilState(descriptor: desc)!
+    }
+
+    init(view: MetalView) {
+        guard let device = view.device else {
+            fatalError("failed to get a device object")
+        }
+        guard let defaultLibrary = device.makeDefaultLibrary() else {
+            fatalError("failed to create a default library")
+        }
+
+        passRes = PassResource(device: device)
+
+        passRes.pixelFormatSpec.colorAttachmentFormats[0] = .bgra8Unorm
+        passRes.pixelFormatSpec.colorAttachmentFormats[1] = .bgra8Unorm
+        passRes.pixelFormatSpec.colorAttachmentFormats[2] = .r32Float
+        passRes.pixelFormatSpec.colorAttachmentFormats[3] = .bgra8Unorm
+        passRes.pixelFormatSpec.depthPixelFormat = .depth32Float
+        passRes.pixelFormatSpec.stencilPixelFormat = .stencil8
+        passRes.pixelFormatSpec.clearColors[0] = MTLClearColorMake(
+            1.0   * 0.75 + 0.075,
+            0.875 * 0.75 + 0.075,
+            0.75  * 0.75 + 0.075,
+            1.0)
+        passRes.pixelFormatSpec.clearColors[1] = MTLClearColorMake(0, 0, 0, 1)
+        passRes.pixelFormatSpec.clearColors[2] = MTLClearColorMake(25, 25, 25, 25)
+        passRes.pixelFormatSpec.clearColors[3] = MTLClearColorMake(0.1, 0.1, 0.125, 0.0)
+
+        self.view = view
+
+        for _ in 0..<numFrames {
+            sunDataBuffers.append(device.makeBuffer(length: MemoryLayout<MaterialSunData>.size, options: MTLResourceOptions())!)
+        }
+
+        compositionDepthState = GBufferPass.createCompositionDepthState(device)
+        compositionPipeline = GBufferPass.createCompositionRenderPipelineState(device, library: defaultLibrary, passRes: passRes)
+        shadowDepthStencilState = MakeDepthStencilState(device)
+        gbufferRenderRipeline = GBufferPass.createGBufferRenderPipelineState(device, library: defaultLibrary, passRes: passRes)
+
+        let quadVerts: [Float] = [
+            -1.0, 1.0,
+            1.0, -1.0,
+            -1.0, -1.0,
+            -1.0, 1.0,
+            1.0, 1.0,
+            1.0, -1.0
+        ]
+
+        quadPositionBuffer = device.makeBuffer(
+            bytes: quadVerts,
+            length: quadVerts.count * MemoryLayout<Float>.size,
+            options: MTLResourceOptions()
+            )!
+
+        let desc = MTLDepthStencilDescriptor()
+        let stencilState = MTLStencilDescriptor()
+        desc.isDepthWriteEnabled = true
+        stencilState.stencilCompareFunction = .always
+        stencilState.stencilFailureOperation = .keep
+        stencilState.depthFailureOperation = .keep
+        stencilState.depthStencilPassOperation = .replace
+        stencilState.readMask = 0xFF
+        stencilState.writeMask = 0xFF
+        desc.depthCompareFunction = .lessEqual
+        desc.frontFaceStencil = stencilState
+        desc.backFaceStencil = stencilState
+        gBufferDepthStencilState = device.makeDepthStencilState(descriptor: desc)!
+    }
+
+    private func configureTextureResources(for renderer: inout Renderer, drawable: MTLTexture) {
+        renderer.textureResources["ColorBuffer"] = drawable
+        renderer.textureResources["NormalBuffer"] = passRes.colorTextures[0]
+        renderer.textureResources["LinearDBuffer"] = passRes.colorTextures[1]
+        renderer.textureResources["LightBuffer"] = passRes.colorTextures[2]
+        renderer.textureResources["DepthBuffer"] = passRes.depthTex
+        renderer.textureResources["StencilBuffer"] = passRes.stencilTex
+    }
+
+    private func makeGBufferEncoder(renderer: Renderer,
+                                    descriptor: MTLRenderPassDescriptor) -> MTLRenderCommandEncoder? {
+        return renderer.commandBuffer?.makeRenderCommandEncoder(descriptor: descriptor)
+    }
+
+    private func configure(_ encoder: MTLRenderCommandEncoder) {
+        encoder.pushDebugGroup("g-buffer pass")
+        encoder.label = "g-buffer"
+        encoder.setDepthStencilState(shadowDepthStencilState)
+        encoder.setRenderPipelineState(gbufferRenderRipeline)
+        encoder.setCullMode(.back)
+        encoder.setDepthStencilState(gBufferDepthStencilState)
+        encoder.setStencilReferenceValue(128)
+    }
+
+    private func beginContext(for renderer: inout Renderer) -> (renderPassDescriptor: MTLRenderPassDescriptor, renderer: Renderer)? {
+        guard let currentDrawable = view.acquireCurrentDrawable() else {
+            return nil
+        }
+
+        let renderPassDescriptor = passRes.renderPassDescriptorForDrawable(currentDrawable.texture)
+        configureTextureResources(for: &renderer, drawable: currentDrawable.texture)
+        return (renderPassDescriptor, renderer)
+    }
+
+    private func advanceFrameIndex() {
+        currentFrame += 1
+        if currentFrame >= numFrames {
+            currentFrame = 0
+        }
+    }
+
+    func begin(_ renderer: Renderer) {
+        var renderer = renderer
+        guard let context = beginContext(for: &renderer) else {
+            return
+        }
+
+        if let encoder = makeGBufferEncoder(renderer: context.renderer, descriptor: context.renderPassDescriptor) {
+            configure(encoder)
+            renderer.pushRenderCommandEncoder(encoder)
+        }
+    }
+
+    /// geometry pass の直後に fullscreen quad で composition を流し込む。
+    /// shadow map と G-buffer をまとめて参照するので、deferred path の境界としてここを明確に残す。
+    func end(_ renderer: Renderer) {
+        let renderer = renderer
+        if let encoder = renderer.popRenderCommandEncoder() {
+            encodeCompositionPass(with: encoder)
+            encoder.endEncoding()
+            advanceFrameIndex()
+        }
+    }
+
+    private func encodeCompositionPass(with encoder: MTLRenderCommandEncoder) {
+        encoder.popDebugGroup()
+
+        encoder.pushDebugGroup("sun")
+        encoder.setRenderPipelineState(compositionPipeline)
+        encoder.setCullMode(.none)
+        encoder.setDepthStencilState(compositionDepthState)
+        encoder.setStencilReferenceValue(128)
+        drawQuad(encoder)
+        encoder.popDebugGroup()
+    }
+
+    private func drawQuad(_ encoder: MTLRenderCommandEncoder) {
+        encoder.setVertexBuffer(quadPositionBuffer, offset: 0, index: 0)
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
+    }
+}

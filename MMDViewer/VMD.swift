@@ -159,11 +159,9 @@ private func InterpolateBezier(_ p2: GLKVector2, _ p3: GLKVector2, _ t: Float) -
     let u = 1 - t
     let ttu3 = tt * u * 3
     let tuu3 = t * u * u
+    let interpolated = SIMD2(repeating: ttt127) + p3.simdValue * ttu3 + p2.simdValue * tuu3
 
-    return GLKVector2Make(
-        ttt127 + ttu3 * p3.x + tuu3 * p2.x,
-        ttt127 + ttu3 * p3.y + tuu3 * p2.y
-    )
+    return GLKVector2(simd: interpolated)
 
 }
 
@@ -206,7 +204,7 @@ private func InterpolateRot(_ left: KeyFrame, _ right: KeyFrame, _ t: Float) -> 
         right.segments[BoneAttr.QZ].value,
         right.segments[BoneAttr.QW].value
     )
-    return GLKQuaternionSlerp(q1, q2, qw.y / 127) // ??
+    return q1.slerp(q2, t: qw.y / 127) // ??
 }
 
 private func LoadVMDMeta(_ vmd: VMD, _ reader: DataReader) {

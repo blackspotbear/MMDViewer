@@ -1,31 +1,26 @@
 import UIKit
 
-@UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
-
-    var window: UIWindow?
+@main
+final class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         return true
     }
 
-    func applicationWillResignActive(_ application: UIApplication) {
-
+    private func makeMainStoryboard() -> UIStoryboard {
+        return UIStoryboard(name: "Main", bundle: nil)
     }
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "applicationDidEnterBackground"), object: nil)
+    private func makeSceneConfiguration(for sessionRole: UISceneSession.Role) -> UISceneConfiguration {
+        let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: sessionRole)
+        configuration.delegateClass = SceneDelegate.self
+        configuration.storyboard = makeMainStoryboard()
+        return configuration
     }
 
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "applicationWillEnterForeground"), object: nil)
-    }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-
-    }
-
-    func applicationWillTerminate(_ application: UIApplication) {
-
+    /// SceneDelegate + Main.storyboard の組み合わせを明示し、
+    /// 古い単一 AppDelegate 構成から scene 構成へ移した意図を固定する。
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        return makeSceneConfiguration(for: connectingSceneSession.role)
     }
 }

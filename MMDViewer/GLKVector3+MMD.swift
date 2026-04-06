@@ -1,37 +1,50 @@
 import Foundation
 import GLKit
+import simd
 
+/// GLKit 依存をすぐに消せない間の互換レイヤーとして、
+/// 呼び出し側は `GLKVector3` のまま `simd` 実装を利用する。
 extension GLKVector3 {
     init(glkv4: GLKVector4) {
         self = GLKVector3Make(glkv4.x, glkv4.y, glkv4.z)
     }
 
+    init(simd value: SIMD3<Float>) {
+        self = GLKVector3Make(value.x, value.y, value.z)
+    }
+
+    var simdValue: SIMD3<Float> {
+        SIMD3(x, y, z)
+    }
+
+    /// 既存の GLKit API と同じ値を返しつつ、内部では `simd` 加算を使う。
     func add(_ rhs: GLKVector3) -> GLKVector3 {
-        return GLKVector3Add(self, rhs)
+        GLKVector3(simd: simdValue + rhs.simdValue)
     }
 
     func sub(_ rhs: GLKVector3) -> GLKVector3 {
-        return GLKVector3Subtract(self, rhs)
+        GLKVector3(simd: simdValue - rhs.simdValue)
     }
 
     func len() -> Float {
-        return GLKVector3Length(self)
+        simd_length(simdValue)
     }
 
     func mul(_ s: Float) -> GLKVector3 {
-        return GLKVector3MultiplyScalar(self, s)
+        GLKVector3(simd: simdValue * s)
     }
 
+    /// 零ベクトルだけは GLKit 実装と同様にそのまま返して NaN を避ける。
     func normal() -> GLKVector3 {
-        return x != 0 || y != 0 || z != 0 ? GLKVector3Normalize(self) : self
+        return x != 0 || y != 0 || z != 0 ? GLKVector3(simd: simd_normalize(simdValue)) : self
     }
 
     func outer(_ rhs: GLKVector3) -> GLKVector3 {
-        return GLKVector3CrossProduct(self, rhs)
+        GLKVector3(simd: simd_cross(simdValue, rhs.simdValue))
     }
 
     func inner(_ rhs: GLKVector3) -> Float {
-        return GLKVector3DotProduct(self, rhs)
+        simd_dot(simdValue, rhs.simdValue)
     }
 
     func toGLKVector4() -> GLKVector4 {
@@ -39,14 +52,14 @@ extension GLKVector3 {
     }
 }
 
-extension GLKVector3 : CustomStringConvertible {
+extension GLKVector3: @retroactive CustomStringConvertible {
     public var description: String { return String(format: "(%f,%f,%f)", x, y, z) }
 
     func dot(_ other: GLKVector3) -> Float {
-        return GLKVector3DotProduct(self, other)
+        simd_dot(simdValue, other.simdValue)
     }
 
     func cross(_ other: GLKVector3) -> GLKVector3 {
-        return GLKVector3CrossProduct(self, other)
+        GLKVector3(simd: simd_cross(simdValue, other.simdValue))
     }
 }

@@ -63,10 +63,14 @@ typedef struct bInvalidHandle {
     class btCapsuleShapeData;
     class btTriangleInfoData;
     class btTriangleInfoMapData;
+    class btPersistentManifoldDoubleData;
+    class btPersistentManifoldFloatData;
     class btGImpactMeshShapeData;
     class btConvexHullShapeData;
     class btCollisionObjectDoubleData;
     class btCollisionObjectFloatData;
+    class btContactSolverInfoDoubleData;
+    class btContactSolverInfoFloatData;
     class btDynamicsWorldDoubleData;
     class btDynamicsWorldFloatData;
     class btRigidBodyFloatData;
@@ -93,8 +97,6 @@ typedef struct bInvalidHandle {
     class btSliderConstraintDoubleData;
     class btGearConstraintFloatData;
     class btGearConstraintDoubleData;
-    class btContactSolverInfoDoubleData;
-    class btContactSolverInfoFloatData;
     class SoftBodyMaterialData;
     class SoftBodyNodeData;
     class SoftBodyLinkData;
@@ -110,6 +112,8 @@ typedef struct bInvalidHandle {
     class btMultiBodyLinkFloatData;
     class btMultiBodyDoubleData;
     class btMultiBodyFloatData;
+    class btMultiBodyLinkColliderFloatData;
+    class btMultiBodyLinkColliderDoubleData;
 // -------------------------------------------------- //
     class PointerArray
     {
@@ -513,6 +517,98 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
+    class btPersistentManifoldDoubleData
+    {
+    public:
+        btVector3DoubleData m_pointCacheLocalPointA[4];
+        btVector3DoubleData m_pointCacheLocalPointB[4];
+        btVector3DoubleData m_pointCachePositionWorldOnA[4];
+        btVector3DoubleData m_pointCachePositionWorldOnB[4];
+        btVector3DoubleData m_pointCacheNormalWorldOnB[4];
+        btVector3DoubleData m_pointCacheLateralFrictionDir1[4];
+        btVector3DoubleData m_pointCacheLateralFrictionDir2[4];
+        double m_pointCacheDistance[4];
+        double m_pointCacheAppliedImpulse[4];
+        double m_pointCachePrevRHS[4];
+        double m_pointCacheCombinedFriction[4];
+        double m_pointCacheCombinedRollingFriction[4];
+        double m_pointCacheCombinedSpinningFriction[4];
+        double m_pointCacheCombinedRestitution[4];
+        int m_pointCachePartId0[4];
+        int m_pointCachePartId1[4];
+        int m_pointCacheIndex0[4];
+        int m_pointCacheIndex1[4];
+        int m_pointCacheContactPointFlags[4];
+        double m_pointCacheAppliedImpulseLateral1[4];
+        double m_pointCacheAppliedImpulseLateral2[4];
+        double m_pointCacheContactMotion1[4];
+        double m_pointCacheContactMotion2[4];
+        double m_pointCacheContactCFM[4];
+        double m_pointCacheCombinedContactStiffness1[4];
+        double m_pointCacheContactERP[4];
+        double m_pointCacheCombinedContactDamping1[4];
+        double m_pointCacheFrictionCFM[4];
+        int m_pointCacheLifeTime[4];
+        int m_numCachedPoints;
+        int m_companionIdA;
+        int m_companionIdB;
+        int m_index1a;
+        int m_objectType;
+        double m_contactBreakingThreshold;
+        double m_contactProcessingThreshold;
+        int m_padding;
+        btCollisionObjectDoubleData *m_body0;
+        btCollisionObjectDoubleData *m_body1;
+    };
+
+
+// -------------------------------------------------- //
+    class btPersistentManifoldFloatData
+    {
+    public:
+        btVector3FloatData m_pointCacheLocalPointA[4];
+        btVector3FloatData m_pointCacheLocalPointB[4];
+        btVector3FloatData m_pointCachePositionWorldOnA[4];
+        btVector3FloatData m_pointCachePositionWorldOnB[4];
+        btVector3FloatData m_pointCacheNormalWorldOnB[4];
+        btVector3FloatData m_pointCacheLateralFrictionDir1[4];
+        btVector3FloatData m_pointCacheLateralFrictionDir2[4];
+        float m_pointCacheDistance[4];
+        float m_pointCacheAppliedImpulse[4];
+        float m_pointCachePrevRHS[4];
+        float m_pointCacheCombinedFriction[4];
+        float m_pointCacheCombinedRollingFriction[4];
+        float m_pointCacheCombinedSpinningFriction[4];
+        float m_pointCacheCombinedRestitution[4];
+        int m_pointCachePartId0[4];
+        int m_pointCachePartId1[4];
+        int m_pointCacheIndex0[4];
+        int m_pointCacheIndex1[4];
+        int m_pointCacheContactPointFlags[4];
+        float m_pointCacheAppliedImpulseLateral1[4];
+        float m_pointCacheAppliedImpulseLateral2[4];
+        float m_pointCacheContactMotion1[4];
+        float m_pointCacheContactMotion2[4];
+        float m_pointCacheContactCFM[4];
+        float m_pointCacheCombinedContactStiffness1[4];
+        float m_pointCacheContactERP[4];
+        float m_pointCacheCombinedContactDamping1[4];
+        float m_pointCacheFrictionCFM[4];
+        int m_pointCacheLifeTime[4];
+        int m_numCachedPoints;
+        int m_companionIdA;
+        int m_companionIdB;
+        int m_index1a;
+        int m_objectType;
+        float m_contactBreakingThreshold;
+        float m_contactProcessingThreshold;
+        int m_padding;
+        btCollisionObjectFloatData *m_body0;
+        btCollisionObjectFloatData *m_body1;
+    };
+
+
+// -------------------------------------------------- //
     class btGImpactMeshShapeData
     {
     public:
@@ -553,6 +649,8 @@ typedef struct bInvalidHandle {
         double m_deactivationTime;
         double m_friction;
         double m_rollingFriction;
+        double m_contactDamping;
+        double m_contactStiffness;
         double m_restitution;
         double m_hitFraction;
         double m_ccdSweptSphereRadius;
@@ -564,7 +662,9 @@ typedef struct bInvalidHandle {
         int m_activationState1;
         int m_internalType;
         int m_checkCollideWith;
-        char m_padding[4];
+        int m_collisionFilterGroup;
+        int m_collisionFilterMask;
+        int m_uniqueId;
     };
 
 
@@ -585,6 +685,8 @@ typedef struct bInvalidHandle {
         float m_deactivationTime;
         float m_friction;
         float m_rollingFriction;
+        float m_contactDamping;
+        float m_contactStiffness;
         float m_restitution;
         float m_hitFraction;
         float m_ccdSweptSphereRadius;
@@ -596,9 +698,88 @@ typedef struct bInvalidHandle {
         int m_activationState1;
         int m_internalType;
         int m_checkCollideWith;
+        int m_collisionFilterGroup;
+        int m_collisionFilterMask;
+        int m_uniqueId;
+    };
+
+
+// -------------------------------------------------- //
+    class btContactSolverInfoDoubleData
+    {
+    public:
+        double m_tau;
+        double m_damping;
+        double m_friction;
+        double m_timeStep;
+        double m_restitution;
+        double m_maxErrorReduction;
+        double m_sor;
+        double m_erp;
+        double m_erp2;
+        double m_globalCfm;
+        double m_splitImpulsePenetrationThreshold;
+        double m_splitImpulseTurnErp;
+        double m_linearSlop;
+        double m_warmstartingFactor;
+        double m_articulatedWarmstartingFactor;
+        double m_maxGyroscopicForce;
+        double m_singleAxisRollingFrictionThreshold;
+        int m_numIterations;
+        int m_solverMode;
+        int m_restingContactRestitutionThreshold;
+        int m_minimumSolverBatchSize;
+        int m_splitImpulse;
         char m_padding[4];
     };
 
+
+// -------------------------------------------------- //
+    class btContactSolverInfoFloatData
+    {
+    public:
+        float m_tau;
+        float m_damping;
+        float m_friction;
+        float m_timeStep;
+        float m_restitution;
+        float m_maxErrorReduction;
+        float m_sor;
+        float m_erp;
+        float m_erp2;
+        float m_globalCfm;
+        float m_splitImpulsePenetrationThreshold;
+        float m_splitImpulseTurnErp;
+        float m_linearSlop;
+        float m_warmstartingFactor;
+        float m_articulatedWarmstartingFactor;
+        float m_maxGyroscopicForce;
+        float m_singleAxisRollingFrictionThreshold;
+        int m_numIterations;
+        int m_solverMode;
+        int m_restingContactRestitutionThreshold;
+        int m_minimumSolverBatchSize;
+        int m_splitImpulse;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btDynamicsWorldDoubleData
+    {
+    public:
+        btContactSolverInfoDoubleData m_solverInfo;
+        btVector3DoubleData m_gravity;
+    };
+
+
+// -------------------------------------------------- //
+    class btDynamicsWorldFloatData
+    {
+    public:
+        btContactSolverInfoFloatData m_solverInfo;
+        btVector3FloatData m_gravity;
+    };
 
 
 // -------------------------------------------------- //
@@ -1062,82 +1243,6 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btContactSolverInfoDoubleData
-    {
-    public:
-        double m_tau;
-        double m_damping;
-        double m_friction;
-        double m_timeStep;
-        double m_restitution;
-        double m_maxErrorReduction;
-        double m_sor;
-        double m_erp;
-        double m_erp2;
-        double m_globalCfm;
-        double m_splitImpulsePenetrationThreshold;
-        double m_splitImpulseTurnErp;
-        double m_linearSlop;
-        double m_warmstartingFactor;
-        double m_maxGyroscopicForce;
-        double m_singleAxisRollingFrictionThreshold;
-        int m_numIterations;
-        int m_solverMode;
-        int m_restingContactRestitutionThreshold;
-        int m_minimumSolverBatchSize;
-        int m_splitImpulse;
-        char m_padding[4];
-    };
-
-
-// -------------------------------------------------- //
-    class btContactSolverInfoFloatData
-    {
-    public:
-        float m_tau;
-        float m_damping;
-        float m_friction;
-        float m_timeStep;
-        float m_restitution;
-        float m_maxErrorReduction;
-        float m_sor;
-        float m_erp;
-        float m_erp2;
-        float m_globalCfm;
-        float m_splitImpulsePenetrationThreshold;
-        float m_splitImpulseTurnErp;
-        float m_linearSlop;
-        float m_warmstartingFactor;
-        float m_maxGyroscopicForce;
-        float m_singleAxisRollingFrictionThreshold;
-        int m_numIterations;
-        int m_solverMode;
-        int m_restingContactRestitutionThreshold;
-        int m_minimumSolverBatchSize;
-        int m_splitImpulse;
-        char m_padding[4];
-    };
-
-	// -------------------------------------------------- //
-    class btDynamicsWorldDoubleData
-    {
-    public:
-        btContactSolverInfoDoubleData m_solverInfo;
-        btVector3DoubleData m_gravity;
-    };
-
-
-// -------------------------------------------------- //
-    class btDynamicsWorldFloatData
-    {
-    public:
-        btContactSolverInfoFloatData m_solverInfo;
-        btVector3FloatData m_gravity;
-    };
-
-
-
-// -------------------------------------------------- //
     class SoftBodyMaterialData
     {
     public:
@@ -1350,14 +1455,15 @@ typedef struct bInvalidHandle {
     {
     public:
         btQuaternionDoubleData m_zeroRotParentToThis;
-        btVector3DoubleData m_parentComToThisComOffset;
+        btVector3DoubleData m_parentComToThisPivotOffset;
         btVector3DoubleData m_thisPivotToThisComOffset;
         btVector3DoubleData m_jointAxisTop[6];
         btVector3DoubleData m_jointAxisBottom[6];
-        char *m_linkName;
-        char *m_jointName;
-        btCollisionObjectDoubleData *m_linkCollider;
         btVector3DoubleData m_linkInertia;
+        btVector3DoubleData m_absFrameTotVelocityTop;
+        btVector3DoubleData m_absFrameTotVelocityBottom;
+        btVector3DoubleData m_absFrameLocVelocityTop;
+        btVector3DoubleData m_absFrameLocVelocityBottom;
         double m_linkMass;
         int m_parentIndex;
         int m_jointType;
@@ -1366,6 +1472,16 @@ typedef struct bInvalidHandle {
         double m_jointPos[7];
         double m_jointVel[6];
         double m_jointTorque[6];
+        double m_jointDamping;
+        double m_jointFriction;
+        double m_jointLowerLimit;
+        double m_jointUpperLimit;
+        double m_jointMaxForce;
+        double m_jointMaxVelocity;
+        char *m_linkName;
+        char *m_jointName;
+        btCollisionObjectDoubleData *m_linkCollider;
+        char *m_paddingPtr;
     };
 
 
@@ -1374,14 +1490,15 @@ typedef struct bInvalidHandle {
     {
     public:
         btQuaternionFloatData m_zeroRotParentToThis;
-        btVector3FloatData m_parentComToThisComOffset;
+        btVector3FloatData m_parentComToThisPivotOffset;
         btVector3FloatData m_thisPivotToThisComOffset;
         btVector3FloatData m_jointAxisTop[6];
         btVector3FloatData m_jointAxisBottom[6];
-        char *m_linkName;
-        char *m_jointName;
-        btCollisionObjectFloatData *m_linkCollider;
         btVector3FloatData m_linkInertia;
+        btVector3FloatData m_absFrameTotVelocityTop;
+        btVector3FloatData m_absFrameTotVelocityBottom;
+        btVector3FloatData m_absFrameLocVelocityTop;
+        btVector3FloatData m_absFrameLocVelocityBottom;
         int m_dofCount;
         float m_linkMass;
         int m_parentIndex;
@@ -1390,6 +1507,16 @@ typedef struct bInvalidHandle {
         float m_jointVel[6];
         float m_jointTorque[6];
         int m_posVarCount;
+        float m_jointDamping;
+        float m_jointFriction;
+        float m_jointLowerLimit;
+        float m_jointUpperLimit;
+        float m_jointMaxForce;
+        float m_jointMaxVelocity;
+        char *m_linkName;
+        char *m_jointName;
+        btCollisionObjectFloatData *m_linkCollider;
+        char *m_paddingPtr;
     };
 
 
@@ -1397,14 +1524,17 @@ typedef struct bInvalidHandle {
     class btMultiBodyDoubleData
     {
     public:
+        btVector3DoubleData m_baseWorldPosition;
+        btQuaternionDoubleData m_baseWorldOrientation;
+        btVector3DoubleData m_baseLinearVelocity;
+        btVector3DoubleData m_baseAngularVelocity;
+        btVector3DoubleData m_baseInertia;
+        double m_baseMass;
+        int m_numLinks;
+        char m_padding[4];
         char *m_baseName;
         btMultiBodyLinkDoubleData *m_links;
         btCollisionObjectDoubleData *m_baseCollider;
-        btTransformDoubleData m_baseWorldTransform;
-        btVector3DoubleData m_baseInertia;
-        int m_numLinks;
-        double m_baseMass;
-        char m_padding[4];
     };
 
 
@@ -1412,13 +1542,38 @@ typedef struct bInvalidHandle {
     class btMultiBodyFloatData
     {
     public:
-        char *m_baseName;
-        btMultiBodyLinkFloatData *m_links;
-        btCollisionObjectFloatData *m_baseCollider;
-        btTransformFloatData m_baseWorldTransform;
+        btVector3FloatData m_baseWorldPosition;
+        btQuaternionFloatData m_baseWorldOrientation;
+        btVector3FloatData m_baseLinearVelocity;
+        btVector3FloatData m_baseAngularVelocity;
         btVector3FloatData m_baseInertia;
         float m_baseMass;
         int m_numLinks;
+        char *m_baseName;
+        btMultiBodyLinkFloatData *m_links;
+        btCollisionObjectFloatData *m_baseCollider;
+    };
+
+
+// -------------------------------------------------- //
+    class btMultiBodyLinkColliderFloatData
+    {
+    public:
+        btCollisionObjectFloatData m_colObjData;
+        btMultiBodyFloatData *m_multiBody;
+        int m_link;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btMultiBodyLinkColliderDoubleData
+    {
+    public:
+        btCollisionObjectDoubleData m_colObjData;
+        btMultiBodyDoubleData *m_multiBody;
+        int m_link;
+        char m_padding[4];
     };
 
 
