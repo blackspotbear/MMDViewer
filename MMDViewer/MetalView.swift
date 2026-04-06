@@ -11,6 +11,8 @@ private struct MetalViewConfiguration {
 /// `melt` の UIView 側エントリポイント。
 /// `MTKView` を substrate として使い、drawable と drawableSize の管理だけを担当する。
 class MetalView: MTKView {
+    private var cachedDrawable: CAMetalDrawable?
+
     override init(frame: CGRect, device: MTLDevice?) {
         let configuration = Self.makeConfiguration(device: device)
         super.init(frame: frame, device: configuration.device)
@@ -24,9 +26,22 @@ class MetalView: MTKView {
         configure(configuration)
     }
 
-    /// `MTKView` へ寄せたので drawable の寿命管理は view 本体に任せる。
-    /// 既存 call site を保つため、この互換 API は no-op として残す。
-    func releaseCurrentDrawable() {}
+    /// 1 フレーム中は同じ drawable を使い回し、present 後に明示的に破棄する。
+    /// `MTKView.currentDrawable` を各所から直接読むと present 済み drawable を再利用しうるため、
+    /// 既存 renderer 契約はこの互換 API に集約して守る。
+    func acquireCurrentDrawable() -> CAMetalDrawable? {
+        if let cachedDrawable {
+            return cachedDrawable
+        }
+
+        let drawable = super.currentDrawable
+        cachedDrawable = drawable
+        return drawable
+    }
+
+    func releaseCurrentDrawable() {
+        cachedDrawable = nil
+    }
 
     private static func makeConfiguration(device: MTLDevice?) -> MetalViewConfiguration {
         if let device {

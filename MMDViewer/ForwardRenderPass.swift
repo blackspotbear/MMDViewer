@@ -97,7 +97,7 @@ class ForwardRenderPass: RenderPass {
     /// view / drawable / command buffer の 3 つが揃ったときだけ encoder を開始する。
     /// begin 条件をまとめておくと、将来 drawable 管理や MTKView 移行を試すときに差し替えやすい。
     private func beginContext(for renderer: Renderer) -> BeginContext? {
-        guard let drawable = view.currentDrawable else {
+        guard let drawable = view.acquireCurrentDrawable() else {
             return nil
         }
         guard drawable.texture.width > 0, drawable.texture.height > 0 else {

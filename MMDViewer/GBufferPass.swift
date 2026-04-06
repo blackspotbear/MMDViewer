@@ -335,7 +335,7 @@ class GBufferPass: RenderPass {
     }
 
     private func beginContext(for renderer: inout Renderer) -> (renderPassDescriptor: MTLRenderPassDescriptor, renderer: Renderer)? {
-        guard let currentDrawable = view.currentDrawable else {
+        guard let currentDrawable = view.acquireCurrentDrawable() else {
             return nil
         }
 

@@ -544,7 +544,7 @@ class MMDView: MetalView {
     }
 
     private func currentFramePresentationSession(renderer: Renderer) -> MMDFramePresentationSession? {
-        guard let drawable = currentDrawable,
+        guard let drawable = acquireCurrentDrawable(),
               let commandBuffer = renderer.commandBuffer else {
             return nil
         }
