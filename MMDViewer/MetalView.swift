@@ -13,6 +13,10 @@ private struct MetalViewConfiguration {
 class MetalView: MTKView {
     private var cachedDrawable: CAMetalDrawable?
 
+    private var metalLayer: CAMetalLayer? {
+        return layer as? CAMetalLayer
+    }
+
     override init(frame: CGRect, device: MTLDevice?) {
         let configuration = Self.makeConfiguration(device: device)
         super.init(frame: frame, device: configuration.device)
@@ -34,7 +38,7 @@ class MetalView: MTKView {
             return cachedDrawable
         }
 
-        let drawable = super.currentDrawable
+        let drawable = metalLayer?.nextDrawable()
         cachedDrawable = drawable
         return drawable
     }
