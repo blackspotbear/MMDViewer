@@ -225,6 +225,11 @@ private struct MorphFrameWeights {
     let right: Float
 }
 
+private struct MorphKeyFramePair {
+    let left: [VMDMorph]?
+    let right: [VMDMorph]?
+}
+
 /// `PMXObject` が shader 向けに送る生バイト列の準備を集約する。
 /// ここは still-legacy な `GLKMatrix4` 表現と `MTLBuffer` 書き込みが出会う境界で、
 /// 後で別型へ切り出す時も呼び出し側の流れを崩さずに移行できるようにしている。
@@ -462,7 +467,7 @@ class PMXObject {
     /// 現状は vertex morph だけ CPU buffer へ反映し、他種別は将来の分離に備えて明示的に無視する。
     private func applyMorphKeyFrames(_ morphs: [VMDMorph], weightScale: Float) {
         for vm in morphs {
-            guard let pm = pmx.morphs[vm.name] else {
+            guard let pm = morph(named: vm.name) else {
                 continue
             }
 
@@ -480,20 +485,31 @@ class PMXObject {
     }
 
     private func applyMorph() {
-        let morphs = vmd.getMorph(counter.currentFrame())
-        if morphs.left == nil && morphs.right == nil {
+        let morphKeyFrames = currentMorphKeyFrames()
+        if morphKeyFrames.left == nil && morphKeyFrames.right == nil {
             return
         }
 
-        let weights = morphFrameWeights(leftMorphs: morphs.left, rightMorphs: morphs.right)
+        let weights = morphFrameWeights(leftMorphs: morphKeyFrames.left, rightMorphs: morphKeyFrames.right)
 
-        if let ms = morphs.left {
+        if let ms = morphKeyFrames.left {
             applyMorphKeyFrames(ms, weightScale: weights.left)
         }
 
-        if let ms = morphs.right {
+        if let ms = morphKeyFrames.right {
             applyMorphKeyFrames(ms, weightScale: weights.right)
         }
+    }
+
+    private func morph(named name: String) -> Morph? {
+        return pmx.morphs[name]
+    }
+
+    /// 現在フレームの左右 keyframe 群をまとめて取り出す。
+    /// `VMD` の返り値形式に `PMXObject` 全体を強く依存させないための薄い境界として扱う。
+    private func currentMorphKeyFrames() -> MorphKeyFramePair {
+        let morphs = vmd.getMorph(counter.currentFrame())
+        return MorphKeyFramePair(left: morphs.left, right: morphs.right)
     }
 
     /// 左右 keyframe の時刻差から、現在フレームで適用する morph の寄与率を求める。
