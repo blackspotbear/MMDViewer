@@ -879,10 +879,12 @@ class PMXObject {
     }
 
     private func makeRenderBufferComponentSession(_ context: PMXRenderContext) -> PMXRenderBufferComponentSession {
+        let matrixPaletteSession = makeMatrixPaletteBufferSession()
+        let materialSession = makeMaterialBufferSession()
         return PMXRenderBufferComponentSession(
             uniforms: makeUniformBuffer(context),
-            matrixPalette: makeMatrixPaletteBufferSession().buffer,
-            materials: makeMaterialBufferSession().buffer)
+            matrixPalette: matrixPaletteBuffer(matrixPaletteSession),
+            materials: materialBuffer(materialSession))
     }
 
     private func withNextBuffer(_ provider: BufferProvider) -> MTLBuffer {
@@ -926,7 +928,7 @@ class PMXObject {
             session.renderMatrices.shadowMatrix,
             session.renderMatrices.shadowMatrixGB)
 
-        return session.buffer
+        return uniformBuffer(session)
     }
 
     private func makeUniformBufferSession(_ context: PMXRenderContext) -> PMXUniformBufferSession {
@@ -953,6 +955,10 @@ class PMXObject {
         return PMXMatrixPaletteBufferSession(buffer: palette)
     }
 
+    private func matrixPaletteBuffer(_ session: PMXMatrixPaletteBufferSession) -> MTLBuffer {
+        return session.buffer
+    }
+
     /// material ごとの色パラメータを shader 用の連続領域へ詰める。
     /// texture index や sphere map などは別経路で扱うため、ここでは色だけ送る。
     private func makeMaterialBufferSession() -> PMXMaterialBufferSession {
@@ -960,6 +966,14 @@ class PMXObject {
         PMXRenderDataEncoder.writeMaterials(materialBuffer, pmx.materials)
 
         return PMXMaterialBufferSession(buffer: materialBuffer)
+    }
+
+    private func materialBuffer(_ session: PMXMaterialBufferSession) -> MTLBuffer {
+        return session.buffer
+    }
+
+    private func uniformBuffer(_ session: PMXUniformBufferSession) -> MTLBuffer {
+        return session.buffer
     }
 
     private func makeCurrentVertexBuffer() -> MTLBuffer {
