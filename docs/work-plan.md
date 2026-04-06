@@ -148,7 +148,7 @@
 - [x] `GLKMatrix4` と `simd_float4x4` の相互変換を導入する
 - [x] `GLKMatrix4` の factory / helper を安全な単位で `simd` ベースへ寄せる
 - [x] `GLKMatrix4` の互換性境界を回帰テストとコメントで明文化する
-- [ ] `GLKMatrix4` の matrix-matrix 演算置換方針を確定する
+- [x] `GLKMatrix4` の matrix-matrix 演算置換方針を確定する
 - [ ] 物理ブリッジの型変換を更新する
 - [x] 物理ブリッジの差し替え点を helper とコメントで局所化する
 - [x] 各段階であなたにシミュレータ確認を依頼する
