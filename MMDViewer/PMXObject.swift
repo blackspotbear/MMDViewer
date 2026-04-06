@@ -230,6 +230,11 @@ private struct MorphKeyFramePair {
     let right: [VMDMorph]?
 }
 
+private struct MorphUpdate {
+    let morph: Morph
+    let weight: Float
+}
+
 private struct PMXObjectResources {
     let vertexData: Data
     let vertexBufferProvider: BufferProvider
@@ -529,9 +534,10 @@ class PMXObject {
         }
     }
 
-    /// 左右いずれかの morph key 群を 1 つの重みで適用する。
-    /// 現状は vertex morph だけ CPU buffer へ反映し、他種別は将来の分離に備えて明示的に無視する。
-    private func applyMorphKeyFrames(_ morphs: [VMDMorph], weightScale: Float) {
+    /// 左右いずれかの morph key 群から、実際に適用すべき morph と重みの組だけを解決する。
+    /// CPU 頂点更新は別段に残し、VMD / PMX の名前解決だけをここへ閉じ込める。
+    private func resolveMorphUpdates(_ morphs: [VMDMorph], weightScale: Float) -> [MorphUpdate] {
+        var updates: [MorphUpdate] = []
         for vm in morphs {
             guard let pm = morph(named: vm.name) else {
                 continue
@@ -539,7 +545,7 @@ class PMXObject {
 
             switch pm.type {
             case .vertex:
-                updateVertex(pm, vm.weight * weightScale)
+                updates.append(MorphUpdate(morph: pm, weight: vm.weight * weightScale))
             case .group:
                 break
             case .bone:
@@ -548,13 +554,22 @@ class PMXObject {
                 break
             }
         }
+        return updates
     }
 
-    private func applyMorphKeyFramesIfPresent(_ morphs: [VMDMorph]?, weightScale: Float) {
+    private func resolveMorphUpdatesIfPresent(_ morphs: [VMDMorph]?, weightScale: Float) -> [MorphUpdate] {
         guard let morphs else {
-            return
+            return []
         }
-        applyMorphKeyFrames(morphs, weightScale: weightScale)
+        return resolveMorphUpdates(morphs, weightScale: weightScale)
+    }
+
+    /// morph 名解決済みの更新だけを現在の頂点 buffer へ適用する。
+    /// 将来 GPU morph 化するなら、この適用段を差し替える想定。
+    private func applyMorphUpdates(_ updates: [MorphUpdate]) {
+        for update in updates {
+            updateVertex(update.morph, update.weight)
+        }
     }
 
     private func applyMorph() {
@@ -564,8 +579,9 @@ class PMXObject {
         }
 
         let weights = morphFrameWeights(leftMorphs: morphKeyFrames.left, rightMorphs: morphKeyFrames.right)
-        applyMorphKeyFramesIfPresent(morphKeyFrames.left, weightScale: weights.left)
-        applyMorphKeyFramesIfPresent(morphKeyFrames.right, weightScale: weights.right)
+        let updates = resolveMorphUpdatesIfPresent(morphKeyFrames.left, weightScale: weights.left)
+            + resolveMorphUpdatesIfPresent(morphKeyFrames.right, weightScale: weights.right)
+        applyMorphUpdates(updates)
     }
 
     private func hasMorphKeyFrames(_ morphKeyFrames: MorphKeyFramePair) -> Bool {
