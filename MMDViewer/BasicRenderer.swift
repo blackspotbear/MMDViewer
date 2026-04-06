@@ -8,6 +8,8 @@ private let defaultFieldOfViewRadians = 85.0 * .pi / 180.0
 /// アプリ全体で共有する renderer の最小実装。
 /// command buffer と行列状態をまとめて持ち、各 pass / drawer はここを介して GPU へ書き込む。
 class BasicRenderer: Renderer {
+    /// `Traverser` が node ごとに積み下ろしする model matrix stack。
+    /// いまは scene graph の親子順をそのまま反映するだけの薄い状態保持として使っている。
     private var modelMatrixStack = [GLKMatrix4](repeating: GLKMatrix4Identity, count: 1)
 
     /// Node traversal に合わせて model matrix を積む。
@@ -20,6 +22,9 @@ class BasicRenderer: Renderer {
         return modelMatrixStack.popLast()!
     }
     
+    /// drawer から見える現在の model matrix。
+    /// stack top を透過的に見せる sugar として使っているので、
+    /// push / pop 規約を変えるときは回帰テストも一緒に更新する。
     var modelMatrix: GLKMatrix4 {
         get {
             return modelMatrixStack[modelMatrixStack.index(before: modelMatrixStack.endIndex)]
@@ -36,6 +41,8 @@ class BasicRenderer: Renderer {
 
     var commandBuffer: MTLCommandBuffer?
     var renderCommandEncoderStack: [MTLRenderCommandEncoder] = []
+    /// pass の入れ子に対応する current encoder。
+    /// shadow -> gbuffer のような多段 pass でも末尾だけ見ればよいよう stack で持つ。
     var renderCommandEncoder: MTLRenderCommandEncoder? {
         return renderCommandEncoderStack.last
     }
