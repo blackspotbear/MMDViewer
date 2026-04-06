@@ -159,9 +159,9 @@
 - [x] `MMDView` の frame 駆動を値オブジェクトと helper に分離する
 - [x] render pass / renderer / traverser の begin-end 境界を helper に整理する
 - [x] `PMXObject` の render buffer 更新責務を helper と文脈型へ分離する
-- [ ] `melt` 論理 group を物理ディレクトリへ移すか判断する
-- [ ] 物理ディレクトリ化する場合の配置案を確定する
-- [ ] ファイル移動と project 参照更新だけの専用イテレーションを実施する
+- [x] `melt` 論理 group を物理ディレクトリへ移すか判断する
+- [x] 物理ディレクトリ化する場合の配置案を確定する
+- [x] ファイル移動と project 参照更新だけの専用イテレーションを実施する
 - [x] `MTKView` 移行の差分設計を書く
 - [x] 最小移行を実装する
 - [x] 描画結果の回帰確認を行う
@@ -343,6 +343,7 @@
 - formatter / lint の実適用は最後まで保留し、差分を大きくする変更として最終イテレーションまで先送りする方針を明記した
 - Bullet target 縮小の第 2 案として、`BulletSoftBody` / `Vehicle` / `Character` / `MLCPSolvers` から段階的に外し、必要なら `Featherstone` / `Gimpact` を続けて見直す順番を整理した
 - 最終棚卸しとして、今後の改善候補を「近いうちに進める」「条件がそろったら進める」「最後まで保留してよい」に分けて整理した
+- `melt` を `graph` / `shader` / `resource` / `renderer` / `pass` / `object` / `updater` / `drawer` / `view` の物理ディレクトリへ移し、Xcode project の group 構造と実ファイル配置を一致させた
 
 ## 次の改善候補メモ
 

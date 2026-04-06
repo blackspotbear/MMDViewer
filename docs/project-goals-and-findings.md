@@ -41,7 +41,7 @@
 
 - `melt` は `Metal` に掛けた、MMDViewer 専用の描画基盤レイヤーの名前として扱う
 - 現在の作業でも、この名前は「PMX データ処理や math 補助ではなく、renderer / pass / drawer / updater / view など描画基盤側のまとまり」を指す論理名として維持する
-- 実体は作業ツリー上の `melt/` ディレクトリではなく、Xcode project 内の仮想 group である
+- 現在は `MMDViewer/melt/` を物理ディレクトリとして持ち、Xcode project 側の group 構造とも一致させている
 
 現時点では、なぜ当時わざわざ論理 group に留めたのかは断定できません。ただし、次のような事情は十分あり得ます。
 
@@ -50,7 +50,7 @@
 - Objective-C++、shader、Storyboard などを含むため、物理移動の影響範囲を当時は大きく感じていた
 - 設計がまだ固まりきっておらず、論理整理を先に試していた
 
-長期的には、`melt` を物理ディレクトリとして持つ方が Finder や terminal から見たときの理解しやすさは上がります。そのため、後段の整理候補として次を検討対象に残します。
+`melt` は物理ディレクトリとして整理し直し、Finder や terminal からも描画基盤のまとまりを追いやすくしました。現在の配置は次の通りです。
 
 - `MMDViewer/melt/renderer`
 - `MMDViewer/melt/pass`
@@ -509,6 +509,7 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
   - `MTKViewDelegate.draw(in:)` 採用可否の比較計測
   - `PMXObject` の CPU morph / GPU 転送のさらなる分離、必要なら GPU morph 検討
   - `melt` 物理ディレクトリ化専用イテレーション
+    - 実施済み
 
 - 条件がそろったら進めるもの
   - 描画外 UI への SwiftUI 段階導入

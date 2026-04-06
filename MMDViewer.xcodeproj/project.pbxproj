@@ -722,6 +722,7 @@
 				ABB9AD2A1DCDD287004F289D /* Wireframe.metal */,
 			);
 			name = shader;
+			path = shader;
 			sourceTree = "<group>";
 		};
 		AB4D06B31D83D95800654915 /* graph */ = {
@@ -734,6 +735,7 @@
 				ABFA8F4C1D5E981F00422EB1 /* Node.swift */,
 			);
 			name = graph;
+			path = graph;
 			sourceTree = "<group>";
 		};
 		AB4D06BC1D83EC5C00654915 /* resource */ = {
@@ -743,6 +745,7 @@
 				ABE075B31C4211C800213CB4 /* MetalTexture.swift */,
 			);
 			name = resource;
+			path = resource;
 			sourceTree = "<group>";
 		};
 		AB4D06BD1D83F4B200654915 /* renderer */ = {
@@ -752,6 +755,7 @@
 				AB4D06C01D853CAC00654915 /* BasicRenderer.swift */,
 			);
 			name = renderer;
+			path = renderer;
 			sourceTree = "<group>";
 		};
 		AB4D06BE1D83F4C000654915 /* view */ = {
@@ -761,6 +765,7 @@
 				ABF3BE8E1CC8FAE80099329D /* MMDView.swift */,
 			);
 			name = view;
+			path = view;
 			sourceTree = "<group>";
 		};
 		AB4D06BF1D83F4C700654915 /* object */ = {
@@ -769,6 +774,7 @@
 				ABE075AF1C39296E00213CB4 /* PMXObject.swift */,
 			);
 			name = object;
+			path = object;
 			sourceTree = "<group>";
 		};
 		AB8230E41C2FE34D008691E0 = {
@@ -883,6 +889,7 @@
 				AB4D06BE1D83F4C000654915 /* view */,
 			);
 			name = melt;
+			path = melt;
 			sourceTree = "<group>";
 		};
 		ABDB8B5A1CE61CF700BD28AD /* third-party */ = {
@@ -1411,6 +1418,7 @@
 				AB471B951DD741B000E31965 /* WireframePass.swift */,
 			);
 			name = pass;
+			path = pass;
 			sourceTree = "<group>";
 		};
 		ABE5C2A71D8FD66500C0D169 /* drawer */ = {
@@ -1423,6 +1431,7 @@
 				AB303C361DCF61EA000D092B /* WireframeDrawer.swift */,
 			);
 			name = drawer;
+			path = drawer;
 			sourceTree = "<group>";
 		};
 		ABE5C2AC1D8FD70D00C0D169 /* updater */ = {
@@ -1432,6 +1441,7 @@
 				ABAA7AE51DE00E54001FF6C6 /* CameraUpdater.swift */,
 			);
 			name = updater;
+			path = updater;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
