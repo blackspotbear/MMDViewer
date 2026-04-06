@@ -2,6 +2,8 @@ import Foundation
 import Metal
 import simd
 
+/// forward path の PMX 描画で使う pipeline をまとめて構築する。
+/// 透過/不透明だけを切り替え、material ごとの draw loop 自体は `PMXDrawer` に任せる。
 private func CreateOpaquePipelinesState(_ device: MTLDevice, _ vertexDescriptor: MTLVertexDescriptor, _ vertexFunc: MTLFunction, _ fragmentFunc: MTLFunction) -> MTLRenderPipelineState {
     let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
 
@@ -123,7 +125,7 @@ class PMXDrawer: Drawer {
         renderEncoder.setFragmentBuffer(pmxObj.uniformBuffer, offset: 0, index:0)
         renderEncoder.setFragmentSamplerState(pmxObj.samplerState, index: 0)
 
-        // draw primitives for each material
+        // material ごとに texture / pipeline を切り替える forward path の本体。
         var indexByteOffset = 0
         for material in pmxObj.pmx.materials {
             let textureIndex = material.textureIndex != 255 ? material.textureIndex : 0

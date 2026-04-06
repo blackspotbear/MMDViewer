@@ -1,6 +1,8 @@
 import Foundation
 import Metal
 
+/// shadow map 用の最小 PMX drawer。
+/// 色や material 設定は無視し、depth を書くために index 範囲だけを順に流す。
 class PMXShadowDrawer: Drawer {
     let pmxObj: PMXObject
 
@@ -21,10 +23,8 @@ class PMXShadowDrawer: Drawer {
         renderEncoder.setVertexBuffer(pmxObj.matrixPalette, offset: 0, index: 2)
 
         var indexByteOffset = 0
-        var materialByteOffset = 0
-        var cntr = 0
-        for material in pmxObj.pmx.materials {
-            if cntr == pmxObj.pmx.materials.count - 3 {
+        for (index, material) in pmxObj.pmx.materials.enumerated() {
+            if index == pmxObj.pmx.materials.count - 3 {
                 // NOTE: skip shadow object
             } else {
                 renderEncoder.drawIndexedPrimitives(
@@ -34,10 +34,8 @@ class PMXShadowDrawer: Drawer {
                     indexBuffer: pmxObj.indexBuffer,
                     indexBufferOffset: indexByteOffset)
             }
-            cntr += 1
 
             indexByteOffset += Int(material.vertexCount) * 2 // 2 bytes per index
-            materialByteOffset += MemoryLayout<ShaderMaterial>.stride
         }
     }
 }
