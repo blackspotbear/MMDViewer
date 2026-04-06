@@ -2,6 +2,8 @@ import Foundation
 import GLKit
 
 @objc
+/// Swift 側の姿勢更新と Objective-C++ / Bullet 側 solver をつなぐ最小境界。
+/// 呼び出し側は `PMXObject` に閉じ込め、物理エンジンの詳細をここより外へ漏らさない前提にする。
 protocol PhysicsSolving {
     var rigidBodies: [RigidBody] { get }
     var constraints: [Constraint] { get }

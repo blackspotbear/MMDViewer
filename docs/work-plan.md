@@ -239,6 +239,7 @@
 - `MMDView` の resource 読み込み、display link 開始、drawable サイズ更新を helper に分離し、`melt` view 層の frame 駆動を段取り中心で追いやすくした
 - matrix / traversal / 補間まわりの回帰テストに意図コメントを追加し、どの挙動を守っているかをテストコード上で追いやすくした
 - `BasicRenderer` と `CameraUpdater` に renderer 状態管理と camera 更新の規約コメントを追加し、`melt` の view-renderer 境界を読み取りやすくした
+- `PMXUpdater` と `PhysicsSolving` に、アニメーション更新順序と物理ブリッジ境界のコメントを追加し、PMX 更新フローを追いやすくした
 
 ## 次のイテレーション候補
 
