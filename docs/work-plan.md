@@ -212,6 +212,7 @@
 - Physics と Bullet の境界で使う GLKit 型変換と rigid body offset 計算を helper に集約し、将来の `simd` 置換ポイントを見通しやすくした
 - `Traverser`、`BasicRenderer`、回帰テストに、renderer 規約やテスト意図が分かるドキュメンテーションコメントを追加し始めた
 - `PMXObject` に、アニメーション更新、物理連携、morph、uniform / palette / material 転送の役割が追えるドキュメンテーションコメントを追加し始めた
+- `PMXObject` の GPU 転送まわりで、shadow 行列計算と palette / material 書き込みを helper へ切り出し、責務分離の最初の足がかりを作った
 
 ## 次のイテレーション候補
 
