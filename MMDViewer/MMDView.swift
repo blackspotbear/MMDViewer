@@ -219,14 +219,20 @@ class MMDView: MetalView {
 
     private func configureRendererEndHandler() {
         renderer.setEndHandler({ [weak self] (_ renderer: Renderer) in
-            if let drawable = self?.currentDrawable {
-                if let commandBuffer = renderer.commandBuffer {
-                    commandBuffer.present(drawable)
-                    commandBuffer.commit()
-                }
-                self?.releaseCurrentDrawable()
-            }
+            self?.finishFrame(renderer: renderer)
         })
+    }
+
+    /// renderer 側で積み上げた command buffer を drawable 提示と一緒に閉じる。
+    /// present / commit の最終段だけを `MMDView` に残し、renderer 本体は encode に集中させる。
+    private func finishFrame(renderer: Renderer) {
+        if let drawable = currentDrawable {
+            if let commandBuffer = renderer.commandBuffer {
+                commandBuffer.present(drawable)
+                commandBuffer.commit()
+            }
+            releaseCurrentDrawable()
+        }
     }
 
     private func startDisplayLink() {
@@ -269,6 +275,11 @@ class MMDView: MetalView {
         return drawableSize.width > 0 && drawableSize.height > 0
     }
 
+    private func drawCurrentFrame(elapsed: CFTimeInterval) {
+        traverser.update(elapsed, node: root)
+        traverser.draw(root)
+    }
+
     @objc func mainLoop(_ displayLink: CADisplayLink) {
         let elapsed = elapsedTime(since: displayLink)
 
@@ -278,7 +289,6 @@ class MMDView: MetalView {
             return
         }
 
-        traverser.update(elapsed, node: root)
-        traverser.draw(root)
+        drawCurrentFrame(elapsed: elapsed)
     }
 }
