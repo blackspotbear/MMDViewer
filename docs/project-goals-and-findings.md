@@ -500,6 +500,27 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 ## 参考にした外部資料
 
 - Apple Developer Documentation: [Swift Testing](https://developer.apple.com/documentation/testing)
+
+## 最終棚卸しメモ
+
+2026-04-06 時点で、追加で近代化できる箇所はまだ残っていますが、優先度は次の 3 層に分かれます。
+
+- 近いうちに進める価値が高いもの
+  - `MTKViewDelegate.draw(in:)` 採用可否の比較計測
+  - `PMXObject` の CPU morph / GPU 転送のさらなる分離、必要なら GPU morph 検討
+  - `melt` 物理ディレクトリ化専用イテレーション
+
+- 条件がそろったら進めるもの
+  - 描画外 UI への SwiftUI 段階導入
+  - `Swift Testing` への移行検討
+  - `swift-format` の段階適用
+
+- 最後まで保留してよいもの
+  - `SwiftLint` の本格導入
+  - Bullet target 縮小の実施
+  - matrix-matrix multiply の GLKit 互換境界の再実装
+
+つまり、現時点で「やることが見えていない」状態ではなく、残りは主に優先順位の問題です。ビルド復旧、主要近代化、テスト整備、`MTKView` 化は完了しており、ここから先は追加改善のフェーズに入っています。
 - Apple Developer: [MetalKit](https://developer.apple.com/documentation/metalkit)
 - Apple Developer: [MTKView](https://developer.apple.com/documentation/MetalKit/MTKView)
 - Apple Developer: [SwiftUI](https://developer.apple.com/swiftui/)
