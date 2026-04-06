@@ -1,5 +1,28 @@
 import UIKit
 
+private enum PlaybackState {
+    case playing
+    case paused
+
+    var isPlaying: Bool {
+        switch self {
+        case .playing:
+            return true
+        case .paused:
+            return false
+        }
+    }
+
+    var buttonTitle: String {
+        switch self {
+        case .playing:
+            return "Pause"
+        case .paused:
+            return "Play"
+        }
+    }
+}
+
 /// 再生/停止 UI と `MMDView` の最低限の橋渡しを担当する controller。
 /// 描画や入力の本体は `MMDView` 側へ寄せ、ここではアプリ外周の状態同期だけを見る。
 class ViewController: UIViewController {
@@ -7,8 +30,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var toolBar: UIToolbar!
     @IBOutlet weak var playPauseButton: UIBarButtonItem!
 
-    private var isCurrentlyPlaying: Bool {
-        return mmdView?.pmxUpdater?.playing ?? true
+    private var currentPlaybackState: PlaybackState {
+        return (mmdView?.pmxUpdater?.playing ?? true) ? .playing : .paused
     }
 
     override func viewDidLoad() {
@@ -36,11 +59,11 @@ class ViewController: UIViewController {
     }
 
     @objc func viewWillEnterForeground(_ notification: Notification?) {
-        setPlaybackState(isPlaying: true)
+        applyPlaybackState(.playing)
     }
 
     @objc func viewDidEnterBackground(_ notification: Notification?) {
-        setPlaybackState(isPlaying: false)
+        applyPlaybackState(.paused)
     }
 
     override func didReceiveMemoryWarning() {
@@ -53,22 +76,18 @@ class ViewController: UIViewController {
     }
 
     /// scene ライフサイクル通知と toolbar 操作の両方から再生状態を揃える。
-    private func setPlaybackState(isPlaying: Bool) {
-        mmdView.pmxUpdater?.playing = isPlaying
+    private func applyPlaybackState(_ state: PlaybackState) {
+        mmdView.pmxUpdater?.playing = state.isPlaying
         updatePlayPauseButtonTitle()
     }
 
     private func togglePlaybackState() {
         if mmdView.pmxUpdater != nil {
-            setPlaybackState(isPlaying: !isCurrentlyPlaying)
+            applyPlaybackState(currentPlaybackState == .playing ? .paused : .playing)
         }
     }
 
     private func updatePlayPauseButtonTitle() {
-        playPauseButton?.title = playbackButtonTitle(isPlaying: isCurrentlyPlaying)
-    }
-
-    private func playbackButtonTitle(isPlaying: Bool) -> String {
-        return isPlaying ? "Pause" : "Play"
+        playPauseButton?.title = currentPlaybackState.buttonTitle
     }
 }
