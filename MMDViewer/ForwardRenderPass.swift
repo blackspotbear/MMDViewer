@@ -79,6 +79,12 @@ private class PassResource {
 /// `melt` のもっとも基本的な forward pass。
 /// view の drawable を描画先にし、単色背景と depth buffer を整えて scene 描画を始める。
 class ForwardRenderPass: RenderPass {
+    private struct BeginContext {
+        let drawable: CAMetalDrawable
+        let commandBuffer: MTLCommandBuffer
+        let renderPassDescriptor: MTLRenderPassDescriptor
+    }
+
     private let view: MetalView
 
     private let passRes: PassResource
@@ -90,7 +96,7 @@ class ForwardRenderPass: RenderPass {
 
     /// view / drawable / command buffer の 3 つが揃ったときだけ encoder を開始する。
     /// begin 条件をまとめておくと、将来 drawable 管理や MTKView 移行を試すときに差し替えやすい。
-    private func beginContext(for renderer: Renderer) -> (drawable: CAMetalDrawable, commandBuffer: MTLCommandBuffer)? {
+    private func beginContext(for renderer: Renderer) -> BeginContext? {
         guard let drawable = view.currentDrawable else {
             return nil
         }
@@ -102,7 +108,11 @@ class ForwardRenderPass: RenderPass {
             return nil
         }
 
-        return (drawable, commandBuffer)
+        return BeginContext(
+            drawable: drawable,
+            commandBuffer: commandBuffer,
+            renderPassDescriptor: passRes.renderPassDescriptorForDrawable(drawable.texture)
+        )
     }
 
     func begin(_ renderer: Renderer) {
@@ -110,17 +120,20 @@ class ForwardRenderPass: RenderPass {
             return
         }
 
-        let renderPassDescriptor = passRes.renderPassDescriptorForDrawable(context.drawable.texture)
-        let renderEncoder = (context.commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor))!
+        let renderEncoder = (context.commandBuffer.makeRenderCommandEncoder(descriptor: context.renderPassDescriptor))!
 
         let renderer = renderer
         renderer.pushRenderCommandEncoder(renderEncoder)
     }
 
+    private func finishEncoding(_ renderEncoder: MTLRenderCommandEncoder) {
+        renderEncoder.endEncoding()
+    }
+
     func end(_ renderer: Renderer) {
         let renderer = renderer
         if let renderEncoder = renderer.popRenderCommandEncoder() {
-            renderEncoder.endEncoding()
+            finishEncoding(renderEncoder)
         }
     }
 }

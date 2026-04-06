@@ -221,6 +221,7 @@
 - `Renderer` に render command encoder の push / pop helper を追加し、forward / deferred / shadow / wireframe pass の begin / end 境界を renderer 側責務としてそろえた
 - `GBufferPass` の begin context と frame index 更新を helper に分離し、deferred path の開始条件とフレーム進行を追いやすくした
 - `WireframePass` の begin context、render pass descriptor 更新、pipeline state 更新を helper に分離し、補助描画 pass の段取りを他の pass と揃えた
+- `ForwardRenderPass` / `ShadowPass` の begin context と end encoding を helper に分離し、`MMDView` の forward scene graph 構築も node factory へ寄せた
 - `GLKMatrix4` の off-center orthographic factory を `GLKMatrix4+MMD` へ移し、shadow 行列生成から残っていた `GLKMatrix4Make*` 依存を削った
 - `GLKMatrix4.multiplyVector4` は `simd` 実装へ寄せられた一方、matrix-matrix multiply は規約差が大きく、当面は GLKit 実装を維持する方針を回帰テストで確認した
 - Physics と Bullet の境界で使う GLKit 型変換と rigid body offset 計算を helper に集約し、将来の `simd` 置換ポイントを見通しやすくした

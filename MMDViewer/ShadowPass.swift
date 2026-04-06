@@ -19,6 +19,10 @@ private func MakeDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState 
 /// `melt` の shadow map 生成 pass。
 /// depth のみを書き出して、後段の forward / deferred lighting から shaderRead で参照される。
 class ShadowPass: RenderPass {
+    private struct BeginContext {
+        let encoder: MTLRenderCommandEncoder
+    }
+
     var shadowTexture: MTLTexture // render target
 
     private var shadowRenderPassDescriptor: MTLRenderPassDescriptor
@@ -62,6 +66,13 @@ class ShadowPass: RenderPass {
         return renderer.commandBuffer?.makeRenderCommandEncoder(descriptor: shadowRenderPassDescriptor)
     }
 
+    private func beginContext(for renderer: Renderer) -> BeginContext? {
+        guard let encoder = makeRenderEncoder(with: renderer) else {
+            return nil
+        }
+        return BeginContext(encoder: encoder)
+    }
+
     private func configure(_ encoder: MTLRenderCommandEncoder) {
         encoder.pushDebugGroup("shadow buffer pass")
         encoder.label = "shadow buffer"
@@ -74,18 +85,22 @@ class ShadowPass: RenderPass {
     func begin(_ renderer: Renderer) {
         let renderer = renderer
 
-        if let encoder = makeRenderEncoder(with: renderer) {
-            configure(encoder)
-            renderer.pushRenderCommandEncoder(encoder)
+        if let context = beginContext(for: renderer) {
+            configure(context.encoder)
+            renderer.pushRenderCommandEncoder(context.encoder)
         }
+    }
+
+    private func finishEncoding(_ encoder: MTLRenderCommandEncoder) {
+        encoder.popDebugGroup()
+        encoder.endEncoding()
     }
 
     func end(_ renderer: Renderer) {
         let renderer = renderer
 
         if let encoder = renderer.popRenderCommandEncoder() {
-            encoder.popDebugGroup()
-            encoder.endEncoding()
+            finishEncoding(encoder)
         }
     }
 }

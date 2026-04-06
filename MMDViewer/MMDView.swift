@@ -83,16 +83,19 @@ class MMDView: MetalView {
     #if true // forward rendering
 
     private func setupSceneGraph() -> MTLPixelFormat {
+        root.updater = cameraUpdater
+        root.children = [makeForwardPMXNode()]
+
+        return .bgra8Unorm
+    }
+
+    private func makeForwardPMXNode() -> Node {
         let node = Node()
         pmxUpdater = PMXUpdater(pmxObj: miku)
         node.updater = pmxUpdater
         node.drawer = PMXDrawer(pmxObj: miku, device: device!)
         node.pass = ForwardRenderPass(view: self)
-
-        root.updater = cameraUpdater
-        root.children.append(node)
-
-        return .bgra8Unorm
+        return node
     }
 
     #else // deferred rendering
