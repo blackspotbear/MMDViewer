@@ -305,6 +305,8 @@
 - `MMDView` の resize/reshape 更新で `MMDDrawableLayout` を導入し、drawable size と renderer の reshape 入力を同じレイアウト値から扱えるようにした
 - `PMXObject` の uniform / palette / material 更新でも `PMXRenderContext` を共通入口にし、描画依存の受け渡しを `Renderer` 生参照より一段局所化した
 - `MMDView` の prepared scene 適用でも `MMDSceneApplication` を介す形にし、resource 保持と scene graph / layer 反映を同じ適用値として読めるようにした
+- `MMDView` の display link 起動設定を `MMDDisplayLinkConfiguration` に分け、window 構成から frame 駆動設定だけを切り出せるようにした
+- `PMXObject` の render buffer 保存でも `PMXStoredRenderBuffers` を介す形にし、draw 前に保持する GPU バッファ集合を 1 つの値として扱えるようにした
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
 
 ## 次のイテレーション候補

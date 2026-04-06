@@ -285,6 +285,12 @@ private struct PMXObjectSetup {
     let animationState: PMXObjectAnimationState
 }
 
+private struct PMXStoredRenderBuffers {
+    let uniformBuffer: MTLBuffer
+    let matrixPalette: MTLBuffer
+    let materialBuffer: MTLBuffer
+}
+
 /// `PMXObject` が shader 向けに送る生バイト列の準備を集約する。
 /// ここは still-legacy な `GLKMatrix4` 表現と `MTLBuffer` 書き込みが出会う境界で、
 /// 後で別型へ切り出す時も呼び出し側の流れを崩さずに移行できるようにしている。
@@ -683,9 +689,20 @@ class PMXObject {
     }
 
     private func storeRenderBuffers(_ renderBuffers: PMXFrameRenderBuffers) {
-        uniformBuffer = renderBuffers.uniforms
-        matrixPalette = renderBuffers.matrixPalette
-        materialBuffer = renderBuffers.materials
+        applyStoredRenderBuffers(makeStoredRenderBuffers(renderBuffers))
+    }
+
+    private func makeStoredRenderBuffers(_ renderBuffers: PMXFrameRenderBuffers) -> PMXStoredRenderBuffers {
+        return PMXStoredRenderBuffers(
+            uniformBuffer: renderBuffers.uniforms,
+            matrixPalette: renderBuffers.matrixPalette,
+            materialBuffer: renderBuffers.materials)
+    }
+
+    private func applyStoredRenderBuffers(_ buffers: PMXStoredRenderBuffers) {
+        uniformBuffer = buffers.uniformBuffer
+        matrixPalette = buffers.matrixPalette
+        materialBuffer = buffers.materialBuffer
     }
 
     /// 描画に必要な camera / shadow 行列をまとめて uniform buffer へ転送する。

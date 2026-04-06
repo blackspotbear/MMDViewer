@@ -46,6 +46,10 @@ private struct MMDDrawableLayout {
     let bounds: CGRect
 }
 
+private struct MMDDisplayLinkConfiguration {
+    let preferredFramesPerSecond: Int
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -378,13 +382,20 @@ class MMDView: MetalView {
 
     private func startDisplayLink(configuration: MMDWindowConfiguration) {
         timer = CADisplayLink(target: self, selector: #selector(MMDView.mainLoop(_:)))
-        configureDisplayLink(timer, preferredFramesPerSecond: configuration.preferredFramesPerSecond)
+        configureDisplayLink(
+            timer,
+            configuration: makeDisplayLinkConfiguration(window: configuration))
         timer.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
     }
 
-    private func configureDisplayLink(_ displayLink: CADisplayLink, preferredFramesPerSecond: Int) {
+    private func makeDisplayLinkConfiguration(window configuration: MMDWindowConfiguration) -> MMDDisplayLinkConfiguration {
+        return MMDDisplayLinkConfiguration(
+            preferredFramesPerSecond: configuration.preferredFramesPerSecond)
+    }
+
+    private func configureDisplayLink(_ displayLink: CADisplayLink, configuration: MMDDisplayLinkConfiguration) {
         if #available(iOS 10.0, *) {
-            displayLink.preferredFramesPerSecond = preferredFramesPerSecond
+            displayLink.preferredFramesPerSecond = configuration.preferredFramesPerSecond
         } else {
             displayLink.frameInterval = 2
         }
