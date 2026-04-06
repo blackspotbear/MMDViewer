@@ -2,30 +2,30 @@
 
 ## 0.5.0
 
-This release is a large-scale modernization and recovery of the project so it can be built, tested, and maintained again on a current Apple toolchain.
+このリリースでは、長期間放置されていたプロジェクトを、現在の Apple ツールチェーンで再びビルド、実行、保守できる状態へ大きく立て直しました。
 
-Intent:
+目的:
 
-- Restore the app to a buildable and runnable state on current Xcode and iOS Simulator
-- Reduce long-term maintenance risk by moving core math and bridge boundaries toward `simd`
-- Improve confidence for future refactoring by adding tests, clarifying architecture, and documenting decisions
+- 現在の Xcode と iOS Simulator で、再びビルドと実行ができる状態へ戻す
+- 数学処理や物理ブリッジの中核を `simd` 寄りに整理し、長期保守のリスクを下げる
+- テスト、設計整理、ドキュメントを増やし、今後のリファクタリングを安全に進められる土台を作る
 
-Highlights:
+主な変更:
 
-- Restored successful build and simulator launch on current Xcode, including fixes for modern Metal validation, `UIScene` adoption, and old project settings
-- Verified model display, VMD motion playback, Play/Pause, camera gestures, and post-update rendering behavior on the simulator
-- Replaced the old custom Metal view substrate with an `MTKView`-based implementation while preserving the existing render loop contract
-- Updated the vendored Bullet integration to 2.89 and verified physics behavior remained usable after the upgrade
-- Migrated major GLKit-dependent math layers toward `simd`, including vectors, quaternions, matrix bridging, and physics bridge boundary types
-- Added regression coverage for `DataReader`, PMX/VMD loading, interpolation, matrix compatibility, physics bridge flow, updater behavior, camera math, and view controller playback synchronization
-- Refactored `MMDView`, `PMXObject`, renderer/pass boundaries, and related helpers so frame preparation, animation update, geometry update, GPU transfer, and presentation steps are easier to follow
-- Expanded documentation comments and project documentation so future work can continue from explicit architectural decisions instead of implicit behavior
-- Reorganized the `melt` rendering foundation from an Xcode-only logical group into real directories that match the rendering-layer structure
+- 現在の Xcode 向けに project 設定、Metal 周辺、`UIScene` 対応を見直し、ビルドと simulator 起動を復旧した
+- simulator 上で、モデル表示、VMD モーション再生、Play/Pause、カメラ操作、描画継続性を確認した
+- 自前 `MetalView` の substrate を `MTKView` ベースへ移しつつ、既存の render loop 契約は維持した
+- vendor している Bullet を 2.89 へ更新し、更新後も物理挙動が破綻していないことを確認した
+- GLKit 依存の数学レイヤーを段階的に `simd` へ寄せ、ベクトル、クォータニオン、行列 bridge、物理境界の型変換を近代化した
+- `DataReader`、PMX/VMD ロード、補間、行列互換、物理ブリッジ、updater、camera、ViewController の再生状態同期まで回帰テストを拡充した
+- `MMDView`、`PMXObject`、renderer/pass 境界を中心に責務整理を進め、frame 準備、animation 更新、geometry 更新、GPU 転送、present の流れを追いやすくした
+- ドキュメンテーションコメントと `docs/` の記述を増やし、将来の変更判断をコードと文書の両方から追えるようにした
+- `melt` 描画基盤を Xcode 上の論理 group だけでなく、実際の物理ディレクトリ構成として整理した
 
-Notes:
+補足:
 
-- Formatter and linter evaluation were completed, but broad formatting changes are intentionally deferred to avoid creating a large final diff
-- Additional future work remains documented in `docs/`, but this release captures the major recovery and modernization pass
+- formatter / linter の評価までは完了したが、差分を大きくしすぎないため実適用は意図的に保留している
+- 今後の改善候補は `docs/` に残してあり、このリリースは大規模な復旧と近代化の第一段をまとめたものになっている
 
 ## 0.4.0.d
 
