@@ -36,6 +36,11 @@ private struct MMDSceneApplicationSession {
     let scene: MMDSceneApplication
 }
 
+private struct MMDSceneApplicationStepSession {
+    let resources: MMDSceneResources
+    let sceneGraph: MMDSceneGraphConfiguration
+}
+
 private struct MMDPreparedFrame {
     let timing: MMDFrameTiming
     let layout: MMDDrawableLayout
@@ -412,9 +417,16 @@ class MMDView: MetalView {
     }
 
     private func applyScene(_ session: MMDSceneApplicationSession) {
-        storeSceneResources(session.scene.resources)
-        configureSceneGraph(session.scene.sceneGraph)
-        configureMetalLayer(pixelFormat: session.scene.sceneGraph.pixelFormat)
+        let step = makeSceneApplicationStepSession(session)
+        storeSceneResources(step.resources)
+        configureSceneGraph(step.sceneGraph)
+        configureMetalLayer(pixelFormat: step.sceneGraph.pixelFormat)
+    }
+
+    private func makeSceneApplicationStepSession(_ session: MMDSceneApplicationSession) -> MMDSceneApplicationStepSession {
+        return MMDSceneApplicationStepSession(
+            resources: session.scene.resources,
+            sceneGraph: session.scene.sceneGraph)
     }
 
     private func configureSceneGraph(_ sceneGraph: MMDSceneGraphConfiguration) {
