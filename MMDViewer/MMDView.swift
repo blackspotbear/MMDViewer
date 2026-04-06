@@ -84,6 +84,10 @@ private struct MMDLayoutUpdate {
     let layout: MMDDrawableLayout
 }
 
+private struct MMDLayoutUpdateSession {
+    let update: MMDLayoutUpdate
+}
+
 private struct MMDDisplayLinkSession {
     let displayLink: CADisplayLink
 }
@@ -525,18 +529,24 @@ class MMDView: MetalView {
     }
 
     private func updateDrawableSizeIfNeeded() {
-        guard layerSizeDidUpdate else {
+        guard let session = currentLayoutUpdateSession() else {
             return
         }
 
-        let update = currentLayoutUpdate()
-        self.drawableSize = update.layout.drawableSize
-        renderer.reshape(update.layout.bounds)
+        self.drawableSize = session.update.layout.drawableSize
+        renderer.reshape(session.update.layout.bounds)
         layerSizeDidUpdate = false
     }
 
     private func currentLayoutUpdate() -> MMDLayoutUpdate {
         return MMDLayoutUpdate(layout: currentDrawableLayout())
+    }
+
+    private func currentLayoutUpdateSession() -> MMDLayoutUpdateSession? {
+        guard layerSizeDidUpdate else {
+            return nil
+        }
+        return MMDLayoutUpdateSession(update: currentLayoutUpdate())
     }
 
     private func currentDrawableLayout() -> MMDDrawableLayout {

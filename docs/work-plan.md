@@ -349,6 +349,7 @@
 - `MMDView` の scene 準備も `MMDScenePreparationSession` を介す形にし、`PMXObject` の morph 解決でも frame 単位の resolution session を導入して、準備段の書き味をさらにそろえた
 - `MMDView` の present 直前も `MMDFramePresentationSession` に分け、`PMXObject` でも matrix palette / material buffer 生成を個別 session に分けて、GPU 転送前後の書き味をそろえた
 - `MMDView` の scene 適用でも step session を介して resources / scene graph を受け渡し、`PMXObject` の render buffer 保存でも apply session を介して保存段の書き味をそろえた
+- `MMDView` の drawable layout 更新も `MMDLayoutUpdateSession` を介す形にし、`PMXObject` の render buffer 更新でも apply 直前の session を分けて、更新段の受け渡しをさらにそろえた
 
 ## 次のイテレーション候補
 
