@@ -156,7 +156,7 @@ class Posture {
     /// ボーン原点を world へ押し出した結果。
     /// 物理ブリッジはこの値を基準に Bullet へ kinematic transform を送る。
     var worldPos: GLKVector3 {
-        let p = GLKMatrix4MultiplyVector4(wm, GLKVector4MakeWithVector3(bone.pos, 1))
+        let p = wm.multiplyVector4(GLKVector4MakeWithVector3(bone.pos, 1))
         return GLKVector3Make(p.x, p.y, p.z)
     }
 

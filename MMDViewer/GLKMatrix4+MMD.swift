@@ -144,7 +144,7 @@ extension GLKMatrix4: @retroactive CustomStringConvertible {
     }
 
     func multiplyVector4(_ other: GLKVector4) -> GLKVector4 {
-        GLKMatrix4MultiplyVector4(self, other)
+        GLKVector4(simd: simd_mul(other.simdValue, simdMatrix))
     }
 
     func xAxis() -> GLKVector3 {
