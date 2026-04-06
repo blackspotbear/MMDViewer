@@ -293,6 +293,7 @@
 - `MMDView` の scene 準備を `MMDPreparedScene` で表し、resource 読み込みと root/layer 反映を準備段と適用段に分離した
 - `MMDView` の scene graph 構成は保持済みプロパティ `miku` に暗黙依存させず、準備済み `PMXObject` を明示的に受け渡す形へ直した
 - `PMXObject` の 1 フレーム更新で `PMXFrameContext` を導入し、renderer と animation tick をまとめた文脈を各更新段へ渡すようにした
+- `MMDView` の frame 完了処理で drawable 取得と command buffer 完了を helper に分け、present / commit の最終段を追いやすくした
 
 ## 次のイテレーション候補
 

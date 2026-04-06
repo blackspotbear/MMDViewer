@@ -312,13 +312,21 @@ class MMDView: MetalView {
     /// renderer 側で積み上げた command buffer を drawable 提示と一緒に閉じる。
     /// present / commit の最終段だけを `MMDView` に残し、renderer 本体は encode に集中させる。
     private func finishFrame(renderer: Renderer) {
-        if let drawable = currentDrawable {
-            if let commandBuffer = renderer.commandBuffer {
-                commandBuffer.present(drawable)
-                commandBuffer.commit()
-            }
-            releaseCurrentDrawable()
+        guard let drawable = currentDrawable else {
+            return
         }
+
+        completeFrame(renderer: renderer, drawable: drawable)
+        releaseCurrentDrawable()
+    }
+
+    private func completeFrame(renderer: Renderer, drawable: CAMetalDrawable) {
+        guard let commandBuffer = renderer.commandBuffer else {
+            return
+        }
+
+        commandBuffer.present(drawable)
+        commandBuffer.commit()
     }
 
     private func startDisplayLink() {
