@@ -334,16 +334,30 @@ class GBufferPass: RenderPass {
         encoder.setStencilReferenceValue(128)
     }
 
-    func begin(_ renderer: Renderer) {
+    private func beginContext(for renderer: inout Renderer) -> (renderPassDescriptor: MTLRenderPassDescriptor, renderer: Renderer)? {
         guard let currentDrawable = view.currentDrawable else {
+            return nil
+        }
+
+        let renderPassDescriptor = passRes.renderPassDescriptorForDrawable(currentDrawable.texture)
+        configureTextureResources(for: &renderer, drawable: currentDrawable.texture)
+        return (renderPassDescriptor, renderer)
+    }
+
+    private func advanceFrameIndex() {
+        currentFrame += 1
+        if currentFrame >= numFrames {
+            currentFrame = 0
+        }
+    }
+
+    func begin(_ renderer: Renderer) {
+        var renderer = renderer
+        guard let context = beginContext(for: &renderer) else {
             return
         }
 
-        var renderer = renderer
-        let renderPassDescriptor = passRes.renderPassDescriptorForDrawable(currentDrawable.texture)
-        configureTextureResources(for: &renderer, drawable: currentDrawable.texture)
-
-        if let encoder = makeGBufferEncoder(renderer: renderer, descriptor: renderPassDescriptor) {
+        if let encoder = makeGBufferEncoder(renderer: context.renderer, descriptor: context.renderPassDescriptor) {
             configure(encoder)
             renderer.pushRenderCommandEncoder(encoder)
         }
@@ -356,11 +370,7 @@ class GBufferPass: RenderPass {
         if let encoder = renderer.popRenderCommandEncoder() {
             encodeCompositionPass(with: encoder)
             encoder.endEncoding()
-
-            currentFrame = currentFrame + 1
-            if currentFrame >= numFrames {
-                currentFrame = 0
-            }
+            advanceFrameIndex()
         }
     }
 
