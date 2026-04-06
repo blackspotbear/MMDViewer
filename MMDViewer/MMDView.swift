@@ -118,6 +118,10 @@ private struct MMDFrameDrawingSession {
     let execution: MMDFrameExecution
 }
 
+private struct MMDFrameLoopSession {
+    let frame: MMDPreparedFrame
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -612,10 +616,18 @@ class MMDView: MetalView {
     }
 
     @objc func mainLoop(_ displayLink: CADisplayLink) {
-        guard let frame = prepareCurrentFrame(displayLink) else {
+        guard let session = makeFrameLoopSession(displayLink) else {
             return
         }
 
-        drawPreparedFrame(frame)
+        drawPreparedFrame(session.frame)
+    }
+
+    private func makeFrameLoopSession(_ displayLink: CADisplayLink) -> MMDFrameLoopSession? {
+        guard let frame = prepareCurrentFrame(displayLink) else {
+            return nil
+        }
+
+        return MMDFrameLoopSession(frame: frame)
     }
 }

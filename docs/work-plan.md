@@ -350,6 +350,7 @@
 - `MMDView` の present 直前も `MMDFramePresentationSession` に分け、`PMXObject` でも matrix palette / material buffer 生成を個別 session に分けて、GPU 転送前後の書き味をそろえた
 - `MMDView` の scene 適用でも step session を介して resources / scene graph を受け渡し、`PMXObject` の render buffer 保存でも apply session を介して保存段の書き味をそろえた
 - `MMDView` の drawable layout 更新も `MMDLayoutUpdateSession` を介す形にし、`PMXObject` の render buffer 更新でも apply 直前の session を分けて、更新段の受け渡しをさらにそろえた
+- `MMDView` の main loop 入口も `MMDFrameLoopSession` を介す形にし、`PMXObject` の morph 適用でも context 取得から適用までを `PMXMorphPipelineSession` で束ねて、1 フレーム実行入口の書き味をそろえた
 
 ## 次のイテレーション候補
 
