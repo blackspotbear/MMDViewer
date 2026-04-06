@@ -250,6 +250,7 @@
 - `PMXObject` の初期化を curve tie / posture / buffer provider / texture 読込の helper へ分離し、責務集中していた constructor を追いやすくした
 - `MMDView` の main loop で timestamp 更新と draw 前提条件判定を helper に分離し、frame 駆動の流れをさらに段取り中心で追いやすくした
 - `PMXObject` の morph 更新で keyframe 取得と morph 解決を helper 境界へ寄せ、VMD / PMX 依存点を局所化した
+- `MetalView` の system default device 作成と layer 初期設定を helper に分離し、`melt` view 入口の差し替え点を明確にした
 
 ## 次のイテレーション候補
 

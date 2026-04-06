@@ -64,16 +64,29 @@ class MetalView: UIView {
     }
 
     private final func initMetalLayer() {
-        if let metalLayer = self.layer as? CAMetalLayer {
-            guard let device = MTLCreateSystemDefaultDevice() else {
-                fatalError("can't create system default device")
-            }
-            metalLayer.device = device
-            metalLayer.frame = bounds
-
-            self.device = device
-            self.metalLayer = metalLayer
+        guard let metalLayer = self.layer as? CAMetalLayer else {
+            return
         }
+
+        let device = makeSystemDefaultDevice()
+        configure(metalLayer: metalLayer, device: device)
+
+        self.device = device
+        self.metalLayer = metalLayer
+    }
+
+    private func makeSystemDefaultDevice() -> MTLDevice {
+        guard let device = MTLCreateSystemDefaultDevice() else {
+            fatalError("can't create system default device")
+        }
+        return device
+    }
+
+    /// `MetalView` が直接持つべき layer 初期設定だけをまとめる。
+    /// pixel format や framebufferOnly のような描画方針は `MMDView` / pass 側で上書きする。
+    private func configure(metalLayer: CAMetalLayer, device: MTLDevice) {
+        metalLayer.device = device
+        metalLayer.frame = bounds
     }
 
     override func layoutSubviews() {
