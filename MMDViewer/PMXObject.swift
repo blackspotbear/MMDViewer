@@ -391,10 +391,7 @@ class PMXObject {
 
         PhysicsSolver(postures, physicsSolving: solver)
 
-        currentVertexBuffer = vertexBufferProvider.nextBuffer()
-        memcpy(currentVertexBuffer!.contents(), (vertexData as NSData).bytes, vertexData.count)
-
-        applyMorph()
+        prepareVertexBufferForCurrentFrame()
 
         let renderBuffers = makeFrameRenderBuffers(renderer)
         uniformBuffer = renderBuffers.uniforms
@@ -412,6 +409,14 @@ class PMXObject {
         for posture in postures {
             posture.updateTransformMatrix(postures)
         }
+    }
+
+    /// ベース頂点を inflight buffer へコピーし、現在フレームの morph を上書き適用する。
+    /// CPU morph 実装の責務を `calc` 本体から切り離し、将来の GPU 化や計測をしやすくする。
+    private func prepareVertexBufferForCurrentFrame() {
+        currentVertexBuffer = vertexBufferProvider.nextBuffer()
+        memcpy(currentVertexBuffer!.contents(), (vertexData as NSData).bytes, vertexData.count)
+        applyMorph()
     }
 
     /// 頂点 morph を CPU 側 vertex buffer へ直接加算する。
