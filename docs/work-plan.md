@@ -235,6 +235,7 @@
 - `PhysicsSolving` 境界と Swift 側の physics update ループにコメントを追加し、今後の `simd` 化の差し替え点を明示した
 - `ForwardRenderPass` の drawable / depth attachment 更新責務と `MetalView` の layer 管理責務をコメントと helper で整理し、`melt` の pass-view 境界を追いやすくした
 - `GLKMatrix4.multiplyVector4` を `simd` 実装へ寄せ、`PMXObject` 側も helper 経由に統一して matrix-vector 適用の互換性を回帰テストで固定した
+- `GBufferPass` と `ShadowPass` の役割コメントを補強し、deferred / shadow の pass 境界をコード上で追いやすくした
 
 ## 次のイテレーション候補
 

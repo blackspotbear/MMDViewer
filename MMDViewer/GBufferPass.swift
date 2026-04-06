@@ -4,6 +4,8 @@ import simd
 
 private let depthTextureSampleCount = 1
 
+/// deferred 用の render target 群を drawable サイズに追従させるキャッシュ。
+/// `GBufferPass` から見れば、毎フレーム必要な attachment の再確保を隠蔽する役割を持つ。
 private class PassResource {
     var pixelFormatSpec = PixelFormatSpec()
     let device: MTLDevice
@@ -167,6 +169,8 @@ private func MakeDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState 
     return device.makeDepthStencilState(descriptor: desc)!
 }
 
+/// `melt` の deferred path を担当する pass。
+/// geometry を G-buffer へ描き出し、その後 fullscreen composition で最終色へ畳み込む。
 class GBufferPass: RenderPass {
     private let passRes: PassResource
 
@@ -327,6 +331,8 @@ class GBufferPass: RenderPass {
         renderer.renderCommandEncoderStack.append(encoder!)
     }
 
+    /// geometry pass の直後に fullscreen quad で composition を流し込む。
+    /// shadow map と G-buffer をまとめて参照するので、deferred path の境界としてここを明確に残す。
     func end(_ renderer: Renderer) {
         var renderer = renderer
         if let encoder = renderer.renderCommandEncoderStack.popLast() {

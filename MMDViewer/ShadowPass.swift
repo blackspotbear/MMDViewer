@@ -16,6 +16,8 @@ private func MakeDepthStencilState(_ device: MTLDevice) -> MTLDepthStencilState 
     return device.makeDepthStencilState(descriptor: desc)!
 }
 
+/// `melt` の shadow map 生成 pass。
+/// depth のみを書き出して、後段の forward / deferred lighting から shaderRead で参照される。
 class ShadowPass: RenderPass {
     var shadowTexture: MTLTexture // render target
 
