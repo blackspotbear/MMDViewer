@@ -24,6 +24,7 @@ private struct MMDPreparedScene {
 private struct MMDWindowConfiguration {
     let displayScale: CGFloat
     let preparedScene: MMDPreparedScene
+    let preferredFramesPerSecond: Int
 }
 
 /// `melt` のアプリ固有 view。
@@ -275,13 +276,14 @@ class MMDView: MetalView {
         let configuration = makeWindowConfiguration(for: window)
         applyWindowConfiguration(configuration)
         configureRendererEndHandler()
-        startDisplayLink()
+        startDisplayLink(configuration: configuration)
     }
 
     private func makeWindowConfiguration(for window: UIWindow) -> MMDWindowConfiguration {
         return MMDWindowConfiguration(
             displayScale: window.screen.nativeScale,
-            preparedScene: prepareScene())
+            preparedScene: prepareScene(),
+            preferredFramesPerSecond: 30)
     }
 
     private func applyWindowConfiguration(_ configuration: MMDWindowConfiguration) {
@@ -340,14 +342,18 @@ class MMDView: MetalView {
         commandBuffer.commit()
     }
 
-    private func startDisplayLink() {
+    private func startDisplayLink(configuration: MMDWindowConfiguration) {
         timer = CADisplayLink(target: self, selector: #selector(MMDView.mainLoop(_:)))
-        if #available(iOS 10.0, *) {
-            timer.preferredFramesPerSecond = 30
-        } else {
-            timer.frameInterval = 2
-        }
+        configureDisplayLink(timer, preferredFramesPerSecond: configuration.preferredFramesPerSecond)
         timer.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
+    }
+
+    private func configureDisplayLink(_ displayLink: CADisplayLink, preferredFramesPerSecond: Int) {
+        if #available(iOS 10.0, *) {
+            displayLink.preferredFramesPerSecond = preferredFramesPerSecond
+        } else {
+            displayLink.frameInterval = 2
+        }
     }
 
     private func updateDrawableSizeIfNeeded() {
