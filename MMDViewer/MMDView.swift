@@ -31,6 +31,11 @@ private struct MMDPreparedFrame {
     let elapsed: CFTimeInterval
 }
 
+private struct MMDFrameCompletion {
+    let drawable: CAMetalDrawable
+    let commandBuffer: MTLCommandBuffer
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -329,21 +334,26 @@ class MMDView: MetalView {
     /// renderer 側で積み上げた command buffer を drawable 提示と一緒に閉じる。
     /// present / commit の最終段だけを `MMDView` に残し、renderer 本体は encode に集中させる。
     private func finishFrame(renderer: Renderer) {
-        guard let drawable = currentDrawable else {
+        guard let completion = currentFrameCompletion(renderer: renderer) else {
             return
         }
 
-        completeFrame(renderer: renderer, drawable: drawable)
+        completeFrame(completion)
         releaseCurrentDrawable()
     }
 
-    private func completeFrame(renderer: Renderer, drawable: CAMetalDrawable) {
-        guard let commandBuffer = renderer.commandBuffer else {
-            return
+    private func currentFrameCompletion(renderer: Renderer) -> MMDFrameCompletion? {
+        guard let drawable = currentDrawable,
+              let commandBuffer = renderer.commandBuffer else {
+            return nil
         }
 
-        commandBuffer.present(drawable)
-        commandBuffer.commit()
+        return MMDFrameCompletion(drawable: drawable, commandBuffer: commandBuffer)
+    }
+
+    private func completeFrame(_ completion: MMDFrameCompletion) {
+        completion.commandBuffer.present(completion.drawable)
+        completion.commandBuffer.commit()
     }
 
     private func startDisplayLink(configuration: MMDWindowConfiguration) {

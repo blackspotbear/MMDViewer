@@ -300,6 +300,7 @@
 - `MMDView` の current frame 準備結果を `MMDPreparedFrame` にまとめ、display link 入口での準備と draw 実行を値オブジェクト経由で二段に分けた
 - `MetalView` の layer/device 初期化を `MetalViewLayerConfiguration` にまとめ、UIView 側で持つべき Metal 構成値を 1 箇所で読める形にした
 - `PMXObject` の 1 フレーム文脈を `PMXAnimationTick` と `PMXRenderContext` に分け、毎フレーム更新の中でも描画依存の境界をさらに局所化した
+- `MMDView` の frame 完了処理でも `MMDFrameCompletion` を導入し、drawable と command buffer の締め処理を 1 つの値として扱えるようにした
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
 
 ## 次のイテレーション候補
