@@ -214,6 +214,12 @@ private struct RenderMatrices {
     let shadowMatrixGB: GLKMatrix4
 }
 
+private struct PMXFrameRenderBuffers {
+    let uniforms: MTLBuffer
+    let matrixPalette: MTLBuffer
+    let materials: MTLBuffer
+}
+
 /// `PMXObject` が shader 向けに送る生バイト列の準備を集約する。
 /// ここは still-legacy な `GLKMatrix4` 表現と `MTLBuffer` 書き込みが出会う境界で、
 /// 後で別型へ切り出す時も呼び出し側の流れを崩さずに移行できるようにしている。
@@ -422,9 +428,10 @@ class PMXObject {
 
         applyMorph()
 
-        uniformBuffer = sendUniforms(renderer)
-        matrixPalette = sendMatrixPalette()
-        materialBuffer = sendMaterials()
+        let renderBuffers = makeFrameRenderBuffers(renderer)
+        uniformBuffer = renderBuffers.uniforms
+        matrixPalette = renderBuffers.matrixPalette
+        materialBuffer = renderBuffers.materials
     }
 
     /// 頂点 morph を CPU 側 vertex buffer へ直接加算する。
@@ -482,6 +489,15 @@ class PMXObject {
         counter.increment()
     }
 
+    /// draw が参照する 3 種類の buffer を 1 セットとして更新する。
+    /// 呼び出し側はこの戻り値を保存するだけで、各 buffer の生成順を意識しなくてよい。
+    private func makeFrameRenderBuffers(_ renderer: Renderer) -> PMXFrameRenderBuffers {
+        return PMXFrameRenderBuffers(
+            uniforms: sendUniforms(renderer),
+            matrixPalette: sendMatrixPalette(),
+            materials: sendMaterials())
+    }
+
     /// 描画に必要な camera / shadow 行列をまとめて uniform buffer へ転送する。
     /// shadowMatrixGB は Metal のテクスチャ座標系に合わせて Y 反転込みで作っている。
     private func sendUniforms(_ renderer: Renderer) -> MTLBuffer {
@@ -509,7 +525,7 @@ class PMXObject {
         return uniformBuffer
     }
 
-        /// 各ボーンの world matrix を matrix palette buffer へ詰める。
+    /// 各ボーンの world matrix を matrix palette buffer へ詰める。
     /// shader 側の skinning はこの palette を前提にしている。
     private func sendMatrixPalette() -> MTLBuffer {
         let palette = self.mtrxBufferProvider.nextBuffer()
