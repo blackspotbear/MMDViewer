@@ -43,6 +43,24 @@
 - 現在の作業でも、この名前は「PMX データ処理や math 補助ではなく、renderer / pass / drawer / updater / view など描画基盤側のまとまり」を指す論理名として維持する
 - 実体は作業ツリー上の `melt/` ディレクトリではなく、Xcode project 内の仮想 group である
 
+現時点では、なぜ当時わざわざ論理 group に留めたのかは断定できません。ただし、次のような事情は十分あり得ます。
+
+- まず Xcode 上の見通しだけを改善したかった
+- 実ファイル移動に伴う `project.pbxproj` の大きな差分を避けたかった
+- Objective-C++、shader、Storyboard などを含むため、物理移動の影響範囲を当時は大きく感じていた
+- 設計がまだ固まりきっておらず、論理整理を先に試していた
+
+長期的には、`melt` を物理ディレクトリとして持つ方が Finder や terminal から見たときの理解しやすさは上がります。そのため、後段の整理候補として次を検討対象に残します。
+
+- `MMDViewer/melt/renderer`
+- `MMDViewer/melt/pass`
+- `MMDViewer/melt/drawer`
+- `MMDViewer/melt/updater`
+- `MMDViewer/melt/view`
+- 必要に応じて `graph`, `resource`, `shader`, `object`
+
+ただし、この移行は実装変更と混ぜず、`ファイル移動と参照更新だけ` の専用イテレーションとして扱うのが安全です。
+
 ## 実装アーキテクチャの理解
 
 ### アプリ起動と UI
