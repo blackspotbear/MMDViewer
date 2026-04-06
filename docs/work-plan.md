@@ -192,8 +192,8 @@
 - [ ] 追加で近代化できる箇所が残っていないかを確認する
 - [x] 追加でテスト化できる領域を洗い出す
 - [x] パフォーマンス改善候補と計測方針を整理する
-- [ ] `SwiftLint` や `swift-format` の導入メリットとコストを評価する
-- [ ] formatter / lint の導入方針を決める
+- [x] `SwiftLint` や `swift-format` の導入メリットとコストを評価する
+- [x] formatter / lint の導入方針を決める
 - [ ] 次の改善候補を短いメモとして残す
 
 ## 直近の達成事項
@@ -339,6 +339,7 @@
 - 追加テスト候補の棚卸しを行い、`MMDView` / render pass / `PMXObject` のうち純ロジック化しやすい箇所と、引き続きシミュレータ目視確認を主軸にすべき箇所を切り分けた
 - UIKit 維持と SwiftUI 移行の比較メモを追記し、当面は `UIKit + MTKView` 継続、将来は描画外 UI から SwiftUI 導入を検討する方針を明文化した
 - `PMXObject` の CPU morph / GPU 転送、render pass の attachment 再確保、`Traverser` の draw call 発行、Bullet step、frame pacing を性能計測の優先候補として整理し、Time Profiler / Metal System Trace / Allocations を使う順番を明文化した
+- formatter / lint 評価を行い、当面は `swift-format` を段階適用の第一候補、`SwiftLint` は最小ルールの補助用途に限る方針を明文化した
 
 ## 追加テスト候補メモ
 

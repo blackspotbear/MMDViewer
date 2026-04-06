@@ -315,6 +315,52 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 - drawable 寿命管理
   - 直近で runtime 不具合を直したばかりで、まずは安定性を優先する
 
+### 5.2 `swift-format` / `SwiftLint` 導入評価
+
+2026-04-06 時点の結論は、次の順が妥当です。
+
+1. まず `swift-format` を formatter の第一候補として採用する
+2. `SwiftLint` は必要なルールだけを最小構成で補助的に導入する
+
+評価理由は次の通りです。
+
+- `swift-format`
+  - 公式の [`swiftlang/swift-format`](https://github.com/swiftlang/swift-format) は、Swift ソース整形の基盤技術として維持されている
+  - 一方で upstream 自身も「デフォルトの Swift code style はまだ標準化されていない」と明記しており、強い style ガイド導入というより「機械整形を安定させる道具」として見るのが適切
+  - このプロジェクトでは、近年の refactor で helper / session / context 型が大量に増えているため、インデント・改行・引数レイアウトの揺れを自動でそろえる価値が高い
+
+- `SwiftLint`
+  - [`realm/SwiftLint`](https://github.com/realm/SwiftLint) は現在も活発に更新されており、ルール数と実運用の知見が豊富
+  - ただし rule を広く有効化すると、古い設計を多く抱えるプロジェクトでは一気に warning が増えやすい
+  - このプロジェクトは Objective-C++、Metal shader、GLKit 互換 layer、fixture ベース test を含むため、「まず lint を全面導入」はノイズが大きく、いまの段階では利益より修正コストが先に立つ
+
+導入コストとメリットの整理は次の通りです。
+
+- `swift-format` のメリット
+  - 変更差分の見た目を安定させやすい
+  - コメント追加や helper 分割を繰り返す現在の開発スタイルと相性が良い
+  - lint のような設計指摘ではなく、まずは整形だけに絞れる
+
+- `swift-format` のコスト
+  - 一括適用すると差分が大きくなる
+  - 既存ファイル全体に当てるより、触ったファイルから段階適用する運用が現実的
+
+- `SwiftLint` のメリット
+  - 未使用 import、命名、force cast / force unwrap などの検知に使える
+  - 将来的に review の自動補助になる
+
+- `SwiftLint` のコスト
+  - rule 選定を雑にすると warning の雪崩が起きる
+  - `simd` / 旧 GLKit 互換 layer / Objective-C++ bridge を含むこの codebase では、最初から厳格運用にすると足を止めやすい
+
+したがって、現時点の推奨方針は次です。
+
+- formatter は `swift-format` を採用候補とする
+- 運用は「触った Swift ファイルにだけ段階適用」を基本にする
+- `SwiftLint` は今すぐ全面導入しない
+- もし導入する場合は、最初は `disabled_rules` 前提ではなく「少数の opt-in / baseline しやすい rule だけ」に限定する
+- Xcode build phase で毎回走らせるより、最初は手動または CI 専用で試す方が安全
+
 ## Bullet 更新可否の調査結果
 
 ローカル実装の確認では、Bullet は prebuilt library ではなく、[`third-party/bullet3-2.83.7/`](/Users/kmi/devel/MMDViewer/third-party/bullet3-2.83.7) に同梱したソースを Xcode ターゲットへ直接追加して使っています。フォルダ名は `2.83.7` ですが、同梱された [`VERSION`](/Users/kmi/devel/MMDViewer/third-party/bullet3-2.83.7/VERSION) には `2.84` と記載されています。
