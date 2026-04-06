@@ -215,6 +215,7 @@
 - `PMXObject` の GPU 転送まわりで、shadow 行列計算と palette / material 書き込みを helper へ切り出し、責務分離の最初の足がかりを作った
 - `PMXObject` の GPU 転送 helper を private encoder に集約し、描画用データ準備の責務境界を読み取りやすくした
 - `PMXObject` の毎フレーム GPU buffer 更新を 1 セットの戻り値にまとめ、draw 前の更新フローを追いやすくした
+- `PhysicsSolver.mm` で Swift 側 rigid body と Bullet body の対応付け、transform 読み書きの重複を helper に集約した
 
 ## 次のイテレーション候補
 

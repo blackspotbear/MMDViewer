@@ -51,6 +51,47 @@ namespace {
         offset.setBasis(rotation);
         return offset;
     }
+
+    btRigidBody* findBtRigidBodyForModelRigidBody(const btAlignedObjectArray<btRigidBody*>& bodies,
+                                                  RigidBody* rigidBody)
+    {
+        void* pointer = (__bridge void*)rigidBody;
+        for (int i = 0; i < bodies.size(); i++)
+        {
+            if (bodies[i]->getUserPointer() == pointer)
+            {
+                return bodies[i];
+            }
+        }
+
+        return nullptr;
+    }
+
+    btTransform readWorldTransform(btRigidBody* body)
+    {
+        btTransform trans;
+        if (body->getMotionState())
+        {
+            body->getMotionState()->getWorldTransform(trans);
+        }
+        else
+        {
+            trans = body->getWorldTransform();
+        }
+        return trans;
+    }
+
+    void writeWorldTransform(btRigidBody* body, const btTransform& trans)
+    {
+        if (body->getMotionState())
+        {
+            body->getMotionState()->setWorldTransform(trans);
+        }
+        else
+        {
+            body->setWorldTransform(trans);
+        }
+    }
 }
 
 @interface PhysicsSolver: NSObject <PhysicsSolving>
@@ -269,35 +310,20 @@ namespace {
         {
             continue;
         }
-        
-        void * pointer = (__bridge void*)rigidBody;
-        
-        for (int i = 0; i < _btRigidBodies.size(); i++)
+
+        btRigidBody* body = findBtRigidBodyForModelRigidBody(_btRigidBodies, rigidBody);
+        if (body == nullptr)
         {
-            if (_btRigidBodies[i]->getUserPointer() != pointer)
-            {
-                continue;
-            }
-            
-            btRigidBody * body = _btRigidBodies[i];
-            btTransform worldTransform;
-            worldTransform.setOrigin(glkvec2btvec(pos));
-            worldTransform.setRotation(glkq2btq(rot));
-            
-            Bone * bone = _bones[rigidBody.boneIndex];
-            
-            worldTransform = worldTransform * makeRigidBodyOffsetTransform(rigidBody, bone);
-            
-            if (body->getMotionState())
-            {
-                body->getMotionState()->setWorldTransform(worldTransform);
-                
-            }
-            else
-            {
-                body->setWorldTransform(worldTransform);
-            }
+            continue;
         }
+
+        btTransform worldTransform;
+        worldTransform.setOrigin(glkvec2btvec(pos));
+        worldTransform.setRotation(glkq2btq(rot));
+
+        Bone * bone = _bones[rigidBody.boneIndex];
+        worldTransform = worldTransform * makeRigidBodyOffsetTransform(rigidBody, bone);
+        writeWorldTransform(body, worldTransform);
     }
 }
 
@@ -309,36 +335,19 @@ namespace {
         {
             continue;
         }
-        
-        void * pointer = (__bridge void*)rigidBody;
-        
-        for (int i = 0; i < _btRigidBodies.size(); i++)
-        {
-            if (_btRigidBodies[i]->getUserPointer() != pointer)
-            {
-                continue;
-            }
-            
-            btRigidBody * body = _btRigidBodies[i];
-            
-            btTransform trans;
-            if (body->getMotionState())
-            {
-                body->getMotionState()->getWorldTransform(trans);
-                
-            }
-            else
-            {
-                trans = body->getWorldTransform();
-            }
-            
-            Bone * bone = self.bones[rigidBody.boneIndex];
-            
-            trans = trans * makeRigidBodyOffsetTransform(rigidBody, bone).inverse();
 
-            *pos = btvec2glkvec(trans.getOrigin());
-            *rot = btq2glkq(trans.getRotation());
+        btRigidBody* body = findBtRigidBodyForModelRigidBody(_btRigidBodies, rigidBody);
+        if (body == nullptr)
+        {
+            continue;
         }
+
+        btTransform trans = readWorldTransform(body);
+        Bone * bone = self.bones[rigidBody.boneIndex];
+        trans = trans * makeRigidBodyOffsetTransform(rigidBody, bone).inverse();
+
+        *pos = btvec2glkvec(trans.getOrigin());
+        *rot = btq2glkq(trans.getRotation());
     }
 }
 
