@@ -322,6 +322,8 @@
 - `PMXRenderContext` に model matrix も含め、uniform 更新段が `PMXObject` のプロパティへ暗黙依存しすぎない形に寄せた
 - `PMXRenderContext` では model / normal matrix を `PMXModelTransforms` に束ね、uniform 更新段の入力をモデル変換単位で扱えるようにした
 - `MMDView` の draw 可否判定も `MMDDrawableLayout` を入力にして、frame 準備結果と drawable 前提条件を同じ値で追えるようにした
+- `MMDPreparedFrame` の時間情報も `MMDFrameTiming` に分け、display link の経過時間計算結果を frame 準備値の一部として追えるようにした
+- `PMXObject` の render buffer 生成結果も `PMXFrameRenderBufferAssembly` を介す形にし、draw 前の GPU バッファ組み立て段を専用の値として扱えるようにした
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
 
 ## 次のイテレーション候補
