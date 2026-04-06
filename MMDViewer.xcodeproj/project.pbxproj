@@ -1953,6 +1953,8 @@
 				INFOPLIST_FILE = "$(SRCROOT)/MMDViewer/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.5.0;
+				CURRENT_PROJECT_VERSION = 0.5.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = foo.bar.MMDViewer;
 				PRODUCT_NAME = MMDViewer;
 				SWIFT_OBJC_BRIDGING_HEADER = "MMDViewer/MMDViewer-Bridging-Header.h";
@@ -1972,6 +1974,8 @@
 				INFOPLIST_FILE = "$(SRCROOT)/MMDViewer/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.5.0;
+				CURRENT_PROJECT_VERSION = 0.5.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = foo.bar.MMDViewer;
 				PRODUCT_NAME = MMDViewer;
 				SWIFT_OBJC_BRIDGING_HEADER = "MMDViewer/MMDViewer-Bridging-Header.h";

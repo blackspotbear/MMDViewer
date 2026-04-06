@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.5.0
+
+Modernize the project for current Xcode and iOS Simulator.
+
 ## 0.4.0.d
 
 Fix errors on Xcode 10.2.1 .
@@ -29,4 +33,3 @@ Support physics.
 ## 0.1.0
 
 First release.
-
