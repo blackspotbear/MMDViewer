@@ -368,6 +368,14 @@ private struct PMXUniformBufferSession {
     let renderMatrices: RenderMatrices
 }
 
+private struct PMXMatrixPaletteBufferSession {
+    let buffer: MTLBuffer
+}
+
+private struct PMXMaterialBufferSession {
+    let buffer: MTLBuffer
+}
+
 private struct PMXRenderBufferUpdateSession {
     let assembly: PMXFrameRenderBufferAssembly
 }
@@ -837,8 +845,8 @@ class PMXObject {
     private func makeRenderBufferComponentSession(_ context: PMXRenderContext) -> PMXRenderBufferComponentSession {
         return PMXRenderBufferComponentSession(
             uniforms: makeUniformBuffer(context),
-            matrixPalette: makeMatrixPaletteBuffer(),
-            materials: makeMaterialBuffer())
+            matrixPalette: makeMatrixPaletteBufferSession().buffer,
+            materials: makeMaterialBufferSession().buffer)
     }
 
     private func withNextBuffer(_ provider: BufferProvider) -> MTLBuffer {
@@ -897,20 +905,20 @@ class PMXObject {
 
     /// 各ボーンの world matrix を matrix palette buffer へ詰める。
     /// shader 側の skinning はこの palette を前提にしている。
-    private func makeMatrixPaletteBuffer() -> MTLBuffer {
+    private func makeMatrixPaletteBufferSession() -> PMXMatrixPaletteBufferSession {
         let palette = withNextBuffer(bufferProviders.matrixPalette)
         PMXRenderDataEncoder.writeMatrixPalette(palette, postures)
 
-        return palette
+        return PMXMatrixPaletteBufferSession(buffer: palette)
     }
 
     /// material ごとの色パラメータを shader 用の連続領域へ詰める。
     /// texture index や sphere map などは別経路で扱うため、ここでは色だけ送る。
-    private func makeMaterialBuffer() -> MTLBuffer {
+    private func makeMaterialBufferSession() -> PMXMaterialBufferSession {
         let materialBuffer = withNextBuffer(bufferProviders.materials)
         PMXRenderDataEncoder.writeMaterials(materialBuffer, pmx.materials)
 
-        return materialBuffer
+        return PMXMaterialBufferSession(buffer: materialBuffer)
     }
 
     private func makeCurrentVertexBuffer() -> MTLBuffer {

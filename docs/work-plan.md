@@ -347,6 +347,7 @@
 - `PMXObject` の uniform buffer 更新でも、buffer 確保と shadow 用行列計算を `PMXUniformBufferSession` にまとめ、行列準備と生書き込みの境界をさらに明確にした
 - active な forward path では updater と scene graph 構成全体も `MMDForwardSceneGraphSession` にまとめ、scene 準備の単位を node 単体から graph 構成単位へそろえた
 - `MMDView` の scene 準備も `MMDScenePreparationSession` を介す形にし、`PMXObject` の morph 解決でも frame 単位の resolution session を導入して、準備段の書き味をさらにそろえた
+- `MMDView` の present 直前も `MMDFramePresentationSession` に分け、`PMXObject` でも matrix palette / material buffer 生成を個別 session に分けて、GPU 転送前後の書き味をそろえた
 
 ## 次のイテレーション候補
 

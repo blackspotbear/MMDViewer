@@ -57,6 +57,10 @@ private struct MMDFrameCompletionSession {
     let completion: MMDFrameCompletion
 }
 
+private struct MMDFramePresentationSession {
+    let presentation: MMDFramePresentation
+}
+
 private struct MMDFramePresentation {
     let drawable: CAMetalDrawable
     let commandBuffer: MTLCommandBuffer
@@ -455,12 +459,20 @@ class MMDView: MetalView {
     }
 
     private func currentFrameCompletion(renderer: Renderer) -> MMDFrameCompletion? {
+        guard let presentation = currentFramePresentationSession(renderer: renderer)?.presentation else {
+            return nil
+        }
+
+        return MMDFrameCompletion(presentation: presentation)
+    }
+
+    private func currentFramePresentationSession(renderer: Renderer) -> MMDFramePresentationSession? {
         guard let drawable = currentDrawable,
               let commandBuffer = renderer.commandBuffer else {
             return nil
         }
 
-        return MMDFrameCompletion(
+        return MMDFramePresentationSession(
             presentation: MMDFramePresentation(
                 drawable: drawable,
                 commandBuffer: commandBuffer))
