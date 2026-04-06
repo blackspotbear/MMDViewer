@@ -5,6 +5,8 @@ import Metal
 
 let InitialCameraPosition = GLKVector3Make(0, 10, 20)
 
+/// `melt` のアプリ固有 view。
+/// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
     var pmxUpdater: PMXUpdater?
     private var cameraUpdater = CameraUpdater(rot: GLKQuaternionIdentity, pos: InitialCameraPosition)
@@ -73,20 +75,8 @@ class MMDView: MetalView {
 
         contentScaleFactor = self.window!.screen.nativeScale
 
-        // Load resource
-        pmx = LoadPMD("data/mmd/Alicia_solid")
-        vmd = LoadVMD("data/vmd/2分ループステップ17")
-        miku = PMXObject(device: device!, pmx: pmx!, vmd: vmd)
-
-        renderer.setEndHandler({ [weak self] (_ renderer: Renderer) in
-            if let drawable = self?.currentDrawable {
-                if let commandBuffer = renderer.commandBuffer {
-                    commandBuffer.present(drawable)
-                    commandBuffer.commit()
-                }
-                self?.releaseCurrentDrawable()
-            }
-        })
+        loadSceneResources()
+        configureRendererEndHandler()
 
         let colorFormat = setupSceneGraph()
 
@@ -95,14 +85,7 @@ class MMDView: MetalView {
             metalLayer.framebufferOnly = true
         }
 
-        // Set up animation loop
-        timer = CADisplayLink(target: self, selector: #selector(MMDView.mainLoop(_:)))
-        if #available(iOS 10.0, *) {
-            timer.preferredFramesPerSecond = 30
-        } else {
-            timer.frameInterval = 2
-        }
-        timer.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
+        startDisplayLink()
     }
 
     #if true // forward rendering
@@ -215,6 +198,48 @@ class MMDView: MetalView {
 
     // MARK: Loop
 
+    private func loadSceneResources() {
+        pmx = LoadPMD("data/mmd/Alicia_solid")
+        vmd = LoadVMD("data/vmd/2分ループステップ17")
+        miku = PMXObject(device: device!, pmx: pmx!, vmd: vmd)
+    }
+
+    private func configureRendererEndHandler() {
+        renderer.setEndHandler({ [weak self] (_ renderer: Renderer) in
+            if let drawable = self?.currentDrawable {
+                if let commandBuffer = renderer.commandBuffer {
+                    commandBuffer.present(drawable)
+                    commandBuffer.commit()
+                }
+                self?.releaseCurrentDrawable()
+            }
+        })
+    }
+
+    private func startDisplayLink() {
+        timer = CADisplayLink(target: self, selector: #selector(MMDView.mainLoop(_:)))
+        if #available(iOS 10.0, *) {
+            timer.preferredFramesPerSecond = 30
+        } else {
+            timer.frameInterval = 2
+        }
+        timer.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
+    }
+
+    private func updateDrawableSizeIfNeeded() {
+        guard layerSizeDidUpdate else {
+            return
+        }
+
+        self.drawableSize = CGSize(
+            width: self.bounds.size.width * contentScaleFactor,
+            height: self.bounds.size.height * contentScaleFactor
+        )
+
+        renderer.reshape(self.bounds)
+        layerSizeDidUpdate = false
+    }
+
     @objc func mainLoop(_ displayLink: CADisplayLink) {
         if lastFrameTimestamp == 0.0 {
             lastFrameTimestamp = displayLink.timestamp
@@ -223,16 +248,7 @@ class MMDView: MetalView {
         let elapsed = displayLink.timestamp - lastFrameTimestamp
         lastFrameTimestamp = displayLink.timestamp
 
-        if layerSizeDidUpdate {
-            self.drawableSize = CGSize(
-                width: self.bounds.size.width * contentScaleFactor,
-                height: self.bounds.size.height * contentScaleFactor
-            )
-
-            renderer.reshape(self.bounds)
-
-            layerSizeDidUpdate = false
-        }
+        updateDrawableSizeIfNeeded()
 
         guard drawableSize.width > 0, drawableSize.height > 0 else {
             return

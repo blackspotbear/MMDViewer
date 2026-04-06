@@ -236,6 +236,7 @@
 - `ForwardRenderPass` の drawable / depth attachment 更新責務と `MetalView` の layer 管理責務をコメントと helper で整理し、`melt` の pass-view 境界を追いやすくした
 - `GLKMatrix4.multiplyVector4` を `simd` 実装へ寄せ、`PMXObject` 側も helper 経由に統一して matrix-vector 適用の互換性を回帰テストで固定した
 - `GBufferPass` と `ShadowPass` の役割コメントを補強し、deferred / shadow の pass 境界をコード上で追いやすくした
+- `MMDView` の resource 読み込み、display link 開始、drawable サイズ更新を helper に分離し、`melt` view 層の frame 駆動を段取り中心で追いやすくした
 
 ## 次のイテレーション候補
 
