@@ -10,7 +10,7 @@ class MetalView: UIView {
 
     var currentDrawable: CAMetalDrawable? {
         if _currentDrawable == nil {
-            _currentDrawable = nextDrawable()
+            _currentDrawable = makeCurrentDrawable()
         }
         return _currentDrawable
     }
@@ -53,24 +53,36 @@ class MetalView: UIView {
     }
 
     /// drawable 取得失敗は render loop 全体の前提崩壊なので、ここで早めに止める。
-    private func nextDrawable() -> CAMetalDrawable {
-        guard let metalLayer = metalLayer else {
-            fatalError("failed to get a drawable")
-        }
+    private func makeCurrentDrawable() -> CAMetalDrawable {
+        let metalLayer = requireMetalLayer()
         guard let drawable = metalLayer.nextDrawable() else {
             fatalError("failed to acquire next drawable")
         }
         return drawable
     }
 
+    private func requireMetalLayer() -> CAMetalLayer {
+        guard let metalLayer = metalLayer else {
+            fatalError("failed to get a drawable")
+        }
+        return metalLayer
+    }
+
     private final func initMetalLayer() {
-        guard let metalLayer = self.layer as? CAMetalLayer else {
+        guard let metalLayer = makeMetalLayer() else {
             return
         }
 
         let device = makeSystemDefaultDevice()
         configure(metalLayer: metalLayer, device: device)
+        store(metalLayer: metalLayer, device: device)
+    }
 
+    private func makeMetalLayer() -> CAMetalLayer? {
+        return self.layer as? CAMetalLayer
+    }
+
+    private func store(metalLayer: CAMetalLayer, device: MTLDevice) {
         self.device = device
         self.metalLayer = metalLayer
     }
@@ -86,11 +98,17 @@ class MetalView: UIView {
     /// pixel format や framebufferOnly のような描画方針は `MMDView` / pass 側で上書きする。
     private func configure(metalLayer: CAMetalLayer, device: MTLDevice) {
         metalLayer.device = device
-        metalLayer.frame = bounds
+        update(metalLayerFrame: metalLayer)
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        metalLayer?.frame = bounds
+        if let metalLayer {
+            update(metalLayerFrame: metalLayer)
+        }
+    }
+
+    private func update(metalLayerFrame metalLayer: CAMetalLayer) {
+        metalLayer.frame = bounds
     }
 }
