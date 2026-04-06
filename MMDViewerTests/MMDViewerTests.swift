@@ -130,6 +130,8 @@ final class MMDViewerTests: XCTestCase {
 final class MatrixBridgingTests: XCTestCase {
 
     func testRoundTripsThroughSimdRepresentation() {
+        // 行列表現を `GLKMatrix4` <-> `simd_float4x4` で往復しても、
+        // 要素の並び順が崩れないことを固定する。
         let matrix = GLKMatrix4Make(1, 2, 3, 4,
                                     5, 6, 7, 8,
                                     9, 10, 11, 12,
@@ -156,6 +158,8 @@ final class MatrixBridgingTests: XCTestCase {
     }
 
     func testMatrixHelpersMatchLegacyGLKOperations() {
+        // instance helper は call site を読みやすくするための薄い互換層なので、
+        // 既存の GLKit 実装と完全一致することを保つ。
         let base = GLKMatrix4Multiply(
             GLKMatrix4MakeTranslation(1, 2, 3),
             GLKMatrix4MakeRotation(.pi / 7, 0, 1, 0)
@@ -230,6 +234,8 @@ final class MatrixBridgingTests: XCTestCase {
     }
 
     func testMultiplyVector4MatchesLegacyGLKOperation() {
+        // matrix-vector 適用は row-vector / column-vector の規約差が出やすいので、
+        // ここで GLKit と同じ向きになっていることを明示的に縛る。
         let matrix = GLKMatrix4MakeRotation(.pi / 3, 0, 1, 0)
         let vector = GLKVector4Make(1, 2, 3, 1)
 
@@ -339,6 +345,8 @@ final class MatrixBridgingTests: XCTestCase {
     }
 
     func testBasicRendererModelMatrixTracksTopOfStack() {
+        // renderer の modelMatrix は stack 先頭の糖衣構文として使っているので、
+        // setter / getter が push / pop と矛盾しないことを固定する。
         let renderer = BasicRenderer()
         let pushed = GLKMatrix4MakeTranslation(1, 2, 3)
         let replacement = GLKMatrix4MakeTranslation(4, 5, 6)
@@ -353,6 +361,8 @@ final class MatrixBridgingTests: XCTestCase {
     }
 
     func testCurveValueReturnsExactKeyFrameValues() {
+        // 補間の手前で frame がぴったり key に一致する場合は、
+        // 元データをそのまま返すことが animator の基準になる。
         let key = makeKeyFrame(
             frameNum: 12,
             position: GLKVector3Make(1, 2, 3),
@@ -377,6 +387,8 @@ final class MatrixBridgingTests: XCTestCase {
     }
 
     func testCurveValueInterpolatesLinearlyBetweenKeyFrames() {
+        // 補間ハンドルを直線に寄せたときの中間値を固定して、
+        // VMD カーブ実装を差し替えても基本挙動がずれないようにする。
         let start = makeKeyFrame(
             frameNum: 0,
             position: GLKVector3Make(1, 2, 3),
