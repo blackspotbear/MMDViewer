@@ -241,8 +241,12 @@ private struct PMXAnimationTick {
 }
 
 private struct PMXFrameContext {
-    let tick: PMXAnimationTick
+    let animation: PMXAnimationContext
     let render: PMXRenderContext
+}
+
+private struct PMXAnimationContext {
+    let tick: PMXAnimationTick
 }
 
 private struct PMXGeometryContext {
@@ -442,7 +446,7 @@ class PMXObject {
 
     private func currentFrameContext(_ renderer: Renderer) -> PMXFrameContext {
         return PMXFrameContext(
-            tick: currentAnimationTick(),
+            animation: PMXAnimationContext(tick: currentAnimationTick()),
             render: PMXRenderContext(
                 renderer: renderer,
                 transforms: PMXModelTransforms(
@@ -463,12 +467,12 @@ class PMXObject {
     }
 
     private func updateAnimationState(_ context: PMXFrameContext) {
-        updatePosturesForCurrentFrame(tick: context.tick)
+        updatePosturesForCurrentFrame(tick: context.animation.tick)
         runPhysicsStep()
     }
 
     private func updateGeometryState(_ context: PMXFrameContext) {
-        prepareVertexBufferForCurrentFrame(currentGeometryContext(tick: context.tick))
+        prepareVertexBufferForCurrentFrame(currentGeometryContext(tick: context.animation.tick))
     }
 
     private func currentGeometryContext(tick: PMXAnimationTick) -> PMXGeometryContext {

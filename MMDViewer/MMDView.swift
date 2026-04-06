@@ -37,6 +37,10 @@ private struct MMDPreparedFrame {
     let layout: MMDDrawableLayout
 }
 
+private struct MMDFrameExecution {
+    let timing: MMDFrameTiming
+}
+
 private struct MMDFrameTiming {
     let elapsed: CFTimeInterval
 }
@@ -454,8 +458,13 @@ class MMDView: MetalView {
     }
 
     private func drawPreparedFrame(_ frame: MMDPreparedFrame) {
-        traverser.update(frame.timing.elapsed, node: root)
+        let execution = makeFrameExecution(frame)
+        traverser.update(execution.timing.elapsed, node: root)
         traverser.draw(root)
+    }
+
+    private func makeFrameExecution(_ frame: MMDPreparedFrame) -> MMDFrameExecution {
+        return MMDFrameExecution(timing: frame.timing)
     }
 
     private func prepareCurrentFrame(_ displayLink: CADisplayLink) -> MMDPreparedFrame? {
