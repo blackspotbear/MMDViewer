@@ -240,6 +240,11 @@ private struct PMXAnimationTick {
     let maxIterations: Int
 }
 
+private struct PMXFrameContext {
+    let renderer: Renderer
+    let tick: PMXAnimationTick
+}
+
 private struct PMXObjectResources {
     let vertexData: Data
     let bufferProviders: PMXBufferProviders
@@ -397,7 +402,11 @@ class PMXObject {
     /// 1 frame 分のアニメーション、物理、morph、GPU 転送をまとめて進める。
     /// 呼び出し側は draw 前に毎フレームこれを実行する前提。
     func calc(_ renderer: Renderer) {
-        updateFrame(renderer, tick: currentAnimationTick())
+        updateFrame(currentFrameContext(renderer))
+    }
+
+    private func currentFrameContext(_ renderer: Renderer) -> PMXFrameContext {
+        return PMXFrameContext(renderer: renderer, tick: currentAnimationTick())
     }
 
     private func currentAnimationTick() -> PMXAnimationTick {
@@ -406,19 +415,19 @@ class PMXObject {
             maxIterations: counter.maxIt())
     }
 
-    private func updateFrame(_ renderer: Renderer, tick: PMXAnimationTick) {
-        updateAnimationState(tick: tick)
-        updateGeometryState(tick: tick)
-        updateRenderBuffers(renderer)
+    private func updateFrame(_ context: PMXFrameContext) {
+        updateAnimationState(context)
+        updateGeometryState(context)
+        updateRenderBuffers(context)
     }
 
-    private func updateAnimationState(tick: PMXAnimationTick) {
-        updatePosturesForCurrentFrame(tick: tick)
+    private func updateAnimationState(_ context: PMXFrameContext) {
+        updatePosturesForCurrentFrame(tick: context.tick)
         runPhysicsStep()
     }
 
-    private func updateGeometryState(tick: PMXAnimationTick) {
-        prepareVertexBufferForCurrentFrame(tick: tick)
+    private func updateGeometryState(_ context: PMXFrameContext) {
+        prepareVertexBufferForCurrentFrame(tick: context.tick)
     }
 
     /// FK / IK / Grant 解決後に、全ボーンの world matrix を現在フレームへ揃える。
@@ -633,8 +642,8 @@ class PMXObject {
     }
 
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
-    private func updateRenderBuffers(_ renderer: Renderer) {
-        let renderBuffers = makeFrameRenderBuffers(renderer)
+    private func updateRenderBuffers(_ context: PMXFrameContext) {
+        let renderBuffers = makeFrameRenderBuffers(context.renderer)
         storeRenderBuffers(renderBuffers)
     }
 
