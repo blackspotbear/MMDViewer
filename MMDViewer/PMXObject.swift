@@ -352,6 +352,12 @@ private struct PMXFrameRenderBufferAssembly {
     let buffers: PMXFrameRenderBuffers
 }
 
+private struct PMXRenderBufferComponentSession {
+    let uniforms: MTLBuffer
+    let matrixPalette: MTLBuffer
+    let materials: MTLBuffer
+}
+
 private struct PMXRenderBufferUpdateSession {
     let assembly: PMXFrameRenderBufferAssembly
 }
@@ -788,11 +794,12 @@ class PMXObject {
     /// draw が参照する 3 種類の buffer を 1 セットとして更新する。
     /// 呼び出し側はこの戻り値を保存するだけで、各 buffer の生成順を意識しなくてよい。
     private func makeFrameRenderBufferAssembly(_ context: PMXRenderUpdateContext) -> PMXFrameRenderBufferAssembly {
+        let components = makeRenderBufferComponentSession(context.render)
         return PMXFrameRenderBufferAssembly(
             buffers: PMXFrameRenderBuffers(
-                uniforms: makeUniformBuffer(context.render),
-                matrixPalette: makeMatrixPaletteBuffer(),
-                materials: makeMaterialBuffer()))
+                uniforms: components.uniforms,
+                matrixPalette: components.matrixPalette,
+                materials: components.materials))
     }
 
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
@@ -808,6 +815,13 @@ class PMXObject {
     private func makeRenderBufferUpdateSession(_ context: PMXRenderUpdateContext) -> PMXRenderBufferUpdateSession {
         return PMXRenderBufferUpdateSession(
             assembly: makeFrameRenderBufferAssembly(context))
+    }
+
+    private func makeRenderBufferComponentSession(_ context: PMXRenderContext) -> PMXRenderBufferComponentSession {
+        return PMXRenderBufferComponentSession(
+            uniforms: makeUniformBuffer(context),
+            matrixPalette: makeMatrixPaletteBuffer(),
+            materials: makeMaterialBuffer())
     }
 
     private func withNextBuffer(_ provider: BufferProvider) -> MTLBuffer {
