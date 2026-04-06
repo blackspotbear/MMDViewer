@@ -248,6 +248,7 @@
 - `SceneDelegate` の通知発火と `MMDView` の window 初期化入口を helper に集約し、UI / view 外周の lifecycle 境界をさらに追いやすくした
 - `PMXObject` の morph 補間重み計算と render buffer 保存を helper に分け、毎フレーム更新の段取りをより局所的に読める形へ寄せた
 - `PMXObject` の初期化を curve tie / posture / buffer provider / texture 読込の helper へ分離し、責務集中していた constructor を追いやすくした
+- `MMDView` の main loop で timestamp 更新と draw 前提条件判定を helper に分離し、frame 駆動の流れをさらに段取り中心で追いやすくした
 
 ## 次のイテレーション候補
 

@@ -250,17 +250,28 @@ class MMDView: MetalView {
         layerSizeDidUpdate = false
     }
 
-    @objc func mainLoop(_ displayLink: CADisplayLink) {
+    private func elapsedTime(since displayLink: CADisplayLink) -> CFTimeInterval {
         if lastFrameTimestamp == 0.0 {
             lastFrameTimestamp = displayLink.timestamp
         }
 
         let elapsed = displayLink.timestamp - lastFrameTimestamp
         lastFrameTimestamp = displayLink.timestamp
+        return elapsed
+    }
+
+    /// 現在の layer / renderer 状態で draw を進めてよいかを判定する。
+    /// drawable サイズ 0 のフレームを早期 return して、Metal 側の invalid texture 作成を避ける。
+    private func isReadyToDrawCurrentFrame() -> Bool {
+        return drawableSize.width > 0 && drawableSize.height > 0
+    }
+
+    @objc func mainLoop(_ displayLink: CADisplayLink) {
+        let elapsed = elapsedTime(since: displayLink)
 
         updateDrawableSizeIfNeeded()
 
-        guard drawableSize.width > 0, drawableSize.height > 0 else {
+        guard isReadyToDrawCurrentFrame() else {
             return
         }
 
