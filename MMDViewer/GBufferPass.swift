@@ -31,17 +31,16 @@ private class PassResource {
         print("done")
     }
 
-    func renderPassDescriptorForDrawable(_ drawable: MTLTexture) -> MTLRenderPassDescriptor {
-
-        // color attachment #0
+    private func configurePrimaryColorAttachment(with drawable: MTLTexture) {
         if let colorAttachment = renderPassDescriptor.colorAttachments[0] {
             colorAttachment.texture = drawable
             colorAttachment.loadAction = .clear
             colorAttachment.clearColor = pixelFormatSpec.clearColors[0]
             colorAttachment.storeAction = .store
         }
+    }
 
-        // update color attachment #1 ~ 3
+    private func configureSecondaryColorAttachments(with drawable: MTLTexture) {
         for i in 1...3 {
             let format = pixelFormatSpec.colorAttachmentFormats[i]
             if format == .invalid {
@@ -75,8 +74,9 @@ private class PassResource {
                 }
             }
         }
+    }
 
-        // update depth texture
+    private func configureDepthAttachment(with drawable: MTLTexture) {
         if pixelFormatSpec.depthPixelFormat != .invalid {
             var doUpdate = false
             if let tex = depthTex {
@@ -112,8 +112,9 @@ private class PassResource {
                 }
             }
         }
+    }
 
-        // update stencil texture
+    private func configureStencilAttachment(with drawable: MTLTexture) {
         if pixelFormatSpec.stencilPixelFormat != .invalid {
             var doUpdate = false
             if let tex = stencilTex {
@@ -145,7 +146,13 @@ private class PassResource {
                 }
             }
         }
+    }
 
+    func renderPassDescriptorForDrawable(_ drawable: MTLTexture) -> MTLRenderPassDescriptor {
+        configurePrimaryColorAttachment(with: drawable)
+        configureSecondaryColorAttachments(with: drawable)
+        configureDepthAttachment(with: drawable)
+        configureStencilAttachment(with: drawable)
         return renderPassDescriptor
     }
 }

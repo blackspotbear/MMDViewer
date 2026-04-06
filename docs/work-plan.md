@@ -256,6 +256,7 @@
 - `BasicRenderer` の command buffer 生成と end handler 呼び出しを helper に分離し、renderer の frame begin / end 境界を読みやすくした
 - `ShadowPass` の encoder 生成と encoder 設定を helper に分離し、shadow pass の begin 境界を読みやすくした
 - `PMXObject` の uniform / palette / material buffer 取得を helper に寄せ、GPU 転送前の取得点をそろえた
+- `GBufferPass` の color / depth / stencil attachment 更新を helper に分離し、deferred pass の attachment 更新責務を追いやすくした
 
 ## 次のイテレーション候補
 
