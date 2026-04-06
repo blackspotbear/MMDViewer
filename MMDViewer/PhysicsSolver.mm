@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+#import <simd/simd.h>
 #import "MMDViewer-Swift.h"
 #import "PhysicsSolver.h"
 #include "LinearMath/btDefaultMotionState.h"
@@ -18,24 +19,24 @@
 
 namespace {
 
-    btVector3 glkvec2btvec(GLKVector3 from)
+    btVector3 simdvec2btvec(simd_float3 from)
     {
         return btVector3(from.x, from.y, from.z);
     }
 
-    GLKVector3 btvec2glkvec(const btVector3& from)
+    simd_float3 btvec2simdvec(const btVector3& from)
     {
-        return GLKVector3Make(from.x(), from.y(), from.z());
+        return simd_make_float3(from.x(), from.y(), from.z());
     }
 
-    btQuaternion glkq2btq(GLKQuaternion from)
+    btQuaternion simdq2btq(simd_quatf from)
     {
-        return btQuaternion(from.x, from.y, from.z, from.w);
+        return btQuaternion(from.vector.x, from.vector.y, from.vector.z, from.vector.w);
     }
 
-    GLKQuaternion btq2glkq(const btQuaternion& from)
+    simd_quatf btq2simdq(const btQuaternion& from)
     {
-        return GLKQuaternionMake(from.getX(), from.getY(), from.getZ(), from.getW());
+        return simd_quaternion(from.getW(), simd_make_float3(from.getX(), from.getY(), from.getZ()));
     }
 
     btTransform makeRigidBodyOffsetTransform(RigidBody* rigidBody, Bone* bone)
@@ -101,8 +102,8 @@ namespace {
 
 - (void) build:(NSArray<RigidBody*>*)rigidBodies constraints:(NSArray<Constraint*>*)constraints bones:(NSArray<Bone*>*)bones;
 - (void) step;
-- (void) move:(int)boneIndex rot:(GLKQuaternion)rot pos:(GLKVector3)pos;
-- (void) getTransform:(int)boneIndex rot:(GLKQuaternion*)rot pos:(GLKVector3*)pos;
+- (void) move:(int)boneIndex rotation:(simd_quatf)rotation position:(simd_float3)position;
+- (void) getTransform:(int)boneIndex rotation:(simd_quatf*)rotation position:(simd_float3*)position;
 @end
 
 @interface PhysicsSolver () {
@@ -179,7 +180,7 @@ namespace {
     }
     else if (rigidBody.shapeType == 1)
     {
-        shape = new btBoxShape(glkvec2btvec(rigidBody.size));
+        shape = new btBoxShape(simdvec2btvec(simd_make_float3(rigidBody.size.x, rigidBody.size.y, rigidBody.size.z)));
     }
     else if (rigidBody.shapeType == 2)
     {
@@ -203,7 +204,7 @@ namespace {
     
     btTransform startTransform;
     startTransform.setIdentity();
-    startTransform.setOrigin(glkvec2btvec(rigidBody.pos));
+    startTransform.setOrigin(simdvec2btvec(simd_make_float3(rigidBody.pos.x, rigidBody.pos.y, rigidBody.pos.z)));
     btMatrix3x3	btmRotationMat;
     btmRotationMat.setEulerZYX(rigidBody.rot.x, rigidBody.rot.y, rigidBody.rot.z);
     startTransform.setBasis(btmRotationMat);
@@ -234,7 +235,7 @@ namespace {
     btmRotationMat.setEulerZYX(constraint.rot.x, constraint.rot.y, constraint.rot.z);
     btTransform bttrTransform;
     bttrTransform.setIdentity();
-    bttrTransform.setOrigin(glkvec2btvec(constraint.pos));
+    bttrTransform.setOrigin(simdvec2btvec(simd_make_float3(constraint.pos.x, constraint.pos.y, constraint.pos.z)));
     bttrTransform.setBasis( btmRotationMat );
     
     btTransform frameInA = _btRigidBodies[(int)constraint.rigidAIndex]->getWorldTransform().inverse();
@@ -250,10 +251,10 @@ namespace {
                                                                                       frameInB,
                                                                                       useLinearReferenceFrame);
     
-    aBtConstraint->setLinearLowerLimit(glkvec2btvec(constraint.linearLowerLimit));
-    aBtConstraint->setLinearUpperLimit(glkvec2btvec(constraint.linearUpperLimit));
-    aBtConstraint->setAngularLowerLimit(glkvec2btvec(constraint.angularLowerLimit));
-    aBtConstraint->setAngularUpperLimit(glkvec2btvec(constraint.angularUpperLimit));
+    aBtConstraint->setLinearLowerLimit(simdvec2btvec(simd_make_float3(constraint.linearLowerLimit.x, constraint.linearLowerLimit.y, constraint.linearLowerLimit.z)));
+    aBtConstraint->setLinearUpperLimit(simdvec2btvec(simd_make_float3(constraint.linearUpperLimit.x, constraint.linearUpperLimit.y, constraint.linearUpperLimit.z)));
+    aBtConstraint->setAngularLowerLimit(simdvec2btvec(simd_make_float3(constraint.angularLowerLimit.x, constraint.angularLowerLimit.y, constraint.angularLowerLimit.z)));
+    aBtConstraint->setAngularUpperLimit(simdvec2btvec(simd_make_float3(constraint.angularUpperLimit.x, constraint.angularUpperLimit.y, constraint.angularUpperLimit.z)));
     
     if (constraint.linearSpringStiffness.x != 0) {
         aBtConstraint->enableSpring(0, true);
@@ -297,7 +298,7 @@ namespace {
     }
 }
 
-- (void) move:(int)boneIndex rot:(GLKQuaternion)rot pos:(GLKVector3)pos
+- (void) move:(int)boneIndex rotation:(simd_quatf)rotation position:(simd_float3)position
 {
     for (RigidBody * rigidBody in self.rigidBodies)
     {
@@ -318,8 +319,8 @@ namespace {
         }
 
         btTransform worldTransform;
-        worldTransform.setOrigin(glkvec2btvec(pos));
-        worldTransform.setRotation(glkq2btq(rot));
+        worldTransform.setOrigin(simdvec2btvec(position));
+        worldTransform.setRotation(simdq2btq(rotation));
 
         Bone * bone = _bones[rigidBody.boneIndex];
         worldTransform = worldTransform * makeRigidBodyOffsetTransform(rigidBody, bone);
@@ -327,7 +328,7 @@ namespace {
     }
 }
 
-- (void) getTransform:(int)boneIndex rot:(GLKQuaternion*)rot pos:(GLKVector3*)pos
+- (void) getTransform:(int)boneIndex rotation:(simd_quatf*)rotation position:(simd_float3*)position
 {
     for (RigidBody * rigidBody in self.rigidBodies)
     {
@@ -346,8 +347,8 @@ namespace {
         Bone * bone = self.bones[rigidBody.boneIndex];
         trans = trans * makeRigidBodyOffsetTransform(rigidBody, bone).inverse();
 
-        *pos = btvec2glkvec(trans.getOrigin());
-        *rot = btq2glkq(trans.getRotation());
+        *position = btvec2simdvec(trans.getOrigin());
+        *rotation = btq2simdq(trans.getRotation());
     }
 }
 

@@ -149,7 +149,7 @@
 - [x] `GLKMatrix4` の factory / helper を安全な単位で `simd` ベースへ寄せる
 - [x] `GLKMatrix4` の互換性境界を回帰テストとコメントで明文化する
 - [x] `GLKMatrix4` の matrix-matrix 演算置換方針を確定する
-- [ ] 物理ブリッジの型変換を更新する
+- [x] 物理ブリッジの型変換を更新する
 - [x] 物理ブリッジの差し替え点を helper とコメントで局所化する
 - [x] 各段階であなたにシミュレータ確認を依頼する
 
@@ -218,6 +218,7 @@
 - Bullet 2.89 更新後も、シミュレータ上でモデル表示、モーション再生、Pause / Play、カメラ操作に問題がないことを確認した
 - `GLKVector3` / `GLKVector4` の基本 helper の内部実装を `simd` ベースへ寄せ、既存 GLK 演算との差分を回帰テストで監視できるようにした
 - 数学互換レイヤーとその回帰テストにドキュメンテーションコメントを追加し、`GLKit` 置換の意図と制約を追いやすくした
+- `PhysicsSolving` の公開境界を `GLKQuaternion` / `GLKVector3` から `simd_quatf` / `simd_float3` へ寄せ、Bullet との往復型を `simd` ベースへ更新した
 - `GLKVector2` と VMD の Bezier 補間計算も `simd` ベースの内部実装へ寄せ、補間ロジックを描画非依存のまま近代化した
 - `BasicRenderer` の model matrix stack 参照バグを修正し、あわせて `GLKMathDegreesToRadians` 依存を外した
 - 無効化されたまま残っていた lint 用 build phase を削除し、毎回出ていた `Run Script` 警告を解消した

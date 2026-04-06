@@ -1,5 +1,6 @@
 import Foundation
 import GLKit
+import simd
 
 @objc
 /// Swift 側の姿勢更新と Objective-C++ / Bullet 側 solver をつなぐ最小境界。
@@ -10,9 +11,11 @@ protocol PhysicsSolving {
     /// PMX 由来の剛体・constraint 定義から Bullet world を構築する初期化段。
     /// 生成後の solver は Swift 側から opaque な bridge として扱う。
     func build(_ rigidBodies: [RigidBody], constraints: [Constraint], bones: [Bone])
-    /// Swift 側はまだ GLKit 型を使っているが、物理ブリッジはここを唯一の往復点に保つ。
-    func move(_ boneIndex: Int, rot: GLKQuaternion, pos: GLKVector3)
-    /// 物理結果をボーン姿勢へ戻す境界。今後 `simd` 化する場合もここを差し替え点にする。
-    func getTransform(_ boneIndex: Int, rot: UnsafeMutablePointer<GLKQuaternion>, pos: UnsafeMutablePointer<GLKVector3>)
+    /// Swift 側の姿勢はここで `simd` 値へ変換し、Bullet との往復型を `GLKit` から切り離す。
+    func move(_ boneIndex: Int, rotation: simd_quatf, position: simd_float3)
+    /// 物理結果を `simd` 値として受け取り、姿勢行列への反映だけを Swift 側で行う。
+    func getTransform(_ boneIndex: Int,
+                      rotation: UnsafeMutablePointer<simd_quatf>,
+                      position: UnsafeMutablePointer<simd_float3>)
     func step()
 }
