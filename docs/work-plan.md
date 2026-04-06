@@ -163,7 +163,7 @@
 - [ ] 物理ディレクトリ化する場合の配置案を確定する
 - [ ] ファイル移動と project 参照更新だけの専用イテレーションを実施する
 - [x] `MTKView` 移行の差分設計を書く
-- [ ] 最小移行を実装する
+- [x] 最小移行を実装する
 - [ ] 描画結果の回帰確認を行う
 - [ ] あなたにシミュレータで見た目確認を依頼する
 
@@ -233,6 +233,7 @@
 - `PhysicsSolver(_:, physicsSolving:)` について、kinematic rigid body は Bullet 側へ push され、dynamic rigid body は step 後に pull されることを spy ベースの単体テストで固定した
 - fixture ベースの `PMXUpdater` 単体テストを追加し、再生中だけ frame counter が進むことと、角速度減衰が毎フレーム適用されることを固定した
 - `MTKView` 移行は最初の段階では `MetalView` の substrate 差し替えに限定し、`CADisplayLink` / scene graph / render pass 契約は維持する差分設計を文書化した
+- `MetalView` を `MTKView` ベースへ差し替える最小移行を実装し、`MMDView` の `CADisplayLink` と renderer 契約は維持したまま simulator build 成功まで確認した
 - `GLKVector2` と VMD の Bezier 補間計算も `simd` ベースの内部実装へ寄せ、補間ロジックを描画非依存のまま近代化した
 - `BasicRenderer` の model matrix stack 参照バグを修正し、あわせて `GLKMathDegreesToRadians` 依存を外した
 - 無効化されたまま残っていた lint 用 build phase を削除し、毎回出ていた `Run Script` 警告を解消した

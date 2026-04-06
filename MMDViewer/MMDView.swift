@@ -146,14 +146,7 @@ class MMDView: MetalView {
 
     private var layerSizeDidUpdate = false
 
-    override init(frame: CGRect) {
-        traverser = Traverser(renderer: renderer)
-        super.init(frame: frame)
-        renderer.configure(device!)
-        initCommon()
-    }
-
-    required init?(coder aDecoder: NSCoder) {
+    required init(coder aDecoder: NSCoder) {
         traverser = Traverser(renderer: renderer)
         super.init(coder: aDecoder)
         renderer.configure(device!)
@@ -509,10 +502,8 @@ class MMDView: MetalView {
     }
 
     private func configureMetalLayer(pixelFormat: MTLPixelFormat) {
-        if let metalLayer {
-            metalLayer.pixelFormat = pixelFormat
-            metalLayer.framebufferOnly = true
-        }
+        colorPixelFormat = pixelFormat
+        framebufferOnly = true
     }
 
     private func configureRendererEndHandler() {

@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+#import <MetalKit/MetalKit.h>
 #import <simd/simd.h>
 #import "MMDViewer-Swift.h"
 #import "PhysicsSolver.h"

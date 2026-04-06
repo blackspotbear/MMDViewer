@@ -1,124 +1,51 @@
 import Foundation
 import UIKit
 import Metal
+import MetalKit
 import QuartzCore
 
-private struct MetalViewLayerConfiguration {
-    let metalLayer: CAMetalLayer
+private struct MetalViewConfiguration {
     let device: MTLDevice
 }
 
 /// `melt` の UIView 側エントリポイント。
-/// CAMetalLayer の所有と current drawable の取得だけを担当し、描画内容の管理は pass / renderer 側へ委ねる。
-class MetalView: UIView {
-    var device: MTLDevice?
-
-    var currentDrawable: CAMetalDrawable? {
-        if _currentDrawable == nil {
-            _currentDrawable = makeCurrentDrawable()
-        }
-        return _currentDrawable
+/// `MTKView` を substrate として使い、drawable と drawableSize の管理だけを担当する。
+class MetalView: MTKView {
+    override init(frame: CGRect, device: MTLDevice?) {
+        let configuration = Self.makeConfiguration(device: device)
+        super.init(frame: frame, device: configuration.device)
+        configure(configuration)
     }
 
-    var drawableSize: CGSize {
-        set (v) {
-            if let metalLayer = metalLayer, v.width > 0, v.height > 0 {
-                metalLayer.drawableSize = v
-            }
-        }
-        get {
-            if let metalLayer = metalLayer {
-                return metalLayer.drawableSize
-            } else {
-                return CGSize.zero
-            }
-        }
+    required init(coder: NSCoder) {
+        let configuration = Self.makeConfiguration(device: nil)
+        super.init(coder: coder)
+        self.device = configuration.device
+        configure(configuration)
     }
 
-    private var _currentDrawable: CAMetalDrawable?
-    private var _renderPassDescriptor: MTLRenderPassDescriptor?
-    weak var metalLayer: CAMetalLayer?
+    /// `MTKView` へ寄せたので drawable の寿命管理は view 本体に任せる。
+    /// 既存 call site を保つため、この互換 API は no-op として残す。
+    func releaseCurrentDrawable() {}
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        initMetalLayer()
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        initMetalLayer()
-    }
-
-    func releaseCurrentDrawable() {
-        _currentDrawable = nil
-    }
-
-    override class var layerClass: AnyClass {
-        return CAMetalLayer.self
-    }
-
-    /// drawable 取得失敗は render loop 全体の前提崩壊なので、ここで早めに止める。
-    private func makeCurrentDrawable() -> CAMetalDrawable {
-        let metalLayer = requireMetalLayer()
-        guard let drawable = metalLayer.nextDrawable() else {
-            fatalError("failed to acquire next drawable")
-        }
-        return drawable
-    }
-
-    private func requireMetalLayer() -> CAMetalLayer {
-        guard let metalLayer = metalLayer else {
-            fatalError("failed to get a drawable")
-        }
-        return metalLayer
-    }
-
-    private final func initMetalLayer() {
-        guard let configuration = makeLayerConfiguration() else {
-            return
+    private static func makeConfiguration(device: MTLDevice?) -> MetalViewConfiguration {
+        if let device {
+            return MetalViewConfiguration(device: device)
         }
 
-        configure(metalLayer: configuration.metalLayer, device: configuration.device)
-        store(metalLayer: configuration.metalLayer, device: configuration.device)
-    }
-
-    private func makeLayerConfiguration() -> MetalViewLayerConfiguration? {
-        guard let metalLayer = self.layer as? CAMetalLayer else {
-            return nil
-        }
-
-        return MetalViewLayerConfiguration(
-            metalLayer: metalLayer,
-            device: makeSystemDefaultDevice())
-    }
-
-    private func store(metalLayer: CAMetalLayer, device: MTLDevice) {
-        self.device = device
-        self.metalLayer = metalLayer
-    }
-
-    private func makeSystemDefaultDevice() -> MTLDevice {
-        guard let device = MTLCreateSystemDefaultDevice() else {
+        guard let defaultDevice = MTLCreateSystemDefaultDevice() else {
             fatalError("can't create system default device")
         }
-        return device
+        return MetalViewConfiguration(device: defaultDevice)
     }
 
-    /// `MetalView` が直接持つべき layer 初期設定だけをまとめる。
-    /// pixel format や framebufferOnly のような描画方針は `MMDView` / pass 側で上書きする。
-    private func configure(metalLayer: CAMetalLayer, device: MTLDevice) {
-        metalLayer.device = device
-        update(metalLayerFrame: metalLayer)
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        if let metalLayer {
-            update(metalLayerFrame: metalLayer)
-        }
-    }
-
-    private func update(metalLayerFrame metalLayer: CAMetalLayer) {
-        metalLayer.frame = bounds
+    /// `MetalView` が直接持つべき view substrate の設定だけをここに閉じ込める。
+    /// frame 駆動や scene graph は `MMDView` 側に残し、最小移行では自動描画も無効化しておく。
+    private func configure(_ configuration: MetalViewConfiguration) {
+        device = configuration.device
+        framebufferOnly = true
+        autoResizeDrawable = false
+        isPaused = true
+        enableSetNeedsDisplay = false
     }
 }
