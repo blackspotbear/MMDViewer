@@ -550,21 +550,26 @@ class PMXObject {
         }
     }
 
+    private func applyMorphKeyFramesIfPresent(_ morphs: [VMDMorph]?, weightScale: Float) {
+        guard let morphs else {
+            return
+        }
+        applyMorphKeyFrames(morphs, weightScale: weightScale)
+    }
+
     private func applyMorph() {
         let morphKeyFrames = currentMorphKeyFrames()
-        if morphKeyFrames.left == nil && morphKeyFrames.right == nil {
+        guard hasMorphKeyFrames(morphKeyFrames) else {
             return
         }
 
         let weights = morphFrameWeights(leftMorphs: morphKeyFrames.left, rightMorphs: morphKeyFrames.right)
+        applyMorphKeyFramesIfPresent(morphKeyFrames.left, weightScale: weights.left)
+        applyMorphKeyFramesIfPresent(morphKeyFrames.right, weightScale: weights.right)
+    }
 
-        if let ms = morphKeyFrames.left {
-            applyMorphKeyFrames(ms, weightScale: weights.left)
-        }
-
-        if let ms = morphKeyFrames.right {
-            applyMorphKeyFrames(ms, weightScale: weights.right)
-        }
+    private func hasMorphKeyFrames(_ morphKeyFrames: MorphKeyFramePair) -> Bool {
+        return morphKeyFrames.left != nil || morphKeyFrames.right != nil
     }
 
     private func morph(named name: String) -> Morph? {
@@ -607,6 +612,10 @@ class PMXObject {
         storeRenderBuffers(renderBuffers)
     }
 
+    private func withNextBuffer(_ provider: BufferProvider) -> MTLBuffer {
+        return provider.nextBuffer()
+    }
+
     private func storeRenderBuffers(_ renderBuffers: PMXFrameRenderBuffers) {
         uniformBuffer = renderBuffers.uniforms
         matrixPalette = renderBuffers.matrixPalette
@@ -616,7 +625,7 @@ class PMXObject {
     /// 描画に必要な camera / shadow 行列をまとめて uniform buffer へ転送する。
     /// shadowMatrixGB は Metal のテクスチャ座標系に合わせて Y 反転込みで作っている。
     private func makeUniformBuffer(_ renderer: Renderer) -> MTLBuffer {
-        let uniformBuffer = nextUniformBuffer()
+        let uniformBuffer = withNextBuffer(uniformBufferProvider)
 
         // "Metal Shading Language Guide" says:
         // In Metal, the origin of the pixel coordinate system of a texture is
@@ -643,7 +652,7 @@ class PMXObject {
     /// 各ボーンの world matrix を matrix palette buffer へ詰める。
     /// shader 側の skinning はこの palette を前提にしている。
     private func makeMatrixPaletteBuffer() -> MTLBuffer {
-        let palette = nextMatrixPaletteBuffer()
+        let palette = withNextBuffer(mtrxBufferProvider)
         PMXRenderDataEncoder.writeMatrixPalette(palette, postures)
 
         return palette
@@ -652,26 +661,14 @@ class PMXObject {
     /// material ごとの色パラメータを shader 用の連続領域へ詰める。
     /// texture index や sphere map などは別経路で扱うため、ここでは色だけ送る。
     private func makeMaterialBuffer() -> MTLBuffer {
-        let materialBuffer = nextMaterialBuffer()
+        let materialBuffer = withNextBuffer(materialBufferProvider)
         PMXRenderDataEncoder.writeMaterials(materialBuffer, pmx.materials)
 
         return materialBuffer
     }
 
-    private func nextUniformBuffer() -> MTLBuffer {
-        return uniformBufferProvider.nextBuffer()
-    }
-
-    private func nextMatrixPaletteBuffer() -> MTLBuffer {
-        return mtrxBufferProvider.nextBuffer()
-    }
-
-    private func nextMaterialBuffer() -> MTLBuffer {
-        return materialBufferProvider.nextBuffer()
-    }
-
     private func makeCurrentVertexBuffer() -> MTLBuffer {
-        return vertexBufferProvider.nextBuffer()
+        return withNextBuffer(vertexBufferProvider)
     }
 
     private func copyBaseVertexData(into buffer: MTLBuffer) {
