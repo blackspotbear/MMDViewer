@@ -387,9 +387,9 @@ class MMDView: MetalView {
     /// UIKit lifecycle の入り口を 1 箇所へ寄せ、後で scene 再構成や `MTKView` 置換を試しやすくする。
     private func configureForWindow(_ window: UIWindow) {
         let session = makeWindowConfigurationSession(for: window)
-        applyWindowConfiguration(session.configuration)
+        applyWindowConfiguration(session)
         configureRendererEndHandler()
-        applyWindowSetup(session.setup)
+        applyWindowSetup(session)
     }
 
     private func makeWindowConfiguration(for window: UIWindow) -> MMDWindowConfiguration {
@@ -406,8 +406,8 @@ class MMDView: MetalView {
             setup: makeWindowSetupSession(configuration))
     }
 
-    private func applyWindowConfiguration(_ configuration: MMDWindowConfiguration) {
-        contentScaleFactor = configuration.displayScale
+    private func applyWindowConfiguration(_ session: MMDWindowConfigurationSession) {
+        contentScaleFactor = session.configuration.displayScale
     }
 
     private func makeWindowSetupSession(_ configuration: MMDWindowConfiguration) -> MMDWindowSetupSession {
@@ -416,9 +416,9 @@ class MMDView: MetalView {
             displayLink: makeDisplayLinkConfiguration(window: configuration))
     }
 
-    private func applyWindowSetup(_ session: MMDWindowSetupSession) {
-        applyScene(session.scene)
-        startDisplayLink(configuration: session.displayLink)
+    private func applyWindowSetup(_ session: MMDWindowConfigurationSession) {
+        applyScene(session.setup.scene)
+        startDisplayLink(configuration: session.setup.displayLink)
     }
 
     private func prepareScene() -> MMDPreparedScene {

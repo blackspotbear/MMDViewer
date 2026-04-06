@@ -224,6 +224,7 @@
 - `MMDView` の scene resource loading / preparation / application でも session から値を取り出す helper をそろえ、window 初期化段の書き味を統一した
 - `PMXObject` の render buffer 更新でも apply / storage session をそのまま受け渡す形にそろえ、GPU 更新段の書き味を統一した
 - `PMXObject` の uniform / matrix palette / material buffer 生成でも session から buffer を取り出す helper をそろえ、GPU 転送準備段の書き味を統一した
+- `MMDView` の window configuration / setup でも session をそのまま消費する helper に寄せ、window 参加時の入口の書き味を統一した
 - `GLKVector2` と VMD の Bezier 補間計算も `simd` ベースの内部実装へ寄せ、補間ロジックを描画非依存のまま近代化した
 - `BasicRenderer` の model matrix stack 参照バグを修正し、あわせて `GLKMathDegreesToRadians` 依存を外した
 - 無効化されたまま残っていた lint 用 build phase を削除し、毎回出ていた `Run Script` 警告を解消した
