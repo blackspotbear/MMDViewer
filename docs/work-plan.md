@@ -330,6 +330,8 @@
 - `PMXFrameContext` では animation 入力を `PMXAnimationContext` に分け、毎フレーム更新の中でアニメーション依存の値を render 文脈と分離した
 - `MMDView` の resize / reshape 更新でも `MMDLayoutUpdate` を介し、drawable layout の反映段を専用の更新値として扱えるようにした
 - `PMXObject` の morph 適用入口でも `PMXMorphApplicationContext` を介し、morph 文脈の取得と適用段をさらに分けた
+- `MMDView` の display link 起動結果も `MMDDisplayLinkSession` として扱い、生成済み display link の開始段を専用の値で読めるようにした
+- `PMXObject` の render 更新入口でも `PMXRenderUpdateContext` を介し、毎フレーム更新の中で render 文脈を使う段をより局所化した
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
 
 ## 次のイテレーション候補

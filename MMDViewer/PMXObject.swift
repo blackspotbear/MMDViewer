@@ -245,6 +245,10 @@ private struct PMXFrameContext {
     let render: PMXRenderContext
 }
 
+private struct PMXRenderUpdateContext {
+    let render: PMXRenderContext
+}
+
 private struct PMXAnimationContext {
     let tick: PMXAnimationTick
 }
@@ -711,18 +715,22 @@ class PMXObject {
 
     /// draw が参照する 3 種類の buffer を 1 セットとして更新する。
     /// 呼び出し側はこの戻り値を保存するだけで、各 buffer の生成順を意識しなくてよい。
-    private func makeFrameRenderBufferAssembly(_ context: PMXRenderContext) -> PMXFrameRenderBufferAssembly {
+    private func makeFrameRenderBufferAssembly(_ context: PMXRenderUpdateContext) -> PMXFrameRenderBufferAssembly {
         return PMXFrameRenderBufferAssembly(
             buffers: PMXFrameRenderBuffers(
-                uniforms: makeUniformBuffer(context),
+                uniforms: makeUniformBuffer(context.render),
                 matrixPalette: makeMatrixPaletteBuffer(),
                 materials: makeMaterialBuffer()))
     }
 
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
     private func updateRenderBuffers(_ context: PMXFrameContext) {
-        let assembly = makeFrameRenderBufferAssembly(context.render)
+        let assembly = makeFrameRenderBufferAssembly(currentRenderUpdateContext(context))
         storeRenderBuffers(assembly.buffers)
+    }
+
+    private func currentRenderUpdateContext(_ context: PMXFrameContext) -> PMXRenderUpdateContext {
+        return PMXRenderUpdateContext(render: context.render)
     }
 
     private func withNextBuffer(_ provider: BufferProvider) -> MTLBuffer {

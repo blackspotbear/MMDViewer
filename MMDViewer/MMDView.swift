@@ -67,6 +67,10 @@ private struct MMDLayoutUpdate {
     let layout: MMDDrawableLayout
 }
 
+private struct MMDDisplayLinkSession {
+    let displayLink: CADisplayLink
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -405,12 +409,17 @@ class MMDView: MetalView {
         configureDisplayLink(
             displayLink,
             configuration: makeDisplayLinkConfiguration(window: configuration))
-        displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
-        timer = displayLink
+        let session = makeDisplayLinkSession(displayLink)
+        session.displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
+        timer = session.displayLink
     }
 
     private func makeDisplayLink() -> CADisplayLink {
         return CADisplayLink(target: self, selector: #selector(MMDView.mainLoop(_:)))
+    }
+
+    private func makeDisplayLinkSession(_ displayLink: CADisplayLink) -> MMDDisplayLinkSession {
+        return MMDDisplayLinkSession(displayLink: displayLink)
     }
 
     private func makeDisplayLinkConfiguration(window configuration: MMDWindowConfiguration) -> MMDDisplayLinkConfiguration {
