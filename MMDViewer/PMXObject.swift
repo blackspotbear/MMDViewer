@@ -766,7 +766,7 @@ class PMXObject {
             return
         }
 
-        applyMorphUpdates(session.application.updates)
+        applyMorphUpdates(morphUpdates(session.application))
     }
 
     private func currentMorphApplicationContext(tick: PMXAnimationTick) -> PMXMorphApplicationContext? {
@@ -779,7 +779,7 @@ class PMXObject {
 
     private func makeMorphResolutionSession(_ context: PMXMorphApplicationContext) -> PMXMorphResolutionSession {
         return PMXMorphResolutionSession(
-            updates: makeMorphFrameResolutionSession(context.frame).updates)
+            updates: morphUpdates(makeMorphFrameResolutionSession(context.frame)))
     }
 
     private func makeMorphFrameResolutionSession(_ frame: PMXMorphFrameContext) -> PMXMorphFrameResolutionSession {
@@ -790,7 +790,19 @@ class PMXObject {
 
     private func makeMorphApplicationSession(_ context: PMXMorphApplicationContext) -> PMXMorphApplicationSession {
         let resolution = makeMorphResolutionSession(context)
-        return PMXMorphApplicationSession(updates: resolution.updates.left + resolution.updates.right)
+        return PMXMorphApplicationSession(updates: morphUpdates(resolution).left + morphUpdates(resolution).right)
+    }
+
+    private func morphUpdates(_ session: PMXMorphFrameResolutionSession) -> PMXMorphUpdates {
+        return session.updates
+    }
+
+    private func morphUpdates(_ session: PMXMorphResolutionSession) -> PMXMorphUpdates {
+        return session.updates
+    }
+
+    private func morphUpdates(_ session: PMXMorphApplicationSession) -> [MorphUpdate] {
+        return session.updates
     }
 
     private func makeMorphPipelineSession(tick: PMXAnimationTick) -> PMXMorphPipelineSession? {
@@ -892,7 +904,7 @@ class PMXObject {
     }
 
     private func storeRenderBuffers(_ session: PMXRenderBufferApplySession) {
-        applyStoredRenderBuffers(makeRenderBufferStorageApplySession(session).storage)
+        applyStoredRenderBuffers(storedRenderBuffers(makeRenderBufferStorageApplySession(session)))
     }
 
     private func makeRenderBufferStorageSession(_ renderBuffers: PMXFrameRenderBuffers) -> PMXRenderBufferStorageSession {
@@ -905,7 +917,15 @@ class PMXObject {
 
     private func makeRenderBufferStorageApplySession(_ session: PMXRenderBufferApplySession) -> PMXRenderBufferStorageApplySession {
         return PMXRenderBufferStorageApplySession(
-            storage: makeRenderBufferStorageSession(session.buffers).buffers)
+            storage: storedRenderBuffers(makeRenderBufferStorageSession(session.buffers)))
+    }
+
+    private func storedRenderBuffers(_ session: PMXRenderBufferStorageSession) -> PMXStoredRenderBuffers {
+        return session.buffers
+    }
+
+    private func storedRenderBuffers(_ session: PMXRenderBufferStorageApplySession) -> PMXStoredRenderBuffers {
+        return session.storage
     }
 
     private func applyStoredRenderBuffers(_ buffers: PMXStoredRenderBuffers) {
