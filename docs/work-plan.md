@@ -219,6 +219,7 @@
 - `GLKVector3` / `GLKVector4` の基本 helper の内部実装を `simd` ベースへ寄せ、既存 GLK 演算との差分を回帰テストで監視できるようにした
 - 数学互換レイヤーとその回帰テストにドキュメンテーションコメントを追加し、`GLKit` 置換の意図と制約を追いやすくした
 - `PhysicsSolving` の公開境界を `GLKQuaternion` / `GLKVector3` から `simd_quatf` / `simd_float3` へ寄せ、Bullet との往復型を `simd` ベースへ更新した
+- `PMXObject` の frame pipeline session が更新段取りを直接保持するように整理し、1 フレーム更新入口の文脈型を実際の実行フローにそろえた
 - `GLKVector2` と VMD の Bezier 補間計算も `simd` ベースの内部実装へ寄せ、補間ロジックを描画非依存のまま近代化した
 - `BasicRenderer` の model matrix stack 参照バグを修正し、あわせて `GLKMathDegreesToRadians` 依存を外した
 - 無効化されたまま残っていた lint 用 build phase を削除し、毎回出ていた `Run Script` 警告を解消した

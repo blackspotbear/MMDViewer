@@ -529,7 +529,7 @@ class PMXObject {
     /// 呼び出し側は draw 前に毎フレームこれを実行する前提。
     func calc(_ renderer: Renderer) {
         let session = makeFramePipelineSession(renderer)
-        updateFrame(session.context)
+        updateFrame(session)
     }
 
     private func currentFrameContext(_ renderer: Renderer) -> PMXFrameContext {
@@ -548,11 +548,10 @@ class PMXObject {
             maxIterations: counter.maxIt())
     }
 
-    private func updateFrame(_ context: PMXFrameContext) {
-        let session = makeFrameUpdateSession(context)
-        updateAnimationState(makeAnimationUpdateSession(session.animation))
-        updateGeometryState(makeGeometryUpdateSession(session.geometry))
-        updateRenderBuffers(session.render)
+    private func updateFrame(_ session: PMXFramePipelineSession) {
+        updateAnimationState(makeAnimationUpdateSession(session.update.animation))
+        updateGeometryState(makeGeometryUpdateSession(session.update.geometry))
+        updateRenderBuffers(session.update.render)
     }
 
     private func makeFrameUpdateSession(_ context: PMXFrameContext) -> PMXFrameUpdateSession {
