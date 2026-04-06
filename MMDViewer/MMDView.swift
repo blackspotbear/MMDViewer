@@ -79,6 +79,11 @@ private struct MMDDisplayLinkSession {
     let displayLink: CADisplayLink
 }
 
+private struct MMDWindowSetupSession {
+    let scene: MMDSceneApplicationSession
+    let displayLink: MMDDisplayLinkConfiguration
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -328,7 +333,7 @@ class MMDView: MetalView {
         let configuration = makeWindowConfiguration(for: window)
         applyWindowConfiguration(configuration)
         configureRendererEndHandler()
-        startDisplayLink(configuration: configuration)
+        applyWindowSetup(makeWindowSetupSession(configuration))
     }
 
     private func makeWindowConfiguration(for window: UIWindow) -> MMDWindowConfiguration {
@@ -340,7 +345,17 @@ class MMDView: MetalView {
 
     private func applyWindowConfiguration(_ configuration: MMDWindowConfiguration) {
         contentScaleFactor = configuration.displayScale
-        applyPreparedScene(configuration.preparedScene)
+    }
+
+    private func makeWindowSetupSession(_ configuration: MMDWindowConfiguration) -> MMDWindowSetupSession {
+        return MMDWindowSetupSession(
+            scene: makeSceneApplicationSession(configuration.preparedScene),
+            displayLink: makeDisplayLinkConfiguration(window: configuration))
+    }
+
+    private func applyWindowSetup(_ session: MMDWindowSetupSession) {
+        applyScene(session.scene)
+        startDisplayLink(configuration: session.displayLink)
     }
 
     private func prepareScene() -> MMDPreparedScene {
@@ -348,10 +363,6 @@ class MMDView: MetalView {
         return MMDPreparedScene(
             resources: resources,
             sceneGraph: makeSceneGraphConfiguration(pmxObject: resources.pmxObject))
-    }
-
-    private func applyPreparedScene(_ scene: MMDPreparedScene) {
-        applyScene(makeSceneApplicationSession(scene))
     }
 
     private func makeSceneApplicationSession(_ scene: MMDPreparedScene) -> MMDSceneApplicationSession {
@@ -418,11 +429,9 @@ class MMDView: MetalView {
         completion.presentation.commandBuffer.commit()
     }
 
-    private func startDisplayLink(configuration: MMDWindowConfiguration) {
+    private func startDisplayLink(configuration: MMDDisplayLinkConfiguration) {
         let displayLink = makeDisplayLink()
-        configureDisplayLink(
-            displayLink,
-            configuration: makeDisplayLinkConfiguration(window: configuration))
+        configureDisplayLink(displayLink, configuration: configuration)
         let session = makeDisplayLinkSession(displayLink)
         session.displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
         timer = session.displayLink

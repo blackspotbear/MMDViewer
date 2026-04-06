@@ -249,6 +249,12 @@ private struct PMXRenderUpdateContext {
     let render: PMXRenderContext
 }
 
+private struct PMXFrameUpdateSession {
+    let animation: PMXAnimationUpdateContext
+    let geometry: PMXGeometryUpdateContext
+    let render: PMXRenderUpdateContext
+}
+
 private struct PMXAnimationContext {
     let tick: PMXAnimationTick
 }
@@ -477,14 +483,21 @@ class PMXObject {
     }
 
     private func updateFrame(_ context: PMXFrameContext) {
-        updateAnimationState(context)
-        updateGeometryState(context)
-        updateRenderBuffers(context)
+        let session = makeFrameUpdateSession(context)
+        updateAnimationState(session.animation)
+        updateGeometryState(session.geometry)
+        updateRenderBuffers(session.render)
     }
 
-    private func updateAnimationState(_ context: PMXFrameContext) {
-        let animation = currentAnimationUpdateContext(context)
-        updatePosturesForCurrentFrame(tick: animation.animation.tick)
+    private func makeFrameUpdateSession(_ context: PMXFrameContext) -> PMXFrameUpdateSession {
+        return PMXFrameUpdateSession(
+            animation: currentAnimationUpdateContext(context),
+            geometry: currentGeometryUpdateContext(context),
+            render: currentRenderUpdateContext(context))
+    }
+
+    private func updateAnimationState(_ context: PMXAnimationUpdateContext) {
+        updatePosturesForCurrentFrame(tick: context.animation.tick)
         runPhysicsStep()
     }
 
@@ -492,8 +505,8 @@ class PMXObject {
         return PMXAnimationUpdateContext(animation: context.animation)
     }
 
-    private func updateGeometryState(_ context: PMXFrameContext) {
-        prepareVertexBufferForCurrentFrame(currentGeometryUpdateContext(context).geometry)
+    private func updateGeometryState(_ context: PMXGeometryUpdateContext) {
+        prepareVertexBufferForCurrentFrame(context.geometry)
     }
 
     private func currentGeometryUpdateContext(_ context: PMXFrameContext) -> PMXGeometryUpdateContext {
@@ -742,8 +755,8 @@ class PMXObject {
     }
 
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
-    private func updateRenderBuffers(_ context: PMXFrameContext) {
-        let assembly = makeFrameRenderBufferAssembly(currentRenderUpdateContext(context))
+    private func updateRenderBuffers(_ context: PMXRenderUpdateContext) {
+        let assembly = makeFrameRenderBufferAssembly(context)
         storeRenderBuffers(assembly.buffers)
     }
 

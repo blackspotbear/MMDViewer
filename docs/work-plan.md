@@ -337,6 +337,7 @@
 - `MMDView` の prepared scene 適用でも `MMDSceneApplicationSession` を介し、scene 適用直前の値を専用のまとまりとして扱えるようにした
 - `PMXObject` の animation 更新段でも `PMXAnimationUpdateContext` を介し、姿勢更新に入る直前のアニメーション文脈を専用の値で読めるようにした
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
+- `PMXObject` の 1 フレーム更新を animation / geometry / render の更新セッションとしてまとめ、`MMDView` の window 参加時も scene 適用と display link 起動を同じセッション経由で扱うようにした
 
 ## 次のイテレーション候補
 
