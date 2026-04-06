@@ -56,6 +56,22 @@ README にある 2 種類の見た目は、forward rendering と deferred render
 - drawable, depth texture, G-buffer の寿命管理は runtime 依存が強く、単体テストより simulator 目視確認が重要
 - したがって、この機能追加は「UI を足す作業」ではなく、「scene graph の実行時再構築を安全に導入する作業」として扱うべき
 
+## 将来の目標: 現在の iPhone の safe area に合わせた UI 調整
+
+MMDViewer を開発した当時と比べて、現在の iPhone ではホームボタンが廃止され、画面下部にはホームインジケータが置かれるようになった。そのため、画面下端に近いボタン類は、従来より少し上に配置し、safe area の内側で操作できるようにする必要がある。
+
+### 取り組みたい内容
+
+1. `ViewController` の下部ボタン配置が `Safe Area` 基準になっているか確認する
+2. Play / Pause などの操作 UI を、ホームインジケータ搭載 iPhone でも押しやすい位置へ調整する
+3. Storyboard と Auto Layout 制約を、現在の iPhone 画面下端ガイドラインに合わせて見直す
+4. シミュレータ上で、複数の iPhone サイズに対して見切れや近すぎる配置がないか確認する
+
+### 注意点
+
+- `MMDView` 自体は全画面描画でも構わないが、操作 UI は safe area を尊重した方が自然
+- この変更は見た目だけでなく、現代 iPhone 向けの usability 改善として扱うべき
+
 ## まだやっていない理由
 
 - `SwiftUI` への全面移行は、描画 loop、gesture、toolbar、lifecycle の再配線を同時に招きやすく、今回の「小さいイテレーションで壊さず進める」方針と相性が悪かった
