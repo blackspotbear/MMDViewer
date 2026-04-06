@@ -12,19 +12,26 @@ class PMXUpdater: Updater {
         self.pmxObj = pmxObj
     }
 
-    func update(_ dt: CFTimeInterval, renderer: Renderer, node: Node) {
-        // フリック由来の角速度だけは updater 側で減衰させ、
-        // PMXObject 本体は「現在の rotation が与えられる」前提を保つ。
+    private func applyAngularVelocityDecay(_ dt: CFTimeInterval) {
         if dt > 0 {
             pmxObj.rotationX += Float(angularVelocity.y * CGFloat(dt))
             pmxObj.rotationY += Float(angularVelocity.x * CGFloat(dt))
             angularVelocity.x *= 0.95
             angularVelocity.y *= 0.95
         }
+    }
 
+    private func advanceAnimationFrameIfNeeded() {
         if playing {
             pmxObj.updateCounter()
         }
+    }
+
+    func update(_ dt: CFTimeInterval, renderer: Renderer, node: Node) {
+        // フリック由来の角速度だけは updater 側で減衰させ、
+        // PMXObject 本体は「現在の rotation が与えられる」前提を保つ。
+        applyAngularVelocityDecay(dt)
+        advanceAnimationFrameIfNeeded()
 
         // frame counter が確定してから 1 frame 分の姿勢・物理・buffer 更新をまとめて流す。
         pmxObj.calc(renderer)

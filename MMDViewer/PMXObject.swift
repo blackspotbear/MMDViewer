@@ -240,6 +240,13 @@ private struct PMXObjectResources {
     let textures: [MetalTexture]
 }
 
+private struct PMXObjectAnimationState {
+    let curveTies: [CurveTie]
+    let postures: [Posture]
+    let counter: AnimationCounter
+    let solver: PhysicsSolving
+}
+
 /// `PMXObject` が shader 向けに送る生バイト列の準備を集約する。
 /// ここは still-legacy な `GLKMatrix4` 表現と `MTLBuffer` 書き込みが出会う境界で、
 /// 後で別型へ切り出す時も呼び出し側の流れを崩さずに移行できるようにしている。
@@ -355,9 +362,10 @@ class PMXObject {
         self.vmd = vmd
 
         let resources = Self.makeResources(device: device, pmx: pmx)
+        let animationState = Self.makeAnimationState(pmx: pmx, vmd: vmd)
         vertexData = resources.vertexData
-        self.curveTies = Self.makeCurveTies(pmx: pmx, vmd: vmd)
-        self.postures = Self.makePostures(for: pmx.bones)
+        self.curveTies = animationState.curveTies
+        self.postures = animationState.postures
         vertexBufferProvider = resources.vertexBufferProvider
         indexBuffer = resources.indexBuffer
         self.uniformBufferProvider = resources.uniformBufferProvider
@@ -365,10 +373,8 @@ class PMXObject {
         self.materialBufferProvider = resources.materialBufferProvider
         self.textures = resources.textures
 
-        counter = NormalCounter(beginFrameNum: 0, endFrameNum: vmd.meta.frameCount)
-        //counter = DebugCounter(beginFrameNum: 160, endFrameNum: vmd.frameCount)
-
-        solver = Self.makePhysicsSolver(pmx: pmx)
+        counter = animationState.counter
+        solver = animationState.solver
     }
 
     /// 1 frame 分のアニメーション、物理、morph、GPU 転送をまとめて進める。
@@ -414,6 +420,20 @@ class PMXObject {
 
     private static func makePostures(for bones: [Bone]) -> [Posture] {
         return bones.map(Posture.init)
+    }
+
+    private static func makeAnimationState(pmx: PMX, vmd: VMD) -> PMXObjectAnimationState {
+        return PMXObjectAnimationState(
+            curveTies: Self.makeCurveTies(pmx: pmx, vmd: vmd),
+            postures: Self.makePostures(for: pmx.bones),
+            counter: Self.makeAnimationCounter(vmd: vmd),
+            solver: Self.makePhysicsSolver(pmx: pmx)
+        )
+    }
+
+    private static func makeAnimationCounter(vmd: VMD) -> AnimationCounter {
+        return NormalCounter(beginFrameNum: 0, endFrameNum: vmd.meta.frameCount)
+        // return DebugCounter(beginFrameNum: 160, endFrameNum: vmd.frameCount)
     }
 
     private static func makeResources(device: MTLDevice, pmx: PMX) -> PMXObjectResources {
