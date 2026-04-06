@@ -7,6 +7,10 @@ class ViewController: UIViewController {
     @IBOutlet weak var toolBar: UIToolbar!
     @IBOutlet weak var playPauseButton: UIBarButtonItem!
 
+    private var isCurrentlyPlaying: Bool {
+        return mmdView?.pmxUpdater?.playing ?? true
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configurePlaybackUI()
@@ -61,12 +65,12 @@ class ViewController: UIViewController {
     }
 
     private func togglePlaybackState() {
-        if let pmxUpdater = mmdView.pmxUpdater {
-            setPlaybackState(isPlaying: !pmxUpdater.playing)
+        if mmdView.pmxUpdater != nil {
+            setPlaybackState(isPlaying: !isCurrentlyPlaying)
         }
     }
 
     private func updatePlayPauseButtonTitle() {
-        playPauseButton?.title = (mmdView?.pmxUpdater?.playing ?? true) ? "Pause" : "Play"
+        playPauseButton?.title = isCurrentlyPlaying ? "Pause" : "Play"
     }
 }

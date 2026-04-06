@@ -273,6 +273,7 @@
 - `PMXObject` の index buffer / physics solver 生成と 1 frame 更新入口を helper 化し、初期化と毎フレーム更新の段取りをそろえた
 - `PMXObject` の curve tie / posture / counter / solver 初期化を `PMXObjectAnimationState` にまとめ、`PMXUpdater` でも角速度減衰と frame 進行を helper に分離して更新入口の段取りをそろえた
 - `MMDView` の window 参加時処理で display scale 設定と scene 準備を helper に分け、UIKit lifecycle 入口の段取りをさらに読みやすくした
+- `ViewController` の再生状態参照を computed property に集約し、通知/toolbar の両経路で同じ playback 状態判定を使うようにした
 
 ## 次のイテレーション候補
 
