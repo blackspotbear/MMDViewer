@@ -384,11 +384,18 @@ class PMXObject {
     }
 
     private func updateFrame(_ renderer: Renderer) {
-        //        FKSolver(postures, vmd: vmd, frameNum: counter.currentFrame())
+        updateAnimationState()
+        updateGeometryState()
+        updateRenderBuffers(renderer)
+    }
+
+    private func updateAnimationState() {
         updatePosturesForCurrentFrame()
         runPhysicsStep()
+    }
+
+    private func updateGeometryState() {
         prepareVertexBufferForCurrentFrame()
-        updateRenderBuffers(renderer)
     }
 
     /// FK / IK / Grant 解決後に、全ボーンの world matrix を現在フレームへ揃える。

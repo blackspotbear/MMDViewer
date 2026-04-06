@@ -7,10 +7,14 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    private func makeMainStoryboard() -> UIStoryboard {
+        return UIStoryboard(name: "Main", bundle: nil)
+    }
+
     private func makeSceneConfiguration(for sessionRole: UISceneSession.Role) -> UISceneConfiguration {
         let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: sessionRole)
         configuration.delegateClass = SceneDelegate.self
-        configuration.storyboard = UIStoryboard(name: "Main", bundle: nil)
+        configuration.storyboard = makeMainStoryboard()
         return configuration
     }
 
