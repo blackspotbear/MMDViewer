@@ -108,64 +108,64 @@ class MMDView: MetalView {
 
     #if true // forward rendering
 
-    private func makeSceneGraphConfiguration() -> MMDSceneGraphConfiguration {
+    private func makeSceneGraphConfiguration(pmxObject: PMXObject) -> MMDSceneGraphConfiguration {
         return MMDSceneGraphConfiguration(
-            children: [makeForwardPMXNode()],
+            children: [makeForwardPMXNode(pmxObject: pmxObject)],
             pixelFormat: .bgra8Unorm)
     }
 
-    private func makeForwardPMXNode() -> Node {
+    private func makeForwardPMXNode(pmxObject: PMXObject) -> Node {
         let node = Node()
-        pmxUpdater = makePMXUpdater()
+        pmxUpdater = makePMXUpdater(pmxObject: pmxObject)
         node.updater = pmxUpdater
-        node.drawer = PMXDrawer(pmxObj: miku, device: device!)
+        node.drawer = PMXDrawer(pmxObj: pmxObject, device: device!)
         node.pass = ForwardRenderPass(view: self)
         return node
     }
 
     #else // deferred rendering
 
-    private func makeSceneGraphConfiguration() -> MMDSceneGraphConfiguration {
+    private func makeSceneGraphConfiguration(pmxObject: PMXObject) -> MMDSceneGraphConfiguration {
         return MMDSceneGraphConfiguration(
-            children: [makeDeferredSceneNode()],
+            children: [makeDeferredSceneNode(pmxObject: pmxObject)],
             pixelFormat: .bgra8Unorm)
     }
 
-    private func makeDeferredSceneNode() -> Node {
+    private func makeDeferredSceneNode(pmxObject: PMXObject) -> Node {
         let shadowPass = ShadowPass(device: device!)
         let node = Node()
-        pmxUpdater = makePMXUpdater()
+        pmxUpdater = makePMXUpdater(pmxObject: pmxObject)
         node.updater = pmxUpdater
         node.children = [
-            makeShadowNode(pass: shadowPass),
-            makeGBufferNode(shadowPass: shadowPass),
+            makeShadowNode(pass: shadowPass, pmxObject: pmxObject),
+            makeGBufferNode(shadowPass: shadowPass, pmxObject: pmxObject),
             makeWireframeNode()
         ]
         return node
     }
 
-    private func makeShadowNode(pass shadowPass: ShadowPass) -> Node {
+    private func makeShadowNode(pass shadowPass: ShadowPass, pmxObject: PMXObject) -> Node {
         let node = Node()
         node.pass = shadowPass
-        node.drawer = PMXShadowDrawer(pmxObj: miku)
+        node.drawer = PMXShadowDrawer(pmxObj: pmxObject)
         return node
     }
 
-    private func makeGBufferNode(shadowPass: ShadowPass) -> Node {
+    private func makeGBufferNode(shadowPass: ShadowPass, pmxObject: PMXObject) -> Node {
         let node = Node()
         node.pass = GBufferPass(view: self)
         node.children = [
-            makePMXGBufferNode(shadowTexture: shadowPass.shadowTexture),
+            makePMXGBufferNode(pmxObject: pmxObject, shadowTexture: shadowPass.shadowTexture),
             makePointLightNode()
         ]
         return node
     }
 
-    private func makePMXGBufferNode(shadowTexture: MTLTexture) -> Node {
+    private func makePMXGBufferNode(pmxObject: PMXObject, shadowTexture: MTLTexture) -> Node {
         let node = Node()
         node.drawer = PMXGBufferDrawer(
             device: device!,
-            pmxObj: miku,
+            pmxObj: pmxObject,
             shadowTexture: shadowTexture)
         return node
     }
@@ -233,8 +233,8 @@ class MMDView: MetalView {
 
     // MARK: Loop
 
-    private func makePMXUpdater() -> PMXUpdater {
-        return PMXUpdater(pmxObj: miku)
+    private func makePMXUpdater(pmxObject: PMXObject) -> PMXUpdater {
+        return PMXUpdater(pmxObj: pmxObject)
     }
 
     private func loadPMXResource() -> PMX {
@@ -282,7 +282,7 @@ class MMDView: MetalView {
         let resources = makeSceneResources()
         return MMDPreparedScene(
             resources: resources,
-            sceneGraph: makeSceneGraphConfiguration())
+            sceneGraph: makeSceneGraphConfiguration(pmxObject: resources.pmxObject))
     }
 
     private func applyPreparedScene(_ scene: MMDPreparedScene) {

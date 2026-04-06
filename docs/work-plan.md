@@ -291,6 +291,7 @@
 - `MMDView` の display link 入口を `prepareCurrentFrame` と描画実行に分け、frame 準備と draw 実行の境界を明確にした
 - `PMXObject` の毎フレーム更新で `PMXAnimationTick` を導入し、現在フレーム番号と IK 反復回数の参照を 1 つの値として渡すようにした
 - `MMDView` の scene 準備を `MMDPreparedScene` で表し、resource 読み込みと root/layer 反映を準備段と適用段に分離した
+- `MMDView` の scene graph 構成は保持済みプロパティ `miku` に暗黙依存させず、準備済み `PMXObject` を明示的に受け渡す形へ直した
 
 ## 次のイテレーション候補
 
