@@ -145,14 +145,20 @@
 - [x] 置換対象の型と拡張メソッド一覧を作る
 - [x] `GLKVector*` の置換を小さな単位で始める
 - [x] `GLKQuaternion` の主要演算を `simd` ベースへ移行する
-- [ ] `GLKMatrix4` と関連ユーティリティを置換する
-  - `simd_float4x4` との相互変換と uniform / palette 転送の橋は導入済み
+- [x] `GLKMatrix4` と `simd_float4x4` の相互変換を導入する
+- [x] `GLKMatrix4` の factory / helper を安全な単位で `simd` ベースへ寄せる
+- [x] `GLKMatrix4` の互換性境界を回帰テストとコメントで明文化する
+- [ ] `GLKMatrix4` の matrix-matrix 演算置換方針を確定する
 - [ ] 物理ブリッジの型変換を更新する
+- [x] 物理ブリッジの差し替え点を helper とコメントで局所化する
 - [x] 各段階であなたにシミュレータ確認を依頼する
 
 ### レンダリング基盤
 
-- [ ] `MetalView` の責務を整理する
+- [x] `MetalView` の drawable / layer 管理責務を整理する
+- [x] `MMDView` の frame 駆動を値オブジェクトと helper に分離する
+- [x] render pass / renderer / traverser の begin-end 境界を helper に整理する
+- [x] `PMXObject` の render buffer 更新責務を helper と文脈型へ分離する
 - [ ] `melt` 論理 group を物理ディレクトリへ移すか判断する
 - [ ] 物理ディレクトリ化する場合の配置案を確定する
 - [ ] ファイル移動と project 参照更新だけの専用イテレーションを実施する
@@ -164,11 +170,14 @@
 ### UI / 品質
 
 - [ ] UIKit 維持か SwiftUI 移行かを判断するための比較メモを作る
-- [ ] ライフサイクル通知の整理方針を決める
-- [ ] ドキュメンテーションコメント追加対象を洗い出す
-- [ ] クラス、構造体、主要関数へ優先度順にドキュメンテーションコメントを書く
-- [ ] テストコードに意図、前提、期待結果が分かるコメントを書く
-- [ ] 責務分離の優先順位を決める
+- [x] ライフサイクル通知の整理方針を決める
+- [x] ドキュメンテーションコメント追加対象を洗い出す
+- [x] renderer / pass / drawer / updater / view 基盤へのコメント追加を進める
+- [x] `PMXObject` / `PMXUpdater` / physics bridge へのコメント追加を進める
+- [x] テストコードに意図、前提、期待結果が分かるコメントを書く
+- [x] 責務分離の優先順位を決める
+- [x] `PMXObject` の初期化と毎フレーム更新を段階的に分離する
+- [x] `MMDView` の scene 準備と frame 実行を段階的に分離する
 - [ ] 最終的なテスト不足領域を埋める
 - [x] Bullet 2 系の公式 release を基準に、vendor を丸ごと更新できるか調査する
 - [x] Bullet 2.89 を第一候補として、API 差分と移行コストを確認する
