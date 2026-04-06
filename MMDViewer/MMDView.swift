@@ -381,11 +381,16 @@ class MMDView: MetalView {
     }
 
     private func startDisplayLink(configuration: MMDWindowConfiguration) {
-        timer = CADisplayLink(target: self, selector: #selector(MMDView.mainLoop(_:)))
+        let displayLink = makeDisplayLink()
         configureDisplayLink(
-            timer,
+            displayLink,
             configuration: makeDisplayLinkConfiguration(window: configuration))
-        timer.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
+        displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
+        timer = displayLink
+    }
+
+    private func makeDisplayLink() -> CADisplayLink {
+        return CADisplayLink(target: self, selector: #selector(MMDView.mainLoop(_:)))
     }
 
     private func makeDisplayLinkConfiguration(window configuration: MMDWindowConfiguration) -> MMDDisplayLinkConfiguration {

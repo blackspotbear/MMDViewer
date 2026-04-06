@@ -307,6 +307,8 @@
 - `MMDView` の prepared scene 適用でも `MMDSceneApplication` を介す形にし、resource 保持と scene graph / layer 反映を同じ適用値として読めるようにした
 - `MMDView` の display link 起動設定を `MMDDisplayLinkConfiguration` に分け、window 構成から frame 駆動設定だけを切り出せるようにした
 - `PMXObject` の render buffer 保存でも `PMXStoredRenderBuffers` を介す形にし、draw 前に保持する GPU バッファ集合を 1 つの値として扱えるようにした
+- `PMXObject` の morph 解決結果を `PMXMorphUpdates` として左右別の更新集合にまとめ、keyframe 解決と頂点更新適用の境界をさらに明確にした
+- `MMDView` の display link 起動では生成と設定を分け、window 構成から frame 駆動へ流れる段取りをより追いやすくした
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
 
 ## 次のイテレーション候補

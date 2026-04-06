@@ -285,6 +285,11 @@ private struct PMXObjectSetup {
     let animationState: PMXObjectAnimationState
 }
 
+private struct PMXMorphUpdates {
+    let left: [MorphUpdate]
+    let right: [MorphUpdate]
+}
+
 private struct PMXStoredRenderBuffers {
     let uniformBuffer: MTLBuffer
     let matrixPalette: MTLBuffer
@@ -624,9 +629,14 @@ class PMXObject {
             return
         }
 
-        let updates = resolveMorphUpdatesIfPresent(context.keyFrames.left, weightScale: context.weights.left)
-            + resolveMorphUpdatesIfPresent(context.keyFrames.right, weightScale: context.weights.right)
-        applyMorphUpdates(updates)
+        let updates = resolveMorphUpdates(context)
+        applyMorphUpdates(updates.left + updates.right)
+    }
+
+    private func resolveMorphUpdates(_ context: PMXMorphFrameContext) -> PMXMorphUpdates {
+        return PMXMorphUpdates(
+            left: resolveMorphUpdatesIfPresent(context.keyFrames.left, weightScale: context.weights.left),
+            right: resolveMorphUpdatesIfPresent(context.keyFrames.right, weightScale: context.weights.right))
     }
 
     private func currentMorphFrameContext(tick: PMXAnimationTick) -> PMXMorphFrameContext? {
