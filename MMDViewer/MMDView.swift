@@ -73,19 +73,11 @@ class MMDView: MetalView {
     override func didMoveToWindow() {
         super.didMoveToWindow()
 
-        contentScaleFactor = self.window!.screen.nativeScale
-
-        loadSceneResources()
-        configureRendererEndHandler()
-
-        let colorFormat = setupSceneGraph()
-
-        if let metalLayer = self.metalLayer {
-            metalLayer.pixelFormat = colorFormat
-            metalLayer.framebufferOnly = true
+        guard let window else {
+            return
         }
 
-        startDisplayLink()
+        configureForWindow(window)
     }
 
     #if true // forward rendering
@@ -202,6 +194,24 @@ class MMDView: MetalView {
         pmx = LoadPMD("data/mmd/Alicia_solid")
         vmd = LoadVMD("data/vmd/2分ループステップ17")
         miku = PMXObject(device: device!, pmx: pmx!, vmd: vmd)
+    }
+
+    /// `MMDView` が window に乗ったタイミングで、描画レイヤーと scene graph の初期化を束ねる。
+    /// UIKit lifecycle の入り口を 1 箇所へ寄せ、後で scene 再構成や `MTKView` 置換を試しやすくする。
+    private func configureForWindow(_ window: UIWindow) {
+        contentScaleFactor = window.screen.nativeScale
+
+        loadSceneResources()
+        configureRendererEndHandler()
+        configureMetalLayer(pixelFormat: setupSceneGraph())
+        startDisplayLink()
+    }
+
+    private func configureMetalLayer(pixelFormat: MTLPixelFormat) {
+        if let metalLayer {
+            metalLayer.pixelFormat = pixelFormat
+            metalLayer.framebufferOnly = true
+        }
     }
 
     private func configureRendererEndHandler() {

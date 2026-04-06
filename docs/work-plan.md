@@ -245,6 +245,8 @@
 - `ViewController` の再生状態同期と `AppDelegate` の scene 構成にコメント/ helper を追加し、UI 外周の責務を読みやすくした
 - `SceneDelegate` と `ViewController` のライフサイクル通知名を `Notification.Name` で共通化し、UI 外周の境界を型安全に揃えた
 - `ViewController` の lifecycle observer を `viewDidLoad` + `deinit` 管理へ寄せ、再表示時の重複登録リスクを減らした
+- `SceneDelegate` の通知発火と `MMDView` の window 初期化入口を helper に集約し、UI / view 外周の lifecycle 境界をさらに追いやすくした
+- `PMXObject` の morph 補間重み計算と render buffer 保存を helper に分け、毎フレーム更新の段取りをより局所的に読める形へ寄せた
 
 ## 次のイテレーション候補
 

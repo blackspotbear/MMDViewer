@@ -220,6 +220,11 @@ private struct PMXFrameRenderBuffers {
     let materials: MTLBuffer
 }
 
+private struct MorphFrameWeights {
+    let left: Float
+    let right: Float
+}
+
 /// `PMXObject` が shader 向けに送る生バイト列の準備を集約する。
 /// ここは still-legacy な `GLKMatrix4` 表現と `MTLBuffer` 書き込みが出会う境界で、
 /// 後で別型へ切り出す時も呼び出し側の流れを崩さずに移行できるようにしている。
@@ -459,17 +464,25 @@ class PMXObject {
             return
         }
 
-        let from = Float(morphs.left != nil ? morphs.left![0].frameNum : counter.currentFrame())
-        let to = Float(morphs.right != nil ? morphs.right![0].frameNum : counter.currentFrame())
-        let t = from == to ? 1 : (Float(counter.currentFrame()) - from) / (to - from)
+        let weights = morphFrameWeights(leftMorphs: morphs.left, rightMorphs: morphs.right)
 
         if let ms = morphs.left {
-            applyMorphKeyFrames(ms, weightScale: 1 - t)
+            applyMorphKeyFrames(ms, weightScale: weights.left)
         }
 
         if let ms = morphs.right {
-            applyMorphKeyFrames(ms, weightScale: t)
+            applyMorphKeyFrames(ms, weightScale: weights.right)
         }
+    }
+
+    /// 左右 keyframe の時刻差から、現在フレームで適用する morph の寄与率を求める。
+    /// morph 適用本体から補間重み計算を分離して、将来のテスト追加点を見つけやすくする。
+    private func morphFrameWeights(leftMorphs: [VMDMorph]?, rightMorphs: [VMDMorph]?) -> MorphFrameWeights {
+        let currentFrame = counter.currentFrame()
+        let from = Float(leftMorphs != nil ? leftMorphs![0].frameNum : currentFrame)
+        let to = Float(rightMorphs != nil ? rightMorphs![0].frameNum : currentFrame)
+        let rightWeight = from == to ? 1 : (Float(currentFrame) - from) / (to - from)
+        return MorphFrameWeights(left: 1 - rightWeight, right: rightWeight)
     }
 
     func updateCounter() {
@@ -488,6 +501,10 @@ class PMXObject {
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
     private func updateRenderBuffers(_ renderer: Renderer) {
         let renderBuffers = makeFrameRenderBuffers(renderer)
+        store(renderBuffers)
+    }
+
+    private func store(_ renderBuffers: PMXFrameRenderBuffers) {
         uniformBuffer = renderBuffers.uniforms
         matrixPalette = renderBuffers.matrixPalette
         materialBuffer = renderBuffers.materials

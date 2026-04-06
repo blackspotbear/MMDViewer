@@ -5,14 +5,20 @@ extension Notification.Name {
     static let mmdViewerDidEnterBackground = Notification.Name("applicationDidEnterBackground")
 }
 
+/// Scene lifecycle を UIKit から `ViewController` / `MMDView` へ橋渡しする最小 delegate。
+/// 複雑な状態管理は持たず、再生状態同期に必要な通知だけを発火する。
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
     func sceneWillEnterForeground(_ scene: UIScene) {
-        NotificationCenter.default.post(name: .mmdViewerWillEnterForeground, object: nil)
+        postLifecycleNotification(.mmdViewerWillEnterForeground)
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
-        NotificationCenter.default.post(name: .mmdViewerDidEnterBackground, object: nil)
+        postLifecycleNotification(.mmdViewerDidEnterBackground)
+    }
+
+    private func postLifecycleNotification(_ name: Notification.Name) {
+        NotificationCenter.default.post(name: name, object: nil)
     }
 }
