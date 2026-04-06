@@ -538,10 +538,10 @@ class PMXObject {
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
     private func updateRenderBuffers(_ renderer: Renderer) {
         let renderBuffers = makeFrameRenderBuffers(renderer)
-        store(renderBuffers)
+        storeRenderBuffers(renderBuffers)
     }
 
-    private func store(_ renderBuffers: PMXFrameRenderBuffers) {
+    private func storeRenderBuffers(_ renderBuffers: PMXFrameRenderBuffers) {
         uniformBuffer = renderBuffers.uniforms
         matrixPalette = renderBuffers.matrixPalette
         materialBuffer = renderBuffers.materials

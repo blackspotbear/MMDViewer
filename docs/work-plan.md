@@ -257,6 +257,8 @@
 - `ShadowPass` の encoder 生成と encoder 設定を helper に分離し、shadow pass の begin 境界を読みやすくした
 - `PMXObject` の uniform / palette / material buffer 取得を helper に寄せ、GPU 転送前の取得点をそろえた
 - `GBufferPass` の color / depth / stencil attachment 更新を helper に分離し、deferred pass の attachment 更新責務を追いやすくした
+- `GBufferPass` の texture resource 設定、encoder 生成、composition 段取りを helper に分離し、deferred path の begin/end 境界を読みやすくした
+- `PMXObject` の render buffer 保存 helper 名を明示化し、更新段取りの意図を追いやすくした
 
 ## 次のイテレーション候補
 

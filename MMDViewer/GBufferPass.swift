@@ -310,6 +310,30 @@ class GBufferPass: RenderPass {
         gBufferDepthStencilState = device.makeDepthStencilState(descriptor: desc)!
     }
 
+    private func configureTextureResources(for renderer: inout Renderer, drawable: MTLTexture) {
+        renderer.textureResources["ColorBuffer"] = drawable
+        renderer.textureResources["NormalBuffer"] = passRes.colorTextures[0]
+        renderer.textureResources["LinearDBuffer"] = passRes.colorTextures[1]
+        renderer.textureResources["LightBuffer"] = passRes.colorTextures[2]
+        renderer.textureResources["DepthBuffer"] = passRes.depthTex
+        renderer.textureResources["StencilBuffer"] = passRes.stencilTex
+    }
+
+    private func makeGBufferEncoder(renderer: Renderer,
+                                    descriptor: MTLRenderPassDescriptor) -> MTLRenderCommandEncoder? {
+        return renderer.commandBuffer?.makeRenderCommandEncoder(descriptor: descriptor)
+    }
+
+    private func configure(_ encoder: MTLRenderCommandEncoder) {
+        encoder.pushDebugGroup("g-buffer pass")
+        encoder.label = "g-buffer"
+        encoder.setDepthStencilState(shadowDepthStencilState)
+        encoder.setRenderPipelineState(gbufferRenderRipeline)
+        encoder.setCullMode(.back)
+        encoder.setDepthStencilState(gBufferDepthStencilState)
+        encoder.setStencilReferenceValue(128)
+    }
+
     func begin(_ renderer: Renderer) {
         guard let currentDrawable = view.currentDrawable else {
             return
@@ -317,25 +341,12 @@ class GBufferPass: RenderPass {
 
         var renderer = renderer
         let renderPassDescriptor = passRes.renderPassDescriptorForDrawable(currentDrawable.texture)
-        renderer.textureResources["ColorBuffer"] = currentDrawable.texture
-        renderer.textureResources["NormalBuffer"] = passRes.colorTextures[0]
-        renderer.textureResources["LinearDBuffer"] = passRes.colorTextures[1]
-        renderer.textureResources["LightBuffer"] = passRes.colorTextures[2]
-        renderer.textureResources["DepthBuffer"] = passRes.depthTex
-        renderer.textureResources["StencilBuffer"] = passRes.stencilTex
+        configureTextureResources(for: &renderer, drawable: currentDrawable.texture)
 
-        let encoder = renderer.commandBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
-        encoder!.pushDebugGroup("g-buffer pass")
-        encoder!.label = "g-buffer"
-        encoder!.setDepthStencilState(shadowDepthStencilState)
-
-        encoder!.setRenderPipelineState(gbufferRenderRipeline)
-        encoder!.setCullMode(.back)
-
-        encoder!.setDepthStencilState(gBufferDepthStencilState)
-        encoder!.setStencilReferenceValue(128)
-
-        renderer.renderCommandEncoderStack.append(encoder!)
+        if let encoder = makeGBufferEncoder(renderer: renderer, descriptor: renderPassDescriptor) {
+            configure(encoder)
+            renderer.renderCommandEncoderStack.append(encoder)
+        }
     }
 
     /// geometry pass の直後に fullscreen quad で composition を流し込む。
@@ -343,16 +354,7 @@ class GBufferPass: RenderPass {
     func end(_ renderer: Renderer) {
         var renderer = renderer
         if let encoder = renderer.renderCommandEncoderStack.popLast() {
-            encoder.popDebugGroup()
-
-            encoder.pushDebugGroup("sun")
-            encoder.setRenderPipelineState(compositionPipeline)
-            encoder.setCullMode(.none)
-            encoder.setDepthStencilState(compositionDepthState)
-            encoder.setStencilReferenceValue(128)
-            drawQuad(encoder)
-            encoder.popDebugGroup()
-
+            encodeCompositionPass(with: encoder)
             encoder.endEncoding()
 
             currentFrame = currentFrame + 1
@@ -360,6 +362,18 @@ class GBufferPass: RenderPass {
                 currentFrame = 0
             }
         }
+    }
+
+    private func encodeCompositionPass(with encoder: MTLRenderCommandEncoder) {
+        encoder.popDebugGroup()
+
+        encoder.pushDebugGroup("sun")
+        encoder.setRenderPipelineState(compositionPipeline)
+        encoder.setCullMode(.none)
+        encoder.setDepthStencilState(compositionDepthState)
+        encoder.setStencilReferenceValue(128)
+        drawQuad(encoder)
+        encoder.popDebugGroup()
     }
 
     private func drawQuad(_ encoder: MTLRenderCommandEncoder) {
