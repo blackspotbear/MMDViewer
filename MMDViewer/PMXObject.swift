@@ -235,6 +235,11 @@ private struct MorphUpdate {
     let weight: Float
 }
 
+private struct PMXAnimationTick {
+    let frameNumber: Int
+    let maxIterations: Int
+}
+
 private struct PMXObjectResources {
     let vertexData: Data
     let bufferProviders: PMXBufferProviders
@@ -392,29 +397,35 @@ class PMXObject {
     /// 1 frame 分のアニメーション、物理、morph、GPU 転送をまとめて進める。
     /// 呼び出し側は draw 前に毎フレームこれを実行する前提。
     func calc(_ renderer: Renderer) {
-        updateFrame(renderer)
+        updateFrame(renderer, tick: currentAnimationTick())
     }
 
-    private func updateFrame(_ renderer: Renderer) {
-        updateAnimationState()
-        updateGeometryState()
+    private func currentAnimationTick() -> PMXAnimationTick {
+        return PMXAnimationTick(
+            frameNumber: counter.currentFrame(),
+            maxIterations: counter.maxIt())
+    }
+
+    private func updateFrame(_ renderer: Renderer, tick: PMXAnimationTick) {
+        updateAnimationState(tick: tick)
+        updateGeometryState(tick: tick)
         updateRenderBuffers(renderer)
     }
 
-    private func updateAnimationState() {
-        updatePosturesForCurrentFrame()
+    private func updateAnimationState(tick: PMXAnimationTick) {
+        updatePosturesForCurrentFrame(tick: tick)
         runPhysicsStep()
     }
 
-    private func updateGeometryState() {
-        prepareVertexBufferForCurrentFrame()
+    private func updateGeometryState(tick: PMXAnimationTick) {
+        prepareVertexBufferForCurrentFrame(tick: tick)
     }
 
     /// FK / IK / Grant 解決後に、全ボーンの world matrix を現在フレームへ揃える。
     /// 物理はこの結果を入力として受け取るため、姿勢計算のまとまりをここで固定する。
-    private func updatePosturesForCurrentFrame() {
-        FKSolver(postures, curveTies: self.curveTies, frameNum: counter.currentFrame())
-        IKSolver(postures, maxIt: counter.maxIt())
+    private func updatePosturesForCurrentFrame(tick: PMXAnimationTick) {
+        FKSolver(postures, curveTies: self.curveTies, frameNum: tick.frameNumber)
+        IKSolver(postures, maxIt: tick.maxIterations)
         GrantSolver(postures)
 
         for posture in postures {
@@ -513,10 +524,10 @@ class PMXObject {
 
     /// ベース頂点を inflight buffer へコピーし、現在フレームの morph を上書き適用する。
     /// CPU morph 実装の責務を `calc` 本体から切り離し、将来の GPU 化や計測をしやすくする。
-    private func prepareVertexBufferForCurrentFrame() {
+    private func prepareVertexBufferForCurrentFrame(tick: PMXAnimationTick) {
         currentVertexBuffer = makeCurrentVertexBuffer()
         copyBaseVertexData(into: currentVertexBuffer!)
-        applyMorph()
+        applyMorph(tick: tick)
     }
 
     /// 頂点 morph を CPU 側 vertex buffer へ直接加算する。
@@ -571,13 +582,13 @@ class PMXObject {
         }
     }
 
-    private func applyMorph() {
-        let morphKeyFrames = currentMorphKeyFrames()
+    private func applyMorph(tick: PMXAnimationTick) {
+        let morphKeyFrames = currentMorphKeyFrames(tick: tick)
         guard hasMorphKeyFrames(morphKeyFrames) else {
             return
         }
 
-        let weights = morphFrameWeights(leftMorphs: morphKeyFrames.left, rightMorphs: morphKeyFrames.right)
+        let weights = morphFrameWeights(tick: tick, leftMorphs: morphKeyFrames.left, rightMorphs: morphKeyFrames.right)
         let updates = resolveMorphUpdatesIfPresent(morphKeyFrames.left, weightScale: weights.left)
             + resolveMorphUpdatesIfPresent(morphKeyFrames.right, weightScale: weights.right)
         applyMorphUpdates(updates)
@@ -593,15 +604,15 @@ class PMXObject {
 
     /// 現在フレームの左右 keyframe 群をまとめて取り出す。
     /// `VMD` の返り値形式に `PMXObject` 全体を強く依存させないための薄い境界として扱う。
-    private func currentMorphKeyFrames() -> MorphKeyFramePair {
-        let morphs = vmd.getMorph(counter.currentFrame())
+    private func currentMorphKeyFrames(tick: PMXAnimationTick) -> MorphKeyFramePair {
+        let morphs = vmd.getMorph(tick.frameNumber)
         return MorphKeyFramePair(left: morphs.left, right: morphs.right)
     }
 
     /// 左右 keyframe の時刻差から、現在フレームで適用する morph の寄与率を求める。
     /// morph 適用本体から補間重み計算を分離して、将来のテスト追加点を見つけやすくする。
-    private func morphFrameWeights(leftMorphs: [VMDMorph]?, rightMorphs: [VMDMorph]?) -> MorphFrameWeights {
-        let currentFrame = counter.currentFrame()
+    private func morphFrameWeights(tick: PMXAnimationTick, leftMorphs: [VMDMorph]?, rightMorphs: [VMDMorph]?) -> MorphFrameWeights {
+        let currentFrame = tick.frameNumber
         let from = Float(leftMorphs != nil ? leftMorphs![0].frameNum : currentFrame)
         let to = Float(rightMorphs != nil ? rightMorphs![0].frameNum : currentFrame)
         let rightWeight = from == to ? 1 : (Float(currentFrame) - from) / (to - from)

@@ -289,6 +289,7 @@
 - `MMDView` の scene graph 構築を `MMDSceneGraphConfiguration` と適用処理に分け、構成値と root node 反映を別段にした
 - `SceneDelegate` と `ViewController` の lifecycle / playback 状態を enum で持ち上げ、通知名や再生状態の分岐を外周専用の型へ寄せた
 - `MMDView` の display link 入口を `prepareCurrentFrame` と描画実行に分け、frame 準備と draw 実行の境界を明確にした
+- `PMXObject` の毎フレーム更新で `PMXAnimationTick` を導入し、現在フレーム番号と IK 反復回数の参照を 1 つの値として渡すようにした
 
 ## 次のイテレーション候補
 
