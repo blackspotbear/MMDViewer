@@ -4,6 +4,7 @@ import Metal
 import simd
 @testable import MMDViewer
 
+/// バイナリ reader と quaternion helper のような、描画非依存の基礎ロジックを監視する。
 final class MMDViewerTests: XCTestCase {
 
     func testReadAdvancesPointerAndReturnsTypedValue() {
@@ -124,6 +125,8 @@ final class MMDViewerTests: XCTestCase {
     }
 }
 
+/// GLKit 互換レイヤーと traversal 規約をまとめて監視する。
+/// `simd` 置換の途中でも legacy GLKit と同じ振る舞いを維持できているかをここで固定する。
 final class MatrixBridgingTests: XCTestCase {
 
     func testRoundTripsThroughSimdRepresentation() {
@@ -269,6 +272,7 @@ final class MatrixBridgingTests: XCTestCase {
     }
 
     func testTraverserUpdateTraversesParentBeforeChildren() {
+        // 姿勢やカメラ更新は親から子へ伝播する前提なので、visit 順序を明示的に固定する。
         let renderer = RendererSpy()
         let traverser = Traverser(renderer: renderer)
         let root = Node()
@@ -291,6 +295,7 @@ final class MatrixBridgingTests: XCTestCase {
     }
 
     func testTraverserDrawBalancesPassesAndModelMatrixStack() {
+        // draw 順序と push / pop の対応が崩れると、compile は通っても見た目だけ壊れやすい。
         let renderer = RendererSpy()
         let traverser = Traverser(renderer: renderer)
         let root = Node()
@@ -468,6 +473,8 @@ final class MatrixBridgingTests: XCTestCase {
     }
 }
 
+/// renderer の副作用だけを観測するための最小 spy。
+/// 実 GPU 資源を持たず、traversal と matrix stack の契約だけを検証する。
 private final class RendererSpy: Renderer {
     let events = EventLog()
 

@@ -5,9 +5,13 @@ import Metal
 private let kInFlightCommandBuffers = 3
 private let defaultFieldOfViewRadians = 85.0 * .pi / 180.0
 
+/// アプリ全体で共有する renderer の最小実装。
+/// command buffer と行列状態をまとめて持ち、各 pass / drawer はここを介して GPU へ書き込む。
 class BasicRenderer: Renderer {
     private var modelMatrixStack = [GLKMatrix4](repeating: GLKMatrix4Identity, count: 1)
 
+    /// Node traversal に合わせて model matrix を積む。
+    /// 現状は「上書き」ではなく「push された matrix をそのまま top に置く」規約を採っている。
     func pushModelMatrix(_ mtrx: GLKMatrix4) {
         modelMatrixStack.append(mtrx)
     }
@@ -71,6 +75,8 @@ class BasicRenderer: Renderer {
         )
     }
 
+    /// 1 frame 分の command buffer を確保する。
+    /// in-flight 数を制限して古い Metal 実装と現代 simulator の両方で過剰な先行発行を避ける。
     func begin() {
         _ = inflightSemaphore.wait(timeout: DispatchTime.distantFuture)
 
@@ -87,6 +93,7 @@ class BasicRenderer: Renderer {
         commandBuffer = nil
     }
 
+    /// viewport 変化時だけ投影行列を更新し、初回レイアウトや回転時の無駄な再計算を避ける。
     func reshape(_ bounds: CGRect) {
         let viewportSize = bounds.integral.size
         guard viewportSize.width > 0, viewportSize.height > 0 else { return }
