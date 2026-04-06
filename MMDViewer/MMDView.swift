@@ -43,13 +43,20 @@ class MMDView: MetalView {
     private func initCommon() {
         isOpaque = true
         backgroundColor = nil
+        registerGestureRecognizers()
+    }
 
-        let tapg = UITapGestureRecognizer(target: self, action: #selector(MMDView.handleTap(_:)))
-        tapg.numberOfTapsRequired = 2
-        addGestureRecognizer(tapg)
+    private func registerGestureRecognizers() {
+        addGestureRecognizer(makeTapGestureRecognizer())
         addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(MMDView.handlePan(_:))))
         addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(MMDView.handlePinch(_:))))
         addGestureRecognizer(UIRotationGestureRecognizer(target: self, action: #selector(MMDView.handleRotate(_:))))
+    }
+
+    private func makeTapGestureRecognizer() -> UITapGestureRecognizer {
+        let tapg = UITapGestureRecognizer(target: self, action: #selector(MMDView.handleTap(_:)))
+        tapg.numberOfTapsRequired = 2
+        return tapg
     }
 
     // MARK: Override UIView
