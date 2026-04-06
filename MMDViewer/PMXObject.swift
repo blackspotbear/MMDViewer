@@ -428,6 +428,27 @@ class PMXObject {
         }
     }
 
+    /// 左右いずれかの morph key 群を 1 つの重みで適用する。
+    /// 現状は vertex morph だけ CPU buffer へ反映し、他種別は将来の分離に備えて明示的に無視する。
+    private func applyMorphKeyFrames(_ morphs: [VMDMorph], weightScale: Float) {
+        for vm in morphs {
+            guard let pm = pmx.morphs[vm.name] else {
+                continue
+            }
+
+            switch pm.type {
+            case .vertex:
+                updateVertex(pm, vm.weight * weightScale)
+            case .group:
+                break
+            case .bone:
+                break
+            default:
+                break
+            }
+        }
+    }
+
     private func applyMorph() {
         let morphs = vmd.getMorph(counter.currentFrame())
         if morphs.left == nil && morphs.right == nil {
@@ -439,29 +460,11 @@ class PMXObject {
         let t = from == to ? 1 : (Float(counter.currentFrame()) - from) / (to - from)
 
         if let ms = morphs.left {
-            for vm in ms {
-                if let pm = pmx.morphs[vm.name] {
-                    switch pm.type {
-                    case .vertex: updateVertex(pm, vm.weight * (1 - t))
-                    case .group: break
-                    case .bone: break
-                    default: break
-                    }
-                }
-            }
+            applyMorphKeyFrames(ms, weightScale: 1 - t)
         }
 
         if let ms = morphs.right {
-            for vm in ms {
-                if let pm = pmx.morphs[vm.name] {
-                    switch pm.type {
-                    case .vertex: updateVertex(pm, vm.weight * t)
-                    case .group: break
-                    case .bone: break
-                    default: break
-                    }
-                }
-            }
+            applyMorphKeyFrames(ms, weightScale: t)
         }
     }
 
