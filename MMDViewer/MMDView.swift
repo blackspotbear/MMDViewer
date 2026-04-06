@@ -36,6 +36,11 @@ private struct MMDFrameCompletion {
     let commandBuffer: MTLCommandBuffer
 }
 
+private struct MMDDrawableLayout {
+    let drawableSize: CGSize
+    let bounds: CGRect
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -375,13 +380,18 @@ class MMDView: MetalView {
             return
         }
 
-        self.drawableSize = CGSize(
-            width: self.bounds.size.width * contentScaleFactor,
-            height: self.bounds.size.height * contentScaleFactor
-        )
-
-        renderer.reshape(self.bounds)
+        let layout = currentDrawableLayout()
+        self.drawableSize = layout.drawableSize
+        renderer.reshape(layout.bounds)
         layerSizeDidUpdate = false
+    }
+
+    private func currentDrawableLayout() -> MMDDrawableLayout {
+        return MMDDrawableLayout(
+            drawableSize: CGSize(
+                width: self.bounds.size.width * contentScaleFactor,
+                height: self.bounds.size.height * contentScaleFactor),
+            bounds: self.bounds)
     }
 
     private func elapsedTime(since displayLink: CADisplayLink) -> CFTimeInterval {
