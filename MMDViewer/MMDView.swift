@@ -84,6 +84,10 @@ private struct MMDWindowSetupSession {
     let displayLink: MMDDisplayLinkConfiguration
 }
 
+private struct MMDFramePreparationSession {
+    let frame: MMDPreparedFrame
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -508,6 +512,14 @@ class MMDView: MetalView {
     }
 
     private func prepareCurrentFrame(_ displayLink: CADisplayLink) -> MMDPreparedFrame? {
+        guard let session = makeFramePreparationSession(displayLink) else {
+            return nil
+        }
+
+        return session.frame
+    }
+
+    private func makeFramePreparationSession(_ displayLink: CADisplayLink) -> MMDFramePreparationSession? {
         let timing = MMDFrameTiming(elapsed: elapsedTime(since: displayLink))
 
         updateDrawableSizeIfNeeded()
@@ -517,9 +529,10 @@ class MMDView: MetalView {
             return nil
         }
 
-        return MMDPreparedFrame(
-            timing: timing,
-            layout: layout)
+        return MMDFramePreparationSession(
+            frame: MMDPreparedFrame(
+                timing: timing,
+                layout: layout))
     }
 
     @objc func mainLoop(_ displayLink: CADisplayLink) {

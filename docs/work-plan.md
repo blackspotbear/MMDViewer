@@ -338,6 +338,7 @@
 - `PMXObject` の animation 更新段でも `PMXAnimationUpdateContext` を介し、姿勢更新に入る直前のアニメーション文脈を専用の値で読めるようにした
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
 - `PMXObject` の 1 フレーム更新を animation / geometry / render の更新セッションとしてまとめ、`MMDView` の window 参加時も scene 適用と display link 起動を同じセッション経由で扱うようにした
+- `PMXObject` の morph 解決も適用前のセッションとしてまとめ、`MMDView` の current frame 準備も frame 準備セッション経由で読む形にそろえた
 
 ## 次のイテレーション候補
 
