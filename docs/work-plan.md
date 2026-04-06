@@ -215,6 +215,7 @@
 - `Traverser` の update / draw 順序を固定する単体テストを追加し、renderer 周辺のリファクタリングに備えた足場を増やした
 - `BasicRenderer` の投影行列更新と model matrix stack 先頭アクセスの重複を helper にまとめ、renderer 状態管理を追いやすくした
 - `Traverser` の node 進入/退出処理を helper にまとめ、pass と model matrix stack の対応を追いやすくした
+- `Renderer` / `RenderPass` / `Node` / `Updater` / `Drawer` に `melt` 基盤としての役割コメントを追加し、描画層の整理単位を明文化した
 - `GLKMatrix4` の `simd_mul` をそのまま使うと GLKit のベクトル適用規約とずれることをテストで確認し、factory / transpose と演算 helper を分けて移行する方針を固めた
 - `GLKMatrix4` の axis rotation factory と instance helper (`scale` / `translate` / `rotateAroundX`) を simd-backed factory 経由へ寄せた
 - `GLKMatrix4` の off-center orthographic factory を `GLKMatrix4+MMD` へ移し、shadow 行列生成から残っていた `GLKMatrix4Make*` 依存を削った
