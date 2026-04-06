@@ -84,9 +84,9 @@ private struct MMDWindowSetupSession {
     let displayLink: MMDDisplayLinkConfiguration
 }
 
-private struct MMDForwardSceneNodeSession {
+private struct MMDForwardSceneGraphSession {
     let updater: PMXUpdater
-    let node: Node
+    let configuration: MMDSceneGraphConfiguration
 }
 
 private struct MMDSceneResourceLoadingSession {
@@ -189,21 +189,22 @@ class MMDView: MetalView {
     #if true // forward rendering
 
     private func makeSceneGraphConfiguration(pmxObject: PMXObject) -> MMDSceneGraphConfiguration {
-        return MMDSceneGraphConfiguration(
-            children: [makeForwardSceneNodeSession(pmxObject: pmxObject).node],
-            pixelFormat: .bgra8Unorm)
+        let session = makeForwardSceneGraphSession(pmxObject: pmxObject)
+        pmxUpdater = session.updater
+        return session.configuration
     }
 
-    private func makeForwardSceneNodeSession(pmxObject: PMXObject) -> MMDForwardSceneNodeSession {
+    private func makeForwardSceneGraphSession(pmxObject: PMXObject) -> MMDForwardSceneGraphSession {
         let node = Node()
         let updater = makePMXUpdater(pmxObject: pmxObject)
-        pmxUpdater = updater
         node.updater = updater
         node.drawer = PMXDrawer(pmxObj: pmxObject, device: device!)
         node.pass = ForwardRenderPass(view: self)
-        return MMDForwardSceneNodeSession(
+        return MMDForwardSceneGraphSession(
             updater: updater,
-            node: node)
+            configuration: MMDSceneGraphConfiguration(
+                children: [node],
+                pixelFormat: .bgra8Unorm))
     }
 
     #else // deferred rendering

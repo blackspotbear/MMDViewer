@@ -345,6 +345,7 @@
 - `PMXObject` の morph 適用でも結合済み更新集合の application session を導入し、`MMDView` の forward scene graph 構築でも updater と node を同じセッションで扱うようにした
 - `PMXObject` の render buffer 組み立てでは uniform / palette / material の 3 要素も component session としてまとめ、GPU 更新の組み立て段をさらに段階化した
 - `PMXObject` の uniform buffer 更新でも、buffer 確保と shadow 用行列計算を `PMXUniformBufferSession` にまとめ、行列準備と生書き込みの境界をさらに明確にした
+- active な forward path では updater と scene graph 構成全体も `MMDForwardSceneGraphSession` にまとめ、scene 準備の単位を node 単体から graph 構成単位へそろえた
 
 ## 次のイテレーション候補
 
