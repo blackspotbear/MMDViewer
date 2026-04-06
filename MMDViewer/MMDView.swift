@@ -84,6 +84,10 @@ private struct MMDWindowSetupSession {
     let displayLink: MMDDisplayLinkConfiguration
 }
 
+private struct MMDSceneResourceLoadingSession {
+    let resources: MMDSceneResources
+}
+
 private struct MMDFramePreparationSession {
     let frame: MMDPreparedFrame
 }
@@ -317,12 +321,17 @@ class MMDView: MetalView {
     }
 
     private func makeSceneResources() -> MMDSceneResources {
+        return makeSceneResourceLoadingSession().resources
+    }
+
+    private func makeSceneResourceLoadingSession() -> MMDSceneResourceLoadingSession {
         let pmx = loadPMXResource()
         let vmd = loadVMDResource()
-        return MMDSceneResources(
-            pmx: pmx,
-            vmd: vmd,
-            pmxObject: makePMXObject(pmx: pmx, vmd: vmd))
+        return MMDSceneResourceLoadingSession(
+            resources: MMDSceneResources(
+                pmx: pmx,
+                vmd: vmd,
+                pmxObject: makePMXObject(pmx: pmx, vmd: vmd)))
     }
 
     private func storeSceneResources(_ resources: MMDSceneResources) {

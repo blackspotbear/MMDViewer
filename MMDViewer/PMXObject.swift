@@ -332,6 +332,10 @@ private struct PMXStoredRenderBuffers {
     let materialBuffer: MTLBuffer
 }
 
+private struct PMXRenderBufferStorageSession {
+    let buffers: PMXStoredRenderBuffers
+}
+
 private struct PMXFrameRenderBufferAssembly {
     let buffers: PMXFrameRenderBuffers
 }
@@ -777,14 +781,15 @@ class PMXObject {
     }
 
     private func storeRenderBuffers(_ renderBuffers: PMXFrameRenderBuffers) {
-        applyStoredRenderBuffers(makeStoredRenderBuffers(renderBuffers))
+        applyStoredRenderBuffers(makeRenderBufferStorageSession(renderBuffers).buffers)
     }
 
-    private func makeStoredRenderBuffers(_ renderBuffers: PMXFrameRenderBuffers) -> PMXStoredRenderBuffers {
-        return PMXStoredRenderBuffers(
-            uniformBuffer: renderBuffers.uniforms,
-            matrixPalette: renderBuffers.matrixPalette,
-            materialBuffer: renderBuffers.materials)
+    private func makeRenderBufferStorageSession(_ renderBuffers: PMXFrameRenderBuffers) -> PMXRenderBufferStorageSession {
+        return PMXRenderBufferStorageSession(
+            buffers: PMXStoredRenderBuffers(
+                uniformBuffer: renderBuffers.uniforms,
+                matrixPalette: renderBuffers.matrixPalette,
+                materialBuffer: renderBuffers.materials))
     }
 
     private func applyStoredRenderBuffers(_ buffers: PMXStoredRenderBuffers) {

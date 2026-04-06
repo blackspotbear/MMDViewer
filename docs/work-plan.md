@@ -339,6 +339,7 @@
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
 - `PMXObject` の 1 フレーム更新を animation / geometry / render の更新セッションとしてまとめ、`MMDView` の window 参加時も scene 適用と display link 起動を同じセッション経由で扱うようにした
 - `PMXObject` の morph 解決も適用前のセッションとしてまとめ、`MMDView` の current frame 準備も frame 準備セッション経由で読む形にそろえた
+- `MMDView` の scene resource 読み込みと `PMXObject` の render buffer 保存でも、それぞれ読み込みセッション / 保存セッションを導入し、準備値と適用値の境界をさらにそろえた
 
 ## 次のイテレーション候補
 
