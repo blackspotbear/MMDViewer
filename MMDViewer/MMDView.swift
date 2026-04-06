@@ -16,6 +16,11 @@ private struct MMDSceneGraphConfiguration {
     let pixelFormat: MTLPixelFormat
 }
 
+private struct MMDPreparedScene {
+    let resources: MMDSceneResources
+    let sceneGraph: MMDSceneGraphConfiguration
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -259,18 +264,13 @@ class MMDView: MetalView {
         miku = resources.pmxObject
     }
 
-    private func loadSceneResources() {
-        storeSceneResources(makeSceneResources())
-    }
-
     /// `MMDView` が window に乗ったタイミングで、描画レイヤーと scene graph の初期化を束ねる。
     /// UIKit lifecycle の入り口を 1 箇所へ寄せ、後で scene 再構成や `MTKView` 置換を試しやすくする。
     private func configureForWindow(_ window: UIWindow) {
         configureDisplayScale(for: window)
         configureRendererEndHandler()
-        let sceneGraph = prepareScene()
-        configureSceneGraph(sceneGraph)
-        configureMetalLayer(pixelFormat: sceneGraph.pixelFormat)
+        let scene = prepareScene()
+        applyPreparedScene(scene)
         startDisplayLink()
     }
 
@@ -278,9 +278,17 @@ class MMDView: MetalView {
         contentScaleFactor = window.screen.nativeScale
     }
 
-    private func prepareScene() -> MMDSceneGraphConfiguration {
-        loadSceneResources()
-        return makeSceneGraphConfiguration()
+    private func prepareScene() -> MMDPreparedScene {
+        let resources = makeSceneResources()
+        return MMDPreparedScene(
+            resources: resources,
+            sceneGraph: makeSceneGraphConfiguration())
+    }
+
+    private func applyPreparedScene(_ scene: MMDPreparedScene) {
+        storeSceneResources(scene.resources)
+        configureSceneGraph(scene.sceneGraph)
+        configureMetalLayer(pixelFormat: scene.sceneGraph.pixelFormat)
     }
 
     private func configureSceneGraph(_ sceneGraph: MMDSceneGraphConfiguration) {

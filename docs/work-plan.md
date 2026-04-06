@@ -290,6 +290,7 @@
 - `SceneDelegate` と `ViewController` の lifecycle / playback 状態を enum で持ち上げ、通知名や再生状態の分岐を外周専用の型へ寄せた
 - `MMDView` の display link 入口を `prepareCurrentFrame` と描画実行に分け、frame 準備と draw 実行の境界を明確にした
 - `PMXObject` の毎フレーム更新で `PMXAnimationTick` を導入し、現在フレーム番号と IK 反復回数の参照を 1 つの値として渡すようにした
+- `MMDView` の scene 準備を `MMDPreparedScene` で表し、resource 読み込みと root/layer 反映を準備段と適用段に分離した
 
 ## 次のイテレーション候補
 
