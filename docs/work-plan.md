@@ -275,6 +275,7 @@
 - `MMDView` の window 参加時処理で display scale 設定と scene 準備を helper に分け、UIKit lifecycle 入口の段取りをさらに読みやすくした
 - `ViewController` の再生状態参照を computed property に集約し、通知/toolbar の両経路で同じ playback 状態判定を使うようにした
 - `SceneDelegate` の lifecycle notification 発火を 1 つの helper にまとめ、`MMDView` でも PMX updater 生成を helper 化して scene graph 構築時の段取りをそろえた
+- `ViewController` の lifecycle notification 登録と playback button 文言決定を helper に寄せ、UI 外周の重複を減らした
 
 ## 次のイテレーション候補
 

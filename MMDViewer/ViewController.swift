@@ -23,18 +23,12 @@ class ViewController: UIViewController {
     }
 
     private func registerLifecycleNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(ViewController.viewWillEnterForeground(_:)),
-            name: .mmdViewerWillEnterForeground,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(ViewController.viewDidEnterBackground(_:)),
-            name: .mmdViewerDidEnterBackground,
-            object: nil
-        )
+        registerLifecycleNotification(.mmdViewerWillEnterForeground, selector: #selector(ViewController.viewWillEnterForeground(_:)))
+        registerLifecycleNotification(.mmdViewerDidEnterBackground, selector: #selector(ViewController.viewDidEnterBackground(_:)))
+    }
+
+    private func registerLifecycleNotification(_ name: Notification.Name, selector: Selector) {
+        NotificationCenter.default.addObserver(self, selector: selector, name: name, object: nil)
     }
 
     deinit {
@@ -71,6 +65,10 @@ class ViewController: UIViewController {
     }
 
     private func updatePlayPauseButtonTitle() {
-        playPauseButton?.title = isCurrentlyPlaying ? "Pause" : "Play"
+        playPauseButton?.title = playbackButtonTitle(isPlaying: isCurrentlyPlaying)
+    }
+
+    private func playbackButtonTitle(isPlaying: Bool) -> String {
+        return isPlaying ? "Pause" : "Play"
     }
 }
