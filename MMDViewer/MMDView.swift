@@ -21,6 +21,11 @@ private struct MMDPreparedScene {
     let sceneGraph: MMDSceneGraphConfiguration
 }
 
+private struct MMDWindowConfiguration {
+    let displayScale: CGFloat
+    let preparedScene: MMDPreparedScene
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -267,15 +272,21 @@ class MMDView: MetalView {
     /// `MMDView` が window に乗ったタイミングで、描画レイヤーと scene graph の初期化を束ねる。
     /// UIKit lifecycle の入り口を 1 箇所へ寄せ、後で scene 再構成や `MTKView` 置換を試しやすくする。
     private func configureForWindow(_ window: UIWindow) {
-        configureDisplayScale(for: window)
+        let configuration = makeWindowConfiguration(for: window)
+        applyWindowConfiguration(configuration)
         configureRendererEndHandler()
-        let scene = prepareScene()
-        applyPreparedScene(scene)
         startDisplayLink()
     }
 
-    private func configureDisplayScale(for window: UIWindow) {
-        contentScaleFactor = window.screen.nativeScale
+    private func makeWindowConfiguration(for window: UIWindow) -> MMDWindowConfiguration {
+        return MMDWindowConfiguration(
+            displayScale: window.screen.nativeScale,
+            preparedScene: prepareScene())
+    }
+
+    private func applyWindowConfiguration(_ configuration: MMDWindowConfiguration) {
+        contentScaleFactor = configuration.displayScale
+        applyPreparedScene(configuration.preparedScene)
     }
 
     private func prepareScene() -> MMDPreparedScene {

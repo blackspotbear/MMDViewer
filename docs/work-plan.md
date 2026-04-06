@@ -295,6 +295,7 @@
 - `PMXObject` の 1 フレーム更新で `PMXFrameContext` を導入し、renderer と animation tick をまとめた文脈を各更新段へ渡すようにした
 - `MMDView` の frame 完了処理で drawable 取得と command buffer 完了を helper に分け、present / commit の最終段を追いやすくした
 - `PMXObject` の constructor では `PMXObjectSetup` に resource/animation state 生成を束ね、初期化段取りを 1 つの setup 値として読める形にした
+- `MMDView` の window 参加時セットアップを `MMDWindowConfiguration` にまとめ、display scale と prepared scene 適用を同じ構成値から扱えるようにした
 
 ## 次のイテレーション候補
 
