@@ -81,17 +81,11 @@ class BasicRenderer: Renderer {
     /// in-flight 数を制限して古い Metal 実装と現代 simulator の両方で過剰な先行発行を避ける。
     func begin() {
         _ = inflightSemaphore.wait(timeout: DispatchTime.distantFuture)
-
-        commandBuffer = commandQueue!.makeCommandBuffer()
-        commandBuffer!.addCompletedHandler { (commandBuffer) -> Void in
-            self.inflightSemaphore.signal()
-        }
+        commandBuffer = makeCommandBuffer()
     }
 
     func end() {
-        if let onEndHandler = onEndHandler {
-            onEndHandler(self)
-        }
+        runEndHandlerIfNeeded()
         commandBuffer = nil
     }
 
@@ -109,6 +103,20 @@ class BasicRenderer: Renderer {
 
     func setEndHandler(_ handler: @escaping (Renderer) -> Void) {
         self.onEndHandler = handler
+    }
+
+    private func makeCommandBuffer() -> MTLCommandBuffer {
+        let commandBuffer = commandQueue!.makeCommandBuffer()!
+        commandBuffer.addCompletedHandler { (_ commandBuffer: MTLCommandBuffer) -> Void in
+            self.inflightSemaphore.signal()
+        }
+        return commandBuffer
+    }
+
+    private func runEndHandlerIfNeeded() {
+        if let onEndHandler = onEndHandler {
+            onEndHandler(self)
+        }
     }
 
     /// renderer 全体で共有する透視投影の既定値を 1 箇所に集める。
