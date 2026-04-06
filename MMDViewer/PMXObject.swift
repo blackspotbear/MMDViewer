@@ -230,6 +230,16 @@ private struct MorphKeyFramePair {
     let right: [VMDMorph]?
 }
 
+private struct PMXObjectResources {
+    let vertexData: Data
+    let vertexBufferProvider: BufferProvider
+    let indexBuffer: MTLBuffer
+    let uniformBufferProvider: BufferProvider
+    let matrixPaletteBufferProvider: BufferProvider
+    let materialBufferProvider: BufferProvider
+    let textures: [MetalTexture]
+}
+
 /// `PMXObject` が shader 向けに送る生バイト列の準備を集約する。
 /// ここは still-legacy な `GLKMatrix4` 表現と `MTLBuffer` 書き込みが出会う境界で、
 /// 後で別型へ切り出す時も呼び出し側の流れを崩さずに移行できるようにしている。
@@ -344,15 +354,16 @@ class PMXObject {
         self.pmx = pmx
         self.vmd = vmd
 
-        vertexData = PMXVertex2NSData(pmx.vertices)!
+        let resources = Self.makeResources(device: device, pmx: pmx)
+        vertexData = resources.vertexData
         self.curveTies = Self.makeCurveTies(pmx: pmx, vmd: vmd)
         self.postures = Self.makePostures(for: pmx.bones)
-        vertexBufferProvider = Self.makeVertexBufferProvider(device: device, vertexData: vertexData)
-        indexBuffer = Self.makeIndexBuffer(device: device, indices: pmx.indices)
-        self.uniformBufferProvider = Self.makeUniformBufferProvider(device: device)
-        self.mtrxBufferProvider = Self.makeMatrixPaletteBufferProvider(device: device, boneCount: pmx.bones.count)
-        self.materialBufferProvider = Self.makeMaterialBufferProvider(device: device, materialCount: pmx.materials.count)
-        self.textures = Self.loadTextures(device: device, texturePaths: pmx.texturePaths)
+        vertexBufferProvider = resources.vertexBufferProvider
+        indexBuffer = resources.indexBuffer
+        self.uniformBufferProvider = resources.uniformBufferProvider
+        self.mtrxBufferProvider = resources.matrixPaletteBufferProvider
+        self.materialBufferProvider = resources.materialBufferProvider
+        self.textures = resources.textures
 
         counter = NormalCounter(beginFrameNum: 0, endFrameNum: vmd.meta.frameCount)
         //counter = DebugCounter(beginFrameNum: 160, endFrameNum: vmd.frameCount)
@@ -403,6 +414,19 @@ class PMXObject {
 
     private static func makePostures(for bones: [Bone]) -> [Posture] {
         return bones.map(Posture.init)
+    }
+
+    private static func makeResources(device: MTLDevice, pmx: PMX) -> PMXObjectResources {
+        let vertexData = PMXVertex2NSData(pmx.vertices)!
+        return PMXObjectResources(
+            vertexData: vertexData,
+            vertexBufferProvider: Self.makeVertexBufferProvider(device: device, vertexData: vertexData),
+            indexBuffer: Self.makeIndexBuffer(device: device, indices: pmx.indices),
+            uniformBufferProvider: Self.makeUniformBufferProvider(device: device),
+            matrixPaletteBufferProvider: Self.makeMatrixPaletteBufferProvider(device: device, boneCount: pmx.bones.count),
+            materialBufferProvider: Self.makeMaterialBufferProvider(device: device, materialCount: pmx.materials.count),
+            textures: Self.loadTextures(device: device, texturePaths: pmx.texturePaths)
+        )
     }
 
     private static func makeVertexBufferProvider(device: MTLDevice, vertexData: Data) -> BufferProvider {
