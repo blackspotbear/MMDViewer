@@ -387,13 +387,7 @@ class PMXObject {
     /// 呼び出し側は draw 前に毎フレームこれを実行する前提。
     func calc(_ renderer: Renderer) {
 //        FKSolver(postures, vmd: vmd, frameNum: counter.currentFrame())
-        FKSolver(postures, curveTies: self.curveTies, frameNum: counter.currentFrame())
-        IKSolver(postures, maxIt: counter.maxIt())
-        GrantSolver(postures)
-
-        for posture in postures {
-            posture.updateTransformMatrix(postures)
-        }
+        updatePosturesForCurrentFrame()
 
         PhysicsSolver(postures, physicsSolving: solver)
 
@@ -406,6 +400,18 @@ class PMXObject {
         uniformBuffer = renderBuffers.uniforms
         matrixPalette = renderBuffers.matrixPalette
         materialBuffer = renderBuffers.materials
+    }
+
+    /// FK / IK / Grant 解決後に、全ボーンの world matrix を現在フレームへ揃える。
+    /// 物理はこの結果を入力として受け取るため、姿勢計算のまとまりをここで固定する。
+    private func updatePosturesForCurrentFrame() {
+        FKSolver(postures, curveTies: self.curveTies, frameNum: counter.currentFrame())
+        IKSolver(postures, maxIt: counter.maxIt())
+        GrantSolver(postures)
+
+        for posture in postures {
+            posture.updateTransformMatrix(postures)
+        }
     }
 
     /// 頂点 morph を CPU 側 vertex buffer へ直接加算する。
