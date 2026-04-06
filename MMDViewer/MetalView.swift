@@ -3,6 +3,8 @@ import UIKit
 import Metal
 import QuartzCore
 
+/// `melt` の UIView 側エントリポイント。
+/// CAMetalLayer の所有と current drawable の取得だけを担当し、描画内容の管理は pass / renderer 側へ委ねる。
 class MetalView: UIView {
     var device: MTLDevice?
 
@@ -65,5 +67,10 @@ class MetalView: UIView {
             self.device = device
             self.metalLayer = metalLayer
         }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        metalLayer?.frame = bounds
     }
 }

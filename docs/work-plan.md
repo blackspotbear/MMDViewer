@@ -232,6 +232,7 @@
 - `PMXObject` の物理ステップも helper にまとめ、`calc` を姿勢更新 / 物理 / 頂点 / 描画バッファの 4 段で読める形にした
 - `PhysicsSolver.mm` で Swift 側 rigid body と Bullet body の対応付け、transform 読み書きの重複を helper に集約した
 - `PhysicsSolving` 境界と Swift 側の physics update ループにコメントを追加し、今後の `simd` 化の差し替え点を明示した
+- `ForwardRenderPass` の drawable / depth attachment 更新責務と `MetalView` の layer 管理責務をコメントと helper で整理し、`melt` の pass-view 境界を追いやすくした
 
 ## 次のイテレーション候補
 

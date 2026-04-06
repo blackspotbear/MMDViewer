@@ -3,6 +3,8 @@ import Metal
 
 private let depthTextureSampleCount = 1
 
+/// `ForwardRenderPass` 専用の render target キャッシュ。
+/// drawable サイズに追従する depth texture の再確保だけを担当する。
 private class PassResource {
     let device: MTLDevice
     var depthTex: MTLTexture?
@@ -19,54 +21,62 @@ private class PassResource {
         print("done")
     }
 
-    func renderPassDescriptorForDrawable(_ drawable: MTLTexture) -> MTLRenderPassDescriptor {
-        // color attachment #0
+    private func configureColorAttachment(with drawable: MTLTexture) {
         if let colorAttachment = renderPassDescriptor.colorAttachments[0] {
             colorAttachment.texture = drawable
             colorAttachment.loadAction = .clear
             colorAttachment.clearColor = MTLClearColorMake(0.0, 0.35, 0.65, 1.0)
             colorAttachment.storeAction = .store
         }
+    }
 
-        // update depth texture
-        var doUpdate = false
+    private func needsDepthTextureUpdate(for drawable: MTLTexture) -> Bool {
         if let tex = depthTex {
-            doUpdate =
+            return
                 (tex.width       != drawable.width)  ||
                 (tex.height      != drawable.height) ||
                 (tex.sampleCount != depthTextureSampleCount)
-        } else {
-            doUpdate = true
+        }
+        return true
+    }
+
+    private func configureDepthAttachment(with drawable: MTLTexture) {
+        guard needsDepthTextureUpdate(for: drawable) else {
+            return
         }
 
-        if doUpdate {
-            let desc = MTLTextureDescriptor.texture2DDescriptor(
-                pixelFormat: .depth32Float,
-                width: drawable.width,
-                height: drawable.height,
-                mipmapped: false)
-            desc.textureType = (depthTextureSampleCount > 1) ? .type2DMultisample : .type2D
-            desc.sampleCount = depthTextureSampleCount
-            desc.usage = .renderTarget
-            desc.storageMode = .private
-            depthTex = device.makeTexture(descriptor: desc)
+        let desc = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .depth32Float,
+            width: drawable.width,
+            height: drawable.height,
+            mipmapped: false)
+        desc.textureType = (depthTextureSampleCount > 1) ? .type2DMultisample : .type2D
+        desc.sampleCount = depthTextureSampleCount
+        desc.usage = .renderTarget
+        desc.storageMode = .private
+        depthTex = device.makeTexture(descriptor: desc)
 
-            if let depthTex = depthTex {
-                print(String(format:"update depth texture (%d, %d)", depthTex.width, depthTex.height))
+        if let depthTex = depthTex {
+            print(String(format:"update depth texture (%d, %d)", depthTex.width, depthTex.height))
 
-                if let attachment = renderPassDescriptor.depthAttachment {
-                    attachment.texture = depthTex
-                    attachment.loadAction = .clear
-                    attachment.storeAction = .dontCare
-                    attachment.clearDepth = 1.0
-                }
+            if let attachment = renderPassDescriptor.depthAttachment {
+                attachment.texture = depthTex
+                attachment.loadAction = .clear
+                attachment.storeAction = .dontCare
+                attachment.clearDepth = 1.0
             }
         }
+    }
 
+    func renderPassDescriptorForDrawable(_ drawable: MTLTexture) -> MTLRenderPassDescriptor {
+        configureColorAttachment(with: drawable)
+        configureDepthAttachment(with: drawable)
         return renderPassDescriptor
     }
 }
 
+/// `melt` のもっとも基本的な forward pass。
+/// view の drawable を描画先にし、単色背景と depth buffer を整えて scene 描画を始める。
 class ForwardRenderPass: RenderPass {
     private let view: MetalView
 
