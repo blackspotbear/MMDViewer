@@ -23,5 +23,7 @@ protocol Renderer {
     func end()
     func reshape(_ bounds: CGRect)
 
+    /// frame 完了時の present / commit を renderer 利用側から差し込む。
+    /// `MMDView` はここへ drawable 提示を渡し、renderer 本体は command buffer の寿命管理に集中する。
     func setEndHandler(_: @escaping (Renderer) -> Void)
 }

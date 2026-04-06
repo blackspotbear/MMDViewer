@@ -261,6 +261,8 @@
 - `PMXObject` の render buffer 保存 helper 名を明示化し、更新段取りの意図を追いやすくした
 - `Traverser` の 1 frame begin / draw / end を helper に集約し、traversal と frame 境界を分けて追いやすくした
 - `PMXObject` の current vertex buffer 取得とベース頂点コピーを helper に分離し、CPU morph 前段の差し替え点を明確にした
+- `Renderer.setEndHandler` の責務コメントを補強し、`MMDView` と renderer の frame 完了境界を読み取りやすくした
+- `PMXObject` の index buffer / physics solver 生成と 1 frame 更新入口を helper 化し、初期化と毎フレーム更新の段取りをそろえた
 
 ## 次のイテレーション候補
 

@@ -344,12 +344,11 @@ class PMXObject {
         self.pmx = pmx
         self.vmd = vmd
 
+        vertexData = PMXVertex2NSData(pmx.vertices)!
         self.curveTies = Self.makeCurveTies(pmx: pmx, vmd: vmd)
         self.postures = Self.makePostures(for: pmx.bones)
-
-        vertexData = PMXVertex2NSData(pmx.vertices)!
         vertexBufferProvider = Self.makeVertexBufferProvider(device: device, vertexData: vertexData)
-        indexBuffer = device.makeBuffer(bytes: pmx.indices, length: pmx.indices.count * MemoryLayout<UInt16>.size, options: MTLResourceOptions())!
+        indexBuffer = Self.makeIndexBuffer(device: device, indices: pmx.indices)
         self.uniformBufferProvider = Self.makeUniformBufferProvider(device: device)
         self.mtrxBufferProvider = Self.makeMatrixPaletteBufferProvider(device: device, boneCount: pmx.bones.count)
         self.materialBufferProvider = Self.makeMaterialBufferProvider(device: device, materialCount: pmx.materials.count)
@@ -358,13 +357,17 @@ class PMXObject {
         counter = NormalCounter(beginFrameNum: 0, endFrameNum: vmd.meta.frameCount)
         //counter = DebugCounter(beginFrameNum: 160, endFrameNum: vmd.frameCount)
 
-        solver = PhysicsSolverMake(pmx)
+        solver = Self.makePhysicsSolver(pmx: pmx)
     }
 
     /// 1 frame 分のアニメーション、物理、morph、GPU 転送をまとめて進める。
     /// 呼び出し側は draw 前に毎フレームこれを実行する前提。
     func calc(_ renderer: Renderer) {
-//        FKSolver(postures, vmd: vmd, frameNum: counter.currentFrame())
+        updateFrame(renderer)
+    }
+
+    private func updateFrame(_ renderer: Renderer) {
+        //        FKSolver(postures, vmd: vmd, frameNum: counter.currentFrame())
         updatePosturesForCurrentFrame()
         runPhysicsStep()
         prepareVertexBufferForCurrentFrame()
@@ -409,6 +412,14 @@ class PMXObject {
             data: vertexData)
     }
 
+    private static func makeIndexBuffer(device: MTLDevice, indices: [UInt16]) -> MTLBuffer {
+        return device.makeBuffer(
+            bytes: indices,
+            length: indices.count * MemoryLayout<UInt16>.size,
+            options: MTLResourceOptions()
+        )!
+    }
+
     private static func makeUniformBufferProvider(device: MTLDevice) -> BufferProvider {
         return BufferProvider(
             device: device,
@@ -439,6 +450,10 @@ class PMXObject {
             texture.loadTexture(device, flip: true)
             return texture
         }
+    }
+
+    private static func makePhysicsSolver(pmx: PMX) -> PhysicsSolving {
+        return PhysicsSolverMake(pmx)
     }
 
     /// ベース頂点を inflight buffer へコピーし、現在フレームの morph を上書き適用する。
