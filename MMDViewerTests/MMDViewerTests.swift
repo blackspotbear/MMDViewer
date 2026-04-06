@@ -123,6 +123,7 @@ final class MMDViewerTests: XCTestCase {
         let url = projectRoot.appendingPathComponent(relativePath)
         return try? Data(contentsOf: url)
     }
+
 }
 
 /// GLKit 互換レイヤーと traversal 規約をまとめて監視する。

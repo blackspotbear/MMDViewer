@@ -181,7 +181,7 @@
 - [x] `MMDView` の主要 session が入口で直接消費される形にそろう
 - [x] `PMXObject` の主要 session が入口で直接消費される形にそろう
 - [x] session / context / apply / storage の命名と役割が `MMDView` と `PMXObject` で一貫する
-- [ ] 最終的なテスト不足領域を埋める
+- [x] 最終的なテスト不足領域を埋める
 - [x] Bullet 2 系の公式 release を基準に、vendor を丸ごと更新できるか調査する
 - [x] Bullet 2.89 を第一候補として、API 差分と移行コストを確認する
 - [ ] 丸ごと更新が重すぎる場合に備えて、target 依存面積の縮小を第 2 案として整理する
@@ -333,6 +333,9 @@
 - `MMDView` の prepared scene 適用でも `MMDSceneApplication` を介す形にし、resource 保持と scene graph / layer 反映を同じ適用値として読めるようにした
 - `MMDView` の display link 起動設定を `MMDDisplayLinkConfiguration` に分け、window 構成から frame 駆動設定だけを切り出せるようにした
 - `PMXObject` の render buffer 保存でも `PMXStoredRenderBuffers` を介す形にし、draw 前に保持する GPU バッファ集合を 1 つの値として扱えるようにした
+- `PhysicsSolver` の kinematic push / dynamic pull を spy ベースの単体テストで固定し、物理ブリッジ境界の回帰を監視できるようにした
+- fixture を使った `PMXUpdater` の再生/停止/角速度減衰テストを追加し、再生状態と frame 進行の回帰を監視できるようにした
+- storyboard 実体を使う `ViewController` テストを追加し、lifecycle 通知と Play/Pause UI の同期を回帰テストで固定した
 - `PMXObject` の morph 解決結果を `PMXMorphUpdates` として左右別の更新集合にまとめ、keyframe 解決と頂点更新適用の境界をさらに明確にした
 - `MMDView` の display link 起動では生成と設定を分け、window 構成から frame 駆動へ流れる段取りをより追いやすくした
 - `MMDPreparedFrame` が drawable layout も持つようにし、frame 準備結果を時間情報だけでなく描画前提込みの値として扱えるようにした

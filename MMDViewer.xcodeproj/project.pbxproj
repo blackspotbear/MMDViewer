@@ -42,6 +42,7 @@
 		AB8230F81C2FE34D008691E0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AB8230F71C2FE34D008691E0 /* Assets.xcassets */; };
 		AB8230FB1C2FE34D008691E0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AB8230F91C2FE34D008691E0 /* LaunchScreen.storyboard */; };
 		AB8231061C2FE34D008691E0 /* MMDViewerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8231051C2FE34D008691E0 /* MMDViewerTests.swift */; };
+		D4A1B2012F60000100AA0001 /* ViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1B2002F60000100AA0001 /* ViewControllerTests.swift */; };
 		AB8231111C2FE34D008691E0 /* MMDViewerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8231101C2FE34D008691E0 /* MMDViewerUITests.swift */; };
 		ABE7C0012F00000100000001 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE7C0002F00000100000001 /* SceneDelegate.swift */; };
 		AB82311F1C2FE380008691E0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB82311E1C2FE380008691E0 /* QuartzCore.framework */; };
@@ -276,6 +277,7 @@
 		ABE7C0002F00000100000001 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		AB8231011C2FE34D008691E0 /* MMDViewer.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MMDViewer.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB8231051C2FE34D008691E0 /* MMDViewerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMDViewerTests.swift; sourceTree = "<group>"; };
+		D4A1B2002F60000100AA0001 /* ViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerTests.swift; sourceTree = "<group>"; };
 		AB8231071C2FE34D008691E0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB82310C1C2FE34D008691E0 /* MMDViewer.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MMDViewer.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB8231101C2FE34D008691E0 /* MMDViewerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMDViewerUITests.swift; sourceTree = "<group>"; };
@@ -817,6 +819,7 @@
 			isa = PBXGroup;
 			children = (
 				AB8231051C2FE34D008691E0 /* MMDViewerTests.swift */,
+				D4A1B2002F60000100AA0001 /* ViewControllerTests.swift */,
 				AB8231071C2FE34D008691E0 /* Info.plist */,
 			);
 			path = MMDViewerTests;
@@ -1774,6 +1777,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB8231061C2FE34D008691E0 /* MMDViewerTests.swift in Sources */,
+				D4A1B2012F60000100AA0001 /* ViewControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
