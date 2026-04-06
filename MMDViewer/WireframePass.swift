@@ -28,6 +28,11 @@ private func LoadShaderFunction(_ device: MTLDevice) -> MTLRenderPipelineDescrip
 }
 
 class WireframePass: RenderPass {
+    private struct BeginContext {
+        let colorBuffer: MTLTexture
+        let depthBuffer: MTLTexture
+    }
+
     private let device: MTLDevice
     private var renderPipelineState: MTLRenderPipelineState?
     private var depthStencilState: MTLDepthStencilState
@@ -42,54 +47,67 @@ class WireframePass: RenderPass {
         renderPipelineDescriptor = LoadShaderFunction(device)
     }
 
-    func begin(_ renderer: Renderer) {
+    private func beginContext(for renderer: Renderer) -> BeginContext? {
         guard let colorBuffer = renderer.textureResources["ColorBuffer"] else {
-            return
+            return nil
         }
         guard let depthBuffer = renderer.textureResources["DepthBuffer"] else {
-            return
+            return nil
         }
 
-        //
-        // Update RenderPassDescriptor
-        //
+        return BeginContext(colorBuffer: colorBuffer, depthBuffer: depthBuffer)
+    }
+
+    private func updateRenderPassDescriptor(using context: BeginContext) {
         if let attachment = renderPassDescriptor.colorAttachments[0] {
-            attachment.texture = colorBuffer
+            attachment.texture = context.colorBuffer
             attachment.loadAction = .load
             attachment.storeAction = .store
         }
 
         if let attachment = renderPassDescriptor.depthAttachment {
-            attachment.texture = depthBuffer
+            attachment.texture = context.depthBuffer
             attachment.loadAction = .load
             attachment.storeAction = .store
         }
+    }
 
-        //
-        // Update RenderPipelineState
-        //
+    private func updateRenderPipelineState(using context: BeginContext) {
         var doUpdate = renderPipelineState == nil
-        if renderPipelineDescriptor.colorAttachments[0].pixelFormat != colorBuffer.pixelFormat {
-            renderPipelineDescriptor.colorAttachments[0].pixelFormat = colorBuffer.pixelFormat
+        if renderPipelineDescriptor.colorAttachments[0].pixelFormat != context.colorBuffer.pixelFormat {
+            renderPipelineDescriptor.colorAttachments[0].pixelFormat = context.colorBuffer.pixelFormat
             doUpdate = true
         }
-        if renderPipelineDescriptor.depthAttachmentPixelFormat != depthBuffer.pixelFormat {
-            renderPipelineDescriptor.depthAttachmentPixelFormat = depthBuffer.pixelFormat
+        if renderPipelineDescriptor.depthAttachmentPixelFormat != context.depthBuffer.pixelFormat {
+            renderPipelineDescriptor.depthAttachmentPixelFormat = context.depthBuffer.pixelFormat
             doUpdate = true
         }
         if doUpdate {
             renderPipelineState = try! device.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
         }
+    }
+
+    private func configure(_ encoder: MTLRenderCommandEncoder) {
+        encoder.pushDebugGroup("wireframe pass")
+        encoder.label = "wireframe buffer"
+        encoder.setRenderPipelineState(renderPipelineState!)
+        encoder.setDepthStencilState(depthStencilState)
+        encoder.setCullMode(.none)
+        encoder.setTriangleFillMode(.lines)
+    }
+
+    func begin(_ renderer: Renderer) {
+        guard let context = beginContext(for: renderer) else {
+            return
+        }
+
+        updateRenderPassDescriptor(using: context)
+        updateRenderPipelineState(using: context)
 
         let renderer = renderer
         let encoder = renderer.commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
         if let encoder = encoder {
-            encoder.pushDebugGroup("wireframe pass")
-            encoder.label = "wireframe buffer"
-            encoder.setRenderPipelineState(renderPipelineState!)
-            encoder.setDepthStencilState(depthStencilState)
-            encoder.setCullMode(.none)
-            encoder.setTriangleFillMode(.lines)
+            configure(encoder)
             renderer.pushRenderCommandEncoder(encoder)
         }
     }
