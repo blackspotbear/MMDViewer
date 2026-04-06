@@ -281,6 +281,7 @@
 - `MMDView` の scene resource 読み込みを PMX / VMD / PMXObject 生成 helper に分け、scene 準備時の差し替え点を明確にした
 - `PMXObject` の morph 適用と render buffer 取得で optional 分岐と `BufferProvider` 利用を helper に寄せ、毎フレーム更新の段取りをさらにそろえた
 - `MetalView` の drawable 取得、layer 初期化、frame 追従を helper 境界へそろえ、`melt` view 入口の責務をさらに明確にした
+- `MMDView` の forward / deferred scene graph 構築を node factory 群へ分離し、描画構成の段取りを大きめの単位で追いやすくした
 
 ## 次のイテレーション候補
 

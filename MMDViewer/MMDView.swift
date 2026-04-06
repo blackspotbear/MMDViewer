@@ -90,9 +90,7 @@ class MMDView: MetalView {
     #if true // forward rendering
 
     private func setupSceneGraph() -> MTLPixelFormat {
-        root.updater = cameraUpdater
-        root.children = [makeForwardPMXNode()]
-
+        configureRootNode(children: [makeForwardPMXNode()])
         return .bgra8Unorm
     }
 
@@ -108,46 +106,60 @@ class MMDView: MetalView {
     #else // deferred rendering
 
     private func setupSceneGraph() -> MTLPixelFormat {
-        let shadowNode = Node()
+        configureRootNode(children: [makeDeferredSceneNode()])
+        return .bgra8Unorm
+    }
+
+    private func makeDeferredSceneNode() -> Node {
         let shadowPass = ShadowPass(device: device!)
-        shadowNode.pass = shadowPass
-        shadowNode.drawer = PMXShadowDrawer(pmxObj: miku)
-
-        let gbufferNode = Node()
-        let gbufferPass = GBufferPass(view: self)
-        gbufferNode.pass = gbufferPass
-
-        let pmxDrawNode = Node()
-        pmxDrawNode.drawer = PMXGBufferDrawer(
-            device: device!,
-            pmxObj: miku,
-            shadowTexture: shadowPass.shadowTexture)
-
-        let pointLightNode = Node()
-        pointLightNode.drawer = PointLightDrawer(
-            device: device!,
-            lightCount: 1)
-
-        gbufferNode.children.append(pmxDrawNode)
-        gbufferNode.children.append(pointLightNode)
-
-        let wireframeNode = Node()
-        let wireframePass = WireframePass(device: device!)
-        wireframeNode.pass = wireframePass
-        wireframeNode.drawer = WireFrameDrawer(device: device!)
-
-
         let node = Node()
         pmxUpdater = makePMXUpdater()
         node.updater = pmxUpdater
-        node.children.append(shadowNode)
-        node.children.append(gbufferNode)
-        node.children.append(wireframeNode)
+        node.children = [
+            makeShadowNode(pass: shadowPass),
+            makeGBufferNode(shadowPass: shadowPass),
+            makeWireframeNode()
+        ]
+        return node
+    }
 
-        root.updater = cameraUpdater
-        root.children.append(node)
+    private func makeShadowNode(pass shadowPass: ShadowPass) -> Node {
+        let node = Node()
+        node.pass = shadowPass
+        node.drawer = PMXShadowDrawer(pmxObj: miku)
+        return node
+    }
 
-        return .bgra8Unorm
+    private func makeGBufferNode(shadowPass: ShadowPass) -> Node {
+        let node = Node()
+        node.pass = GBufferPass(view: self)
+        node.children = [
+            makePMXGBufferNode(shadowTexture: shadowPass.shadowTexture),
+            makePointLightNode()
+        ]
+        return node
+    }
+
+    private func makePMXGBufferNode(shadowTexture: MTLTexture) -> Node {
+        let node = Node()
+        node.drawer = PMXGBufferDrawer(
+            device: device!,
+            pmxObj: miku,
+            shadowTexture: shadowTexture)
+        return node
+    }
+
+    private func makePointLightNode() -> Node {
+        let node = Node()
+        node.drawer = PointLightDrawer(device: device!, lightCount: 1)
+        return node
+    }
+
+    private func makeWireframeNode() -> Node {
+        let node = Node()
+        node.pass = WireframePass(device: device!)
+        node.drawer = WireFrameDrawer(device: device!)
+        return node
     }
 
     #endif
@@ -238,6 +250,11 @@ class MMDView: MetalView {
     private func prepareScene() -> MTLPixelFormat {
         loadSceneResources()
         return setupSceneGraph()
+    }
+
+    private func configureRootNode(children: [Node]) {
+        root.updater = cameraUpdater
+        root.children = children
     }
 
     private func configureMetalLayer(pixelFormat: MTLPixelFormat) {
