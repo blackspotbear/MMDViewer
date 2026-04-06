@@ -125,6 +125,46 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 [`MetalView.swift`](/Users/kmi/devel/MMDViewer/MMDViewer/MetalView.swift) は `CAMetalLayer` を直接扱う独自 UIView です。これは当時は妥当ですが、現在は `MTKView` に寄せた方が保守性、drawable 管理、リサイズ処理、周辺 API 連携の面で有利です。
 
+### 4.1 `MTKView` 移行の差分設計
+
+2026-04-06 時点では、`MetalView` と `MMDView` の責務分離がかなり進んでおり、`MTKView` への置換対象は比較的はっきりしています。
+
+- `MetalView` に残っている責務
+  - `CAMetalLayer` の所有
+  - `MTLDevice` の取得
+  - `currentDrawable` の取得
+  - `drawableSize` と layer frame の同期
+- `MMDView` に残っている責務
+  - PMX/VMD resource 読み込み
+  - scene graph 構築
+  - `CADisplayLink` による frame 駆動
+  - `renderer` の end handler へ present / commit を差し込むこと
+
+このため、`MTKView` 移行は「描画内容を作り直す作業」ではなく、主に view 層の substrate を差し替える作業として扱えます。現時点の差分設計は次の通りです。
+
+- `MetalView` は `MTKView` を継承または内包する薄い adapter へ置き換える
+- `currentDrawable` 取得は `MTKView.currentDrawable` をそのまま使う
+- `drawableSize` の更新と `contentScaleFactor` / `layoutSubviews` 連携は、`MTKView.drawableSize` と `autoResizeDrawable` へ寄せる
+- `device` 初期化は `MTLCreateSystemDefaultDevice()` を `MTKView.device` へ直接設定する形に寄せる
+- `renderer` / `pass` / `Traverser` / `PMXObject` は、`drawable` と pixel format の取得元以外は原則そのまま残す
+- `CADisplayLink` は初回移行では維持し、`MTKViewDelegate.draw(in:)` への全面移行は次の段階で判断する
+
+初回移行の最小単位としては、次の順が安全です。
+
+1. `MetalView` を `MTKView` ベースへ差し替えるが、`MMDView.mainLoop` と `CADisplayLink` は維持する
+2. `currentDrawable` / `drawableSize` / pixel format の取得元だけを `MTKView` へ寄せる
+3. build と単体テスト確認後、シミュレータで表示・モーション・操作を確認する
+4. 問題がなければ、次イテレーションで `MTKViewDelegate` 採用可否を検討する
+
+この設計により、最初の移行では次を避けられます。
+
+- scene graph 構築の変更
+- render pass の begin/end 契約の変更
+- `PMXObject` の GPU バッファ更新ロジックの変更
+- frame pacing の仕様変更
+
+つまり、`MTKView` 移行の第 1 段階は「view substrate の差し替え」に限定し、その後に必要なら draw loop の近代化へ進むのが妥当です。
+
 ### 5. テストが未整備
 
 - [`MMDViewerTests.swift`](/Users/kmi/devel/MMDViewer/MMDViewerTests/MMDViewerTests.swift) は雛形のみ
