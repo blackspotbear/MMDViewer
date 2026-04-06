@@ -665,16 +665,16 @@ class PMXObject {
 
     /// draw が参照する 3 種類の buffer を 1 セットとして更新する。
     /// 呼び出し側はこの戻り値を保存するだけで、各 buffer の生成順を意識しなくてよい。
-    private func makeFrameRenderBuffers(_ renderer: Renderer) -> PMXFrameRenderBuffers {
+    private func makeFrameRenderBuffers(_ context: PMXRenderContext) -> PMXFrameRenderBuffers {
         return PMXFrameRenderBuffers(
-            uniforms: makeUniformBuffer(renderer),
+            uniforms: makeUniformBuffer(context),
             matrixPalette: makeMatrixPaletteBuffer(),
             materials: makeMaterialBuffer())
     }
 
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
     private func updateRenderBuffers(_ context: PMXFrameContext) {
-        let renderBuffers = makeFrameRenderBuffers(context.render.renderer)
+        let renderBuffers = makeFrameRenderBuffers(context.render)
         storeRenderBuffers(renderBuffers)
     }
 
@@ -690,7 +690,7 @@ class PMXObject {
 
     /// 描画に必要な camera / shadow 行列をまとめて uniform buffer へ転送する。
     /// shadowMatrixGB は Metal のテクスチャ座標系に合わせて Y 反転込みで作っている。
-    private func makeUniformBuffer(_ renderer: Renderer) -> MTLBuffer {
+    private func makeUniformBuffer(_ context: PMXRenderContext) -> MTLBuffer {
         let uniformBuffer = withNextBuffer(bufferProviders.uniforms)
 
         // "Metal Shading Language Guide" says:
@@ -701,13 +701,13 @@ class PMXObject {
         //
         // see https://goo.gl/vgIYTf
 
-        let renderMatrices = PMXRenderDataEncoder.makeRenderMatrices(renderer, modelMatrix)
+        let renderMatrices = PMXRenderDataEncoder.makeRenderMatrices(context.renderer, modelMatrix)
 
         CopyMatrices(
             uniformBuffer,
             modelMatrix,
             renderMatrices.modelViewMatrix,
-            renderer.projectionMatrix,
+            context.renderer.projectionMatrix,
             normalMatrix,
             renderMatrices.shadowMatrix,
             renderMatrices.shadowMatrixGB)
