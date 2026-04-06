@@ -11,6 +11,11 @@ private struct MMDSceneResources {
     let pmxObject: PMXObject
 }
 
+private struct MMDSceneGraphConfiguration {
+    let children: [Node]
+    let pixelFormat: MTLPixelFormat
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -98,9 +103,10 @@ class MMDView: MetalView {
 
     #if true // forward rendering
 
-    private func setupSceneGraph() -> MTLPixelFormat {
-        configureRootNode(children: [makeForwardPMXNode()])
-        return .bgra8Unorm
+    private func makeSceneGraphConfiguration() -> MMDSceneGraphConfiguration {
+        return MMDSceneGraphConfiguration(
+            children: [makeForwardPMXNode()],
+            pixelFormat: .bgra8Unorm)
     }
 
     private func makeForwardPMXNode() -> Node {
@@ -114,9 +120,10 @@ class MMDView: MetalView {
 
     #else // deferred rendering
 
-    private func setupSceneGraph() -> MTLPixelFormat {
-        configureRootNode(children: [makeDeferredSceneNode()])
-        return .bgra8Unorm
+    private func makeSceneGraphConfiguration() -> MMDSceneGraphConfiguration {
+        return MMDSceneGraphConfiguration(
+            children: [makeDeferredSceneNode()],
+            pixelFormat: .bgra8Unorm)
     }
 
     private func makeDeferredSceneNode() -> Node {
@@ -261,7 +268,9 @@ class MMDView: MetalView {
     private func configureForWindow(_ window: UIWindow) {
         configureDisplayScale(for: window)
         configureRendererEndHandler()
-        configureMetalLayer(pixelFormat: prepareScene())
+        let sceneGraph = prepareScene()
+        configureSceneGraph(sceneGraph)
+        configureMetalLayer(pixelFormat: sceneGraph.pixelFormat)
         startDisplayLink()
     }
 
@@ -269,14 +278,14 @@ class MMDView: MetalView {
         contentScaleFactor = window.screen.nativeScale
     }
 
-    private func prepareScene() -> MTLPixelFormat {
+    private func prepareScene() -> MMDSceneGraphConfiguration {
         loadSceneResources()
-        return setupSceneGraph()
+        return makeSceneGraphConfiguration()
     }
 
-    private func configureRootNode(children: [Node]) {
+    private func configureSceneGraph(_ sceneGraph: MMDSceneGraphConfiguration) {
         root.updater = cameraUpdater
-        root.children = children
+        root.children = sceneGraph.children
     }
 
     private func configureMetalLayer(pixelFormat: MTLPixelFormat) {

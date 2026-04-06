@@ -369,15 +369,24 @@ class PMXObject {
 
         let resources = Self.makeResources(device: device, pmx: pmx)
         let animationState = Self.makeAnimationState(pmx: pmx, vmd: vmd)
-        vertexData = resources.vertexData
-        bufferProviders = resources.bufferProviders
-        indexBuffer = resources.indexBuffer
-        self.textures = resources.textures
+        let storedResources = Self.makeStoredResources(from: resources)
+        let storedAnimationState = Self.makeStoredAnimationState(from: animationState)
+        vertexData = storedResources.vertexData
+        bufferProviders = storedResources.bufferProviders
+        indexBuffer = storedResources.indexBuffer
+        self.textures = storedResources.textures
+        self.curveTies = storedAnimationState.curveTies
+        self.postures = storedAnimationState.postures
+        counter = storedAnimationState.counter
+        solver = storedAnimationState.solver
+    }
 
-        self.curveTies = animationState.curveTies
-        self.postures = animationState.postures
-        counter = animationState.counter
-        solver = animationState.solver
+    private static func makeStoredResources(from resources: PMXObjectResources) -> PMXObjectResources {
+        return resources
+    }
+
+    private static func makeStoredAnimationState(from animationState: PMXObjectAnimationState) -> PMXObjectAnimationState {
+        return animationState
     }
 
     /// 1 frame 分のアニメーション、物理、morph、GPU 転送をまとめて進める。
