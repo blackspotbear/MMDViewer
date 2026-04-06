@@ -862,7 +862,7 @@ class PMXObject {
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
     private func updateRenderBuffers(_ context: PMXRenderUpdateContext) {
         let session = makeRenderBufferUpdateSession(context)
-        storeRenderBuffers(makeRenderBufferApplySession(session).buffers)
+        storeRenderBuffers(makeRenderBufferApplySession(session))
     }
 
     private func currentRenderUpdateContext(_ context: PMXFrameContext) -> PMXRenderUpdateContext {
@@ -889,8 +889,8 @@ class PMXObject {
         return provider.nextBuffer()
     }
 
-    private func storeRenderBuffers(_ renderBuffers: PMXFrameRenderBuffers) {
-        applyStoredRenderBuffers(makeRenderBufferStorageApplySession(renderBuffers).storage)
+    private func storeRenderBuffers(_ session: PMXRenderBufferApplySession) {
+        applyStoredRenderBuffers(makeRenderBufferStorageApplySession(session).storage)
     }
 
     private func makeRenderBufferStorageSession(_ renderBuffers: PMXFrameRenderBuffers) -> PMXRenderBufferStorageSession {
@@ -901,9 +901,9 @@ class PMXObject {
                 materialBuffer: renderBuffers.materials))
     }
 
-    private func makeRenderBufferStorageApplySession(_ renderBuffers: PMXFrameRenderBuffers) -> PMXRenderBufferStorageApplySession {
+    private func makeRenderBufferStorageApplySession(_ session: PMXRenderBufferApplySession) -> PMXRenderBufferStorageApplySession {
         return PMXRenderBufferStorageApplySession(
-            storage: makeRenderBufferStorageSession(renderBuffers).buffers)
+            storage: makeRenderBufferStorageSession(session.buffers).buffers)
     }
 
     private func applyStoredRenderBuffers(_ buffers: PMXStoredRenderBuffers) {
