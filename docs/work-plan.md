@@ -259,6 +259,8 @@
 - `GBufferPass` の color / depth / stencil attachment 更新を helper に分離し、deferred pass の attachment 更新責務を追いやすくした
 - `GBufferPass` の texture resource 設定、encoder 生成、composition 段取りを helper に分離し、deferred path の begin/end 境界を読みやすくした
 - `PMXObject` の render buffer 保存 helper 名を明示化し、更新段取りの意図を追いやすくした
+- `Traverser` の 1 frame begin / draw / end を helper に集約し、traversal と frame 境界を分けて追いやすくした
+- `PMXObject` の current vertex buffer 取得とベース頂点コピーを helper に分離し、CPU morph 前段の差し替え点を明確にした
 
 ## 次のイテレーション候補
 

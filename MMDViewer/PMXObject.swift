@@ -444,8 +444,8 @@ class PMXObject {
     /// ベース頂点を inflight buffer へコピーし、現在フレームの morph を上書き適用する。
     /// CPU morph 実装の責務を `calc` 本体から切り離し、将来の GPU 化や計測をしやすくする。
     private func prepareVertexBufferForCurrentFrame() {
-        currentVertexBuffer = vertexBufferProvider.nextBuffer()
-        memcpy(currentVertexBuffer!.contents(), (vertexData as NSData).bytes, vertexData.count)
+        currentVertexBuffer = makeCurrentVertexBuffer()
+        copyBaseVertexData(into: currentVertexBuffer!)
         applyMorph()
     }
 
@@ -602,5 +602,13 @@ class PMXObject {
 
     private func nextMaterialBuffer() -> MTLBuffer {
         return materialBufferProvider.nextBuffer()
+    }
+
+    private func makeCurrentVertexBuffer() -> MTLBuffer {
+        return vertexBufferProvider.nextBuffer()
+    }
+
+    private func copyBaseVertexData(into buffer: MTLBuffer) {
+        memcpy(buffer.contents(), (vertexData as NSData).bytes, vertexData.count)
     }
 }

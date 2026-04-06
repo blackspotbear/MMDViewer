@@ -28,10 +28,16 @@ class Traverser {
 
     func draw(_ node: Node) {
         autoreleasepool {
-            renderer.begin()
-            drawCore(node)
-            renderer.end()
+            drawFrame(node)
         }
+    }
+
+    /// `Renderer` の 1 frame begin / draw / end を 1 箇所へ集約する。
+    /// Traversal 自体の変更と frame 境界の変更を分けて追えるようにするための helper。
+    private func drawFrame(_ node: Node) {
+        renderer.begin()
+        drawCore(node)
+        renderer.end()
     }
 
     /// pass と model matrix stack を深さ優先で対応付けながら描画する。
