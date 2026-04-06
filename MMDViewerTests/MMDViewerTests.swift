@@ -214,6 +214,19 @@ final class MatrixBridgingTests: XCTestCase {
             perspective,
             GLKMatrix4MakePerspective(GLKMathDegreesToRadians(85.0), 1.5, 0.01, 100.0)
         )
+
+        let ortho = GLKMatrix4.orthographicOffCenter(
+            left: -12, right: 12,
+            bottom: -12, top: 12,
+            near: 1, far: 20
+        )
+        let expectedOrtho = GLKMatrix4Make(
+            2.0 / 24.0, 0, 0, 0,
+            0, 2.0 / 24.0, 0, 0,
+            0, 0, -1.0 / 19.0, 0,
+            0, 0, -1.0 / 19.0, 1
+        )
+        assertEqualMatrix(ortho, expectedOrtho)
     }
 
     func testMultiplyVector4MatchesLegacyGLKOperation() {

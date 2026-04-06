@@ -96,6 +96,23 @@ extension GLKMatrix4: @retroactive CustomStringConvertible {
         return GLKMatrix4(simd: matrix)
     }
 
+    /// Metal NDC に合わせた right-handed off-center orthographic projection.
+    static func orthographicOffCenter(left: Float, right: Float,
+                                      bottom: Float, top: Float,
+                                      near: Float, far: Float) -> GLKMatrix4 {
+        let sLength = 1.0 / (right - left)
+        let sHeight = 1.0 / (top - bottom)
+        let sDepth = 1.0 / (far - near)
+
+        let matrix = simd_float4x4(rows: [
+            SIMD4(2.0 * sLength, 0.0, 0.0, 0.0),
+            SIMD4(0.0, 2.0 * sHeight, 0.0, 0.0),
+            SIMD4(0.0, 0.0, -sDepth, 0.0),
+            SIMD4(-sLength * (left + right), -sHeight * (top + bottom), -sDepth * near, 1.0)
+        ])
+        return GLKMatrix4(simd: matrix)
+    }
+
     func scale(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
         multiply(GLKMatrix4.scale(x, y, z))
     }
