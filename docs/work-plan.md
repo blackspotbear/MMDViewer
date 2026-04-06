@@ -285,6 +285,7 @@
 - `MMDView` では drawable サイズ更新フラグだけを管理し、layer frame 追従は `MetalView` 側責務へ戻して view 境界の重複を減らした
 - `PMXObject` の morph 更新で、VMD/PMX 名解決と CPU 頂点 buffer 反映を別段に分け、将来の GPU morph 化やテスト追加の差し替え点を明確にした
 - `MMDView` の scene resource 読み込みを `MMDSceneResources` へまとめ、読込結果の生成と view への保持を別段に分けた
+- `PMXObject` が個別に抱えていた 4 種類の `BufferProvider` を `PMXBufferProviders` に束ね、描画バッファ所有境界を 1 つのまとまりとして扱えるようにした
 
 ## 次のイテレーション候補
 

@@ -237,11 +237,8 @@ private struct MorphUpdate {
 
 private struct PMXObjectResources {
     let vertexData: Data
-    let vertexBufferProvider: BufferProvider
+    let bufferProviders: PMXBufferProviders
     let indexBuffer: MTLBuffer
-    let uniformBufferProvider: BufferProvider
-    let matrixPaletteBufferProvider: BufferProvider
-    let materialBufferProvider: BufferProvider
     let textures: [MetalTexture]
 }
 
@@ -250,6 +247,13 @@ private struct PMXObjectAnimationState {
     let postures: [Posture]
     let counter: AnimationCounter
     let solver: PhysicsSolving
+}
+
+private struct PMXBufferProviders {
+    let vertex: BufferProvider
+    let uniforms: BufferProvider
+    let matrixPalette: BufferProvider
+    let materials: BufferProvider
 }
 
 /// `PMXObject` が shader 向けに送る生バイト列の準備を集約する。
@@ -331,10 +335,7 @@ class PMXObject {
     var rotationZ: Float = 0
     var scale: Float = 1
 
-    var vertexBufferProvider: BufferProvider
-    var uniformBufferProvider: BufferProvider
-    var mtrxBufferProvider: BufferProvider
-    var materialBufferProvider: BufferProvider
+    private var bufferProviders: PMXBufferProviders
     var currentVertexBuffer: MTLBuffer?
 
     var textures: [MetalTexture] = []
@@ -369,11 +370,8 @@ class PMXObject {
         let resources = Self.makeResources(device: device, pmx: pmx)
         let animationState = Self.makeAnimationState(pmx: pmx, vmd: vmd)
         vertexData = resources.vertexData
-        vertexBufferProvider = resources.vertexBufferProvider
+        bufferProviders = resources.bufferProviders
         indexBuffer = resources.indexBuffer
-        self.uniformBufferProvider = resources.uniformBufferProvider
-        self.mtrxBufferProvider = resources.matrixPaletteBufferProvider
-        self.materialBufferProvider = resources.materialBufferProvider
         self.textures = resources.textures
 
         self.curveTies = animationState.curveTies
@@ -452,20 +450,10 @@ class PMXObject {
         let vertexData = PMXVertex2NSData(pmx.vertices)!
         return PMXObjectResources(
             vertexData: vertexData,
-            vertexBufferProvider: Self.makeVertexBufferProvider(device: device, vertexData: vertexData),
+            bufferProviders: Self.makeBufferProviders(device: device, vertexData: vertexData, boneCount: pmx.bones.count, materialCount: pmx.materials.count),
             indexBuffer: Self.makeIndexBuffer(device: device, indices: pmx.indices),
-            uniformBufferProvider: Self.makeUniformBufferProvider(device: device),
-            matrixPaletteBufferProvider: Self.makeMatrixPaletteBufferProvider(device: device, boneCount: pmx.bones.count),
-            materialBufferProvider: Self.makeMaterialBufferProvider(device: device, materialCount: pmx.materials.count),
             textures: Self.loadTextures(device: device, texturePaths: pmx.texturePaths)
         )
-    }
-
-    private static func makeVertexBufferProvider(device: MTLDevice, vertexData: Data) -> BufferProvider {
-        return BufferProvider(
-            device: device,
-            inflightBuffersCount: 3,
-            data: vertexData)
     }
 
     private static func makeIndexBuffer(device: MTLDevice, indices: [UInt16]) -> MTLBuffer {
@@ -476,25 +464,27 @@ class PMXObject {
         )!
     }
 
-    private static func makeUniformBufferProvider(device: MTLDevice) -> BufferProvider {
-        return BufferProvider(
-            device: device,
-            inflightBuffersCount: 3,
-            sizeOfUniformsBuffer: MemoryLayout<ShaderUniforms>.stride)
-    }
-
-    private static func makeMatrixPaletteBufferProvider(device: MTLDevice, boneCount: Int) -> BufferProvider {
-        return BufferProvider(
-            device: device,
-            inflightBuffersCount: 3,
-            sizeOfUniformsBuffer: MemoryLayout<float4x4>.size * 4 * boneCount)
-    }
-
-    private static func makeMaterialBufferProvider(device: MTLDevice, materialCount: Int) -> BufferProvider {
-        return BufferProvider(
-            device: device,
-            inflightBuffersCount: 3,
-            sizeOfUniformsBuffer: MemoryLayout<ShaderMaterial>.stride * materialCount)
+    private static func makeBufferProviders(device: MTLDevice,
+                                            vertexData: Data,
+                                            boneCount: Int,
+                                            materialCount: Int) -> PMXBufferProviders {
+        return PMXBufferProviders(
+            vertex: BufferProvider(
+                device: device,
+                inflightBuffersCount: 3,
+                data: vertexData),
+            uniforms: BufferProvider(
+                device: device,
+                inflightBuffersCount: 3,
+                sizeOfUniformsBuffer: MemoryLayout<ShaderUniforms>.stride),
+            matrixPalette: BufferProvider(
+                device: device,
+                inflightBuffersCount: 3,
+                sizeOfUniformsBuffer: MemoryLayout<float4x4>.size * 4 * boneCount),
+            materials: BufferProvider(
+                device: device,
+                inflightBuffersCount: 3,
+                sizeOfUniformsBuffer: MemoryLayout<ShaderMaterial>.stride * materialCount))
     }
 
     /// PMX の texture path をアプリ側 resource path へ解決して、Metal texture 群へ変換する。
@@ -641,7 +631,7 @@ class PMXObject {
     /// 描画に必要な camera / shadow 行列をまとめて uniform buffer へ転送する。
     /// shadowMatrixGB は Metal のテクスチャ座標系に合わせて Y 反転込みで作っている。
     private func makeUniformBuffer(_ renderer: Renderer) -> MTLBuffer {
-        let uniformBuffer = withNextBuffer(uniformBufferProvider)
+        let uniformBuffer = withNextBuffer(bufferProviders.uniforms)
 
         // "Metal Shading Language Guide" says:
         // In Metal, the origin of the pixel coordinate system of a texture is
@@ -668,7 +658,7 @@ class PMXObject {
     /// 各ボーンの world matrix を matrix palette buffer へ詰める。
     /// shader 側の skinning はこの palette を前提にしている。
     private func makeMatrixPaletteBuffer() -> MTLBuffer {
-        let palette = withNextBuffer(mtrxBufferProvider)
+        let palette = withNextBuffer(bufferProviders.matrixPalette)
         PMXRenderDataEncoder.writeMatrixPalette(palette, postures)
 
         return palette
@@ -677,14 +667,14 @@ class PMXObject {
     /// material ごとの色パラメータを shader 用の連続領域へ詰める。
     /// texture index や sphere map などは別経路で扱うため、ここでは色だけ送る。
     private func makeMaterialBuffer() -> MTLBuffer {
-        let materialBuffer = withNextBuffer(materialBufferProvider)
+        let materialBuffer = withNextBuffer(bufferProviders.materials)
         PMXRenderDataEncoder.writeMaterials(materialBuffer, pmx.materials)
 
         return materialBuffer
     }
 
     private func makeCurrentVertexBuffer() -> MTLBuffer {
-        return withNextBuffer(vertexBufferProvider)
+        return withNextBuffer(bufferProviders.vertex)
     }
 
     private func copyBaseVertexData(into buffer: MTLBuffer) {
