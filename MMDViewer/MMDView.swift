@@ -34,6 +34,7 @@ private struct MMDSceneApplication {
 
 private struct MMDPreparedFrame {
     let elapsed: CFTimeInterval
+    let layout: MMDDrawableLayout
 }
 
 private struct MMDFrameCompletion {
@@ -455,7 +456,9 @@ class MMDView: MetalView {
             return nil
         }
 
-        return MMDPreparedFrame(elapsed: elapsed)
+        return MMDPreparedFrame(
+            elapsed: elapsed,
+            layout: currentDrawableLayout())
     }
 
     @objc func mainLoop(_ displayLink: CADisplayLink) {

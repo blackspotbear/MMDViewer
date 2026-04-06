@@ -309,6 +309,8 @@
 - `PMXObject` の render buffer 保存でも `PMXStoredRenderBuffers` を介す形にし、draw 前に保持する GPU バッファ集合を 1 つの値として扱えるようにした
 - `PMXObject` の morph 解決結果を `PMXMorphUpdates` として左右別の更新集合にまとめ、keyframe 解決と頂点更新適用の境界をさらに明確にした
 - `MMDView` の display link 起動では生成と設定を分け、window 構成から frame 駆動へ流れる段取りをより追いやすくした
+- `MMDPreparedFrame` が drawable layout も持つようにし、frame 準備結果を時間情報だけでなく描画前提込みの値として扱えるようにした
+- `PMXRenderContext` に model matrix も含め、uniform 更新段が `PMXObject` のプロパティへ暗黙依存しすぎない形に寄せた
 - `MMDView` の display link 設定も window 構成値から与える形にして、window 参加時の初期設定を 1 か所で読めるようにした
 
 ## 次のイテレーション候補
