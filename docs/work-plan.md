@@ -169,7 +169,7 @@
 
 ### UI / 品質
 
-- [ ] UIKit 維持か SwiftUI 移行かを判断するための比較メモを作る
+- [x] UIKit 維持か SwiftUI 移行かを判断するための比較メモを作る
 - [x] ライフサイクル通知の整理方針を決める
 - [x] ドキュメンテーションコメント追加対象を洗い出す
 - [x] renderer / pass / drawer / updater / view 基盤へのコメント追加を進める
@@ -337,6 +337,7 @@
 - fixture を使った `PMXUpdater` の再生/停止/角速度減衰テストを追加し、再生状態と frame 進行の回帰を監視できるようにした
 - storyboard 実体を使う `ViewController` テストを追加し、lifecycle 通知と Play/Pause UI の同期を回帰テストで固定した
 - 追加テスト候補の棚卸しを行い、`MMDView` / render pass / `PMXObject` のうち純ロジック化しやすい箇所と、引き続きシミュレータ目視確認を主軸にすべき箇所を切り分けた
+- UIKit 維持と SwiftUI 移行の比較メモを追記し、当面は `UIKit + MTKView` 継続、将来は描画外 UI から SwiftUI 導入を検討する方針を明文化した
 
 ## 追加テスト候補メモ
 

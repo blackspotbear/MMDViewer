@@ -121,6 +121,37 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 `@UIApplicationMain` と AppDelegate 主体の構成で、Scene lifecycle や SwiftUI の app 構成は採用されていません。現時点でも UIKit 継続は可能ですが、長期的には SwiftUI の app lifecycle を採り、描画部分だけを UIKit/MetalKit ブリッジする形が自然です。
 
+### 3.1 UIKit 維持と SwiftUI 移行の比較メモ
+
+2026-04-06 時点の結論としては、次の 2 段階が妥当です。
+
+1. 当面は UIKit を維持する
+2. 将来の app lifecycle や設定 UI の整理では SwiftUI 導入を検討する
+
+理由は次の通りです。
+
+- UIKit を維持する利点
+  - `MMDView`、gesture、toolbar、storyboard ベースの `ViewController` がすでに安定している
+  - `MTKView` 化は済んでおり、描画 substrate の近代化は SwiftUI を待たずに進められる
+  - 既存の Play/Pause、camera gesture、scene lifecycle 通知は UIKit 前提で整理済みで、ここを今すぐ全面移行する利益は小さい
+
+- SwiftUI へ移行する利点
+  - app lifecycle、画面構成、設定パネル、ファイル選択 UI など、描画以外の周辺 UI は宣言的に整理しやすい
+  - `ObservableObject` / state 駆動へ寄せることで、再生状態や設定値の共有が明確になる
+  - 将来的に iPad/macOS 展開や画面追加を行うなら、UIKit 単独より見通しが良い
+
+- いま全面移行しない理由
+  - このアプリの中心価値は PMX/VMD 再生と Metal 描画であり、最大リスクは render loop と drawable 寿命管理の回帰にある
+  - SwiftUI へ全面移すと、`UIViewRepresentable` 経由の bridge、lifecycle 再設計、toolbar/gesture の再配線が同時に発生し、今の「小さいイテレーション」の方針と相性が悪い
+  - 直近の保守課題は `GLKit` 依存削減、テスト拡充、render pass / view 境界の整理であり、SwiftUI 化はそれらより優先度が低い
+
+したがって、現時点の推奨方針は次です。
+
+- 描画中核は `UIKit + MTKView` を維持する
+- app lifecycle は現状の `UIScene` 対応をベースに安定化を優先する
+- SwiftUI は、将来「設定画面」「ファイル選択 UI」「情報表示パネル」のような描画外 UI を追加するときの第 1 候補とする
+- もし SwiftUI を導入する場合も、最初は `MMDView` を `UIViewRepresentable` で包む薄い統合から始め、render loop 自体は変えない
+
 ### 4. MetalView を自前実装している
 
 [`MetalView.swift`](/Users/kmi/devel/MMDViewer/MMDViewer/MetalView.swift) は `CAMetalLayer` を直接扱う独自 UIView です。これは当時は妥当ですが、現在は `MTKView` に寄せた方が保守性、drawable 管理、リサイズ処理、周辺 API 連携の面で有利です。
@@ -130,10 +161,10 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 2026-04-06 時点では、`MetalView` と `MMDView` の責務分離がかなり進んでおり、`MTKView` への置換対象は比較的はっきりしています。
 
 - `MetalView` に残っている責務
-  - `CAMetalLayer` の所有
+  - `MTKView` substrate の設定
   - `MTLDevice` の取得
-  - `currentDrawable` の取得
-  - `drawableSize` と layer frame の同期
+  - `CAMetalLayer.nextDrawable()` を使った drawable 取得
+  - `drawableSize` の同期
 - `MMDView` に残っている責務
   - PMX/VMD resource 読み込み
   - scene graph 構築
@@ -143,7 +174,7 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 このため、`MTKView` 移行は「描画内容を作り直す作業」ではなく、主に view 層の substrate を差し替える作業として扱えます。現時点の差分設計は次の通りです。
 
 - `MetalView` は `MTKView` を継承または内包する薄い adapter へ置き換える
-- `currentDrawable` 取得は `MTKView.currentDrawable` をそのまま使う
+- drawable 取得は `MTKView.layer` の `CAMetalLayer.nextDrawable()` を明示的に使う
 - `drawableSize` の更新と `contentScaleFactor` / `layoutSubviews` 連携は、`MTKView.drawableSize` と `autoResizeDrawable` へ寄せる
 - `device` 初期化は `MTLCreateSystemDefaultDevice()` を `MTKView.device` へ直接設定する形に寄せる
 - `renderer` / `pass` / `Traverser` / `PMXObject` は、`drawable` と pixel format の取得元以外は原則そのまま残す
