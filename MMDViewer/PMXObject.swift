@@ -530,9 +530,9 @@ class PMXObject {
     /// 呼び出し側はこの戻り値を保存するだけで、各 buffer の生成順を意識しなくてよい。
     private func makeFrameRenderBuffers(_ renderer: Renderer) -> PMXFrameRenderBuffers {
         return PMXFrameRenderBuffers(
-            uniforms: sendUniforms(renderer),
-            matrixPalette: sendMatrixPalette(),
-            materials: sendMaterials())
+            uniforms: makeUniformBuffer(renderer),
+            matrixPalette: makeMatrixPaletteBuffer(),
+            materials: makeMaterialBuffer())
     }
 
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
@@ -549,8 +549,8 @@ class PMXObject {
 
     /// 描画に必要な camera / shadow 行列をまとめて uniform buffer へ転送する。
     /// shadowMatrixGB は Metal のテクスチャ座標系に合わせて Y 反転込みで作っている。
-    private func sendUniforms(_ renderer: Renderer) -> MTLBuffer {
-        let uniformBuffer = uniformBufferProvider.nextBuffer()
+    private func makeUniformBuffer(_ renderer: Renderer) -> MTLBuffer {
+        let uniformBuffer = nextUniformBuffer()
 
         // "Metal Shading Language Guide" says:
         // In Metal, the origin of the pixel coordinate system of a texture is
@@ -576,8 +576,8 @@ class PMXObject {
 
     /// 各ボーンの world matrix を matrix palette buffer へ詰める。
     /// shader 側の skinning はこの palette を前提にしている。
-    private func sendMatrixPalette() -> MTLBuffer {
-        let palette = self.mtrxBufferProvider.nextBuffer()
+    private func makeMatrixPaletteBuffer() -> MTLBuffer {
+        let palette = nextMatrixPaletteBuffer()
         PMXRenderDataEncoder.writeMatrixPalette(palette, postures)
 
         return palette
@@ -585,10 +585,22 @@ class PMXObject {
 
     /// material ごとの色パラメータを shader 用の連続領域へ詰める。
     /// texture index や sphere map などは別経路で扱うため、ここでは色だけ送る。
-    private func sendMaterials() -> MTLBuffer {
-        let materialBuffer = materialBufferProvider.nextBuffer()
+    private func makeMaterialBuffer() -> MTLBuffer {
+        let materialBuffer = nextMaterialBuffer()
         PMXRenderDataEncoder.writeMaterials(materialBuffer, pmx.materials)
 
         return materialBuffer
+    }
+
+    private func nextUniformBuffer() -> MTLBuffer {
+        return uniformBufferProvider.nextBuffer()
+    }
+
+    private func nextMatrixPaletteBuffer() -> MTLBuffer {
+        return mtrxBufferProvider.nextBuffer()
+    }
+
+    private func nextMaterialBuffer() -> MTLBuffer {
+        return materialBufferProvider.nextBuffer()
     }
 }

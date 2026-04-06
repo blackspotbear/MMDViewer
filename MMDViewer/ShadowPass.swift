@@ -58,18 +58,24 @@ class ShadowPass: RenderPass {
         shadowDepthStencilState = MakeDepthStencilState(device)
     }
 
+    private func makeRenderEncoder(with renderer: Renderer) -> MTLRenderCommandEncoder? {
+        return renderer.commandBuffer?.makeRenderCommandEncoder(descriptor: shadowRenderPassDescriptor)
+    }
+
+    private func configure(_ encoder: MTLRenderCommandEncoder) {
+        encoder.pushDebugGroup("shadow buffer pass")
+        encoder.label = "shadow buffer"
+        encoder.setRenderPipelineState(renderPipelineState)
+        encoder.setDepthStencilState(shadowDepthStencilState)
+        encoder.setCullMode(.front)
+        encoder.setDepthBias(0.01, slopeScale: 1.0, clamp: 0.01)
+    }
+
     func begin(_ renderer: Renderer) {
         var renderer = renderer
 
-        let encoder = renderer.commandBuffer?.makeRenderCommandEncoder(descriptor: shadowRenderPassDescriptor)
-        if let encoder = encoder {
-            encoder.pushDebugGroup("shadow buffer pass")
-            encoder.label = "shadow buffer"
-            encoder.setRenderPipelineState(renderPipelineState)
-            encoder.setDepthStencilState(shadowDepthStencilState)
-            encoder.setCullMode(.front)
-            encoder.setDepthBias(0.01, slopeScale: 1.0, clamp: 0.01)
-
+        if let encoder = makeRenderEncoder(with: renderer) {
+            configure(encoder)
             renderer.renderCommandEncoderStack.append(encoder)
         }
     }
