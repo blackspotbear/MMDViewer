@@ -7,6 +7,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    /// SceneDelegate + Main.storyboard の組み合わせを明示し、
+    /// 古い単一 AppDelegate 構成から scene 構成へ移した意図を固定する。
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
         configuration.delegateClass = SceneDelegate.self

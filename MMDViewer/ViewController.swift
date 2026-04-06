@@ -1,5 +1,7 @@
 import UIKit
 
+/// 再生/停止 UI と `MMDView` の最低限の橋渡しを担当する controller。
+/// 描画や入力の本体は `MMDView` 側へ寄せ、ここではアプリ外周の状態同期だけを見る。
 class ViewController: UIViewController {
     @IBOutlet weak var mmdView: MMDView!
     @IBOutlet weak var toolBar: UIToolbar!
@@ -13,7 +15,10 @@ class ViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        registerLifecycleNotifications()
+    }
 
+    private func registerLifecycleNotifications() {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(ViewController.viewWillEnterForeground(_:)),
@@ -29,13 +34,11 @@ class ViewController: UIViewController {
     }
 
     @objc func viewWillEnterForeground(_ notification: Notification?) {
-        mmdView.pmxUpdater?.playing = true
-        updatePlayPauseButtonTitle()
+        setPlaybackState(isPlaying: true)
     }
 
     @objc func viewDidEnterBackground(_ notification: Notification?) {
-        mmdView.pmxUpdater?.playing = false
-        updatePlayPauseButtonTitle()
+        setPlaybackState(isPlaying: false)
     }
 
     override func didReceiveMemoryWarning() {
@@ -45,9 +48,14 @@ class ViewController: UIViewController {
 
     @IBAction func onPlayButtonPushed(_ sender: AnyObject) {
         if let pmxUpdater = mmdView.pmxUpdater {
-            pmxUpdater.playing = !pmxUpdater.playing
-            updatePlayPauseButtonTitle()
+            setPlaybackState(isPlaying: !pmxUpdater.playing)
         }
+    }
+
+    /// scene ライフサイクル通知と toolbar 操作の両方から再生状態を揃える。
+    private func setPlaybackState(isPlaying: Bool) {
+        mmdView.pmxUpdater?.playing = isPlaying
+        updatePlayPauseButtonTitle()
     }
 
     private func updatePlayPauseButtonTitle() {
