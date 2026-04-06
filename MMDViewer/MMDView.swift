@@ -360,7 +360,7 @@ class MMDView: MetalView {
     }
 
     private func makeSceneResources() -> MMDSceneResources {
-        return makeSceneResourceLoadingSession().resources
+        return sceneResources(makeSceneResourceLoadingSession())
     }
 
     private func makeSceneResourceLoadingSession() -> MMDSceneResourceLoadingSession {
@@ -371,6 +371,10 @@ class MMDView: MetalView {
                 pmx: pmx,
                 vmd: vmd,
                 pmxObject: makePMXObject(pmx: pmx, vmd: vmd)))
+    }
+
+    private func sceneResources(_ session: MMDSceneResourceLoadingSession) -> MMDSceneResources {
+        return session.resources
     }
 
     private func storeSceneResources(_ resources: MMDSceneResources) {
@@ -419,7 +423,7 @@ class MMDView: MetalView {
 
     private func prepareScene() -> MMDPreparedScene {
         let resources = makeSceneResources()
-        return makeScenePreparationSession(resources).scene
+        return preparedScene(makeScenePreparationSession(resources))
     }
 
     private func makeScenePreparationSession(_ resources: MMDSceneResources) -> MMDScenePreparationSession {
@@ -427,6 +431,10 @@ class MMDView: MetalView {
             scene: MMDPreparedScene(
                 resources: resources,
                 sceneGraph: makeSceneGraphConfiguration(pmxObject: resources.pmxObject)))
+    }
+
+    private func preparedScene(_ session: MMDScenePreparationSession) -> MMDPreparedScene {
+        return session.scene
     }
 
     private func makeSceneApplicationSession(_ scene: MMDPreparedScene) -> MMDSceneApplicationSession {
@@ -438,15 +446,19 @@ class MMDView: MetalView {
 
     private func applyScene(_ session: MMDSceneApplicationSession) {
         let step = makeSceneApplicationStepSession(session)
-        storeSceneResources(step.resources)
-        configureSceneGraph(step.sceneGraph)
-        configureMetalLayer(pixelFormat: step.sceneGraph.pixelFormat)
+        applySceneStep(step)
     }
 
     private func makeSceneApplicationStepSession(_ session: MMDSceneApplicationSession) -> MMDSceneApplicationStepSession {
         return MMDSceneApplicationStepSession(
             resources: session.scene.resources,
             sceneGraph: session.scene.sceneGraph)
+    }
+
+    private func applySceneStep(_ step: MMDSceneApplicationStepSession) {
+        storeSceneResources(step.resources)
+        configureSceneGraph(step.sceneGraph)
+        configureMetalLayer(pixelFormat: step.sceneGraph.pixelFormat)
     }
 
     private func configureSceneGraph(_ sceneGraph: MMDSceneGraphConfiguration) {
