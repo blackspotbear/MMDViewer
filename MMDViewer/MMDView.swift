@@ -416,17 +416,24 @@ class MMDView: MetalView {
     /// renderer 側で積み上げた command buffer を drawable 提示と一緒に閉じる。
     /// present / commit の最終段だけを `MMDView` に残し、renderer 本体は encode に集中させる。
     private func finishFrame(renderer: Renderer) {
-        guard let completion = currentFrameCompletion(renderer: renderer) else {
+        guard let session = currentFrameCompletionSession(renderer: renderer) else {
             return
         }
 
-        let session = makeFrameCompletionSession(completion)
         completeFrame(session.completion)
         releaseCurrentDrawable()
     }
 
     private func makeFrameCompletionSession(_ completion: MMDFrameCompletion) -> MMDFrameCompletionSession {
         return MMDFrameCompletionSession(completion: completion)
+    }
+
+    private func currentFrameCompletionSession(renderer: Renderer) -> MMDFrameCompletionSession? {
+        guard let completion = currentFrameCompletion(renderer: renderer) else {
+            return nil
+        }
+
+        return makeFrameCompletionSession(completion)
     }
 
     private func currentFrameCompletion(renderer: Renderer) -> MMDFrameCompletion? {

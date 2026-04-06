@@ -263,6 +263,10 @@ private struct PMXAnimationUpdateContext {
     let animation: PMXAnimationContext
 }
 
+private struct PMXAnimationUpdateSession {
+    let context: PMXAnimationUpdateContext
+}
+
 private struct PMXGeometryContext {
     let tick: PMXAnimationTick
     let vertexBuffer: MTLBuffer
@@ -270,6 +274,10 @@ private struct PMXGeometryContext {
 
 private struct PMXGeometryUpdateContext {
     let geometry: PMXGeometryContext
+}
+
+private struct PMXGeometryUpdateSession {
+    let context: PMXGeometryUpdateContext
 }
 
 private struct PMXRenderContext {
@@ -496,8 +504,8 @@ class PMXObject {
 
     private func updateFrame(_ context: PMXFrameContext) {
         let session = makeFrameUpdateSession(context)
-        updateAnimationState(session.animation)
-        updateGeometryState(session.geometry)
+        updateAnimationState(makeAnimationUpdateSession(session.animation))
+        updateGeometryState(makeGeometryUpdateSession(session.geometry))
         updateRenderBuffers(session.render)
     }
 
@@ -508,8 +516,8 @@ class PMXObject {
             render: currentRenderUpdateContext(context))
     }
 
-    private func updateAnimationState(_ context: PMXAnimationUpdateContext) {
-        updatePosturesForCurrentFrame(tick: context.animation.tick)
+    private func updateAnimationState(_ session: PMXAnimationUpdateSession) {
+        updatePosturesForCurrentFrame(tick: session.context.animation.tick)
         runPhysicsStep()
     }
 
@@ -517,13 +525,21 @@ class PMXObject {
         return PMXAnimationUpdateContext(animation: context.animation)
     }
 
-    private func updateGeometryState(_ context: PMXGeometryUpdateContext) {
-        prepareVertexBufferForCurrentFrame(context.geometry)
+    private func makeAnimationUpdateSession(_ context: PMXAnimationUpdateContext) -> PMXAnimationUpdateSession {
+        return PMXAnimationUpdateSession(context: context)
+    }
+
+    private func updateGeometryState(_ session: PMXGeometryUpdateSession) {
+        prepareVertexBufferForCurrentFrame(session.context.geometry)
     }
 
     private func currentGeometryUpdateContext(_ context: PMXFrameContext) -> PMXGeometryUpdateContext {
         return PMXGeometryUpdateContext(
             geometry: currentGeometryContext(tick: context.animation.tick))
+    }
+
+    private func makeGeometryUpdateSession(_ context: PMXGeometryUpdateContext) -> PMXGeometryUpdateSession {
+        return PMXGeometryUpdateSession(context: context)
     }
 
     private func currentGeometryContext(tick: PMXAnimationTick) -> PMXGeometryContext {
