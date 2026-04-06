@@ -339,48 +339,16 @@ class PMXObject {
         self.pmx = pmx
         self.vmd = vmd
 
-        self.curveTies = [CurveTie](repeating: CurveTie(), count: pmx.bones.count)
-        for (i, bone) in self.pmx.bones.enumerated() {
-            if let tie = self.vmd.curveTies[bone.name] {
-                self.curveTies[i] = tie
-            }
-        }
-
-        for i in 0..<self.pmx.bones.count {
-            let posture = Posture(bone: self.pmx.bones[i])
-            self.postures.append(posture)
-        }
+        self.curveTies = Self.makeCurveTies(pmx: pmx, vmd: vmd)
+        self.postures = Self.makePostures(for: pmx.bones)
 
         vertexData = PMXVertex2NSData(pmx.vertices)!
-        vertexBufferProvider = BufferProvider(
-            device: device,
-            inflightBuffersCount: 3,
-            data: vertexData)
-
+        vertexBufferProvider = Self.makeVertexBufferProvider(device: device, vertexData: vertexData)
         indexBuffer = device.makeBuffer(bytes: pmx.indices, length: pmx.indices.count * MemoryLayout<UInt16>.size, options: MTLResourceOptions())!
-
-        self.uniformBufferProvider = BufferProvider(
-            device: device,
-            inflightBuffersCount: 3,
-            sizeOfUniformsBuffer: MemoryLayout<ShaderUniforms>.stride)
-
-        self.mtrxBufferProvider = BufferProvider(
-            device: device,
-            inflightBuffersCount: 3,
-            sizeOfUniformsBuffer: MemoryLayout<float4x4>.size * 4 * pmx.bones.count)
-
-        self.materialBufferProvider = BufferProvider(
-            device: device,
-            inflightBuffersCount: 3,
-            sizeOfUniformsBuffer: MemoryLayout<ShaderMaterial>.stride * pmx.materials.count)
-
-        for path in pmx.texturePaths {
-            let ext = (path as NSString).pathExtension
-            let body = (path as NSString).deletingPathExtension
-            let texture = MetalTexture(resourceName: "data/mmd/" + body, ext: ext, mipmaped: false)
-            texture.loadTexture(device, flip: true)
-            textures.append(texture)
-        }
+        self.uniformBufferProvider = Self.makeUniformBufferProvider(device: device)
+        self.mtrxBufferProvider = Self.makeMatrixPaletteBufferProvider(device: device, boneCount: pmx.bones.count)
+        self.materialBufferProvider = Self.makeMaterialBufferProvider(device: device, materialCount: pmx.materials.count)
+        self.textures = Self.loadTextures(device: device, texturePaths: pmx.texturePaths)
 
         counter = NormalCounter(beginFrameNum: 0, endFrameNum: vmd.meta.frameCount)
         //counter = DebugCounter(beginFrameNum: 160, endFrameNum: vmd.frameCount)
@@ -413,6 +381,59 @@ class PMXObject {
     /// FK/IK 後の姿勢を Bullet へ渡し、dynamic body の結果を posture へ戻す。
     private func runPhysicsStep() {
         PhysicsSolver(postures, physicsSolving: solver)
+    }
+
+    private static func makeCurveTies(pmx: PMX, vmd: VMD) -> [CurveTie] {
+        var curveTies = [CurveTie](repeating: CurveTie(), count: pmx.bones.count)
+        for (index, bone) in pmx.bones.enumerated() {
+            if let tie = vmd.curveTies[bone.name] {
+                curveTies[index] = tie
+            }
+        }
+        return curveTies
+    }
+
+    private static func makePostures(for bones: [Bone]) -> [Posture] {
+        return bones.map(Posture.init)
+    }
+
+    private static func makeVertexBufferProvider(device: MTLDevice, vertexData: Data) -> BufferProvider {
+        return BufferProvider(
+            device: device,
+            inflightBuffersCount: 3,
+            data: vertexData)
+    }
+
+    private static func makeUniformBufferProvider(device: MTLDevice) -> BufferProvider {
+        return BufferProvider(
+            device: device,
+            inflightBuffersCount: 3,
+            sizeOfUniformsBuffer: MemoryLayout<ShaderUniforms>.stride)
+    }
+
+    private static func makeMatrixPaletteBufferProvider(device: MTLDevice, boneCount: Int) -> BufferProvider {
+        return BufferProvider(
+            device: device,
+            inflightBuffersCount: 3,
+            sizeOfUniformsBuffer: MemoryLayout<float4x4>.size * 4 * boneCount)
+    }
+
+    private static func makeMaterialBufferProvider(device: MTLDevice, materialCount: Int) -> BufferProvider {
+        return BufferProvider(
+            device: device,
+            inflightBuffersCount: 3,
+            sizeOfUniformsBuffer: MemoryLayout<ShaderMaterial>.stride * materialCount)
+    }
+
+    /// PMX の texture path をアプリ側 resource path へ解決して、Metal texture 群へ変換する。
+    private static func loadTextures(device: MTLDevice, texturePaths: [String]) -> [MetalTexture] {
+        return texturePaths.map { path in
+            let ext = (path as NSString).pathExtension
+            let body = (path as NSString).deletingPathExtension
+            let texture = MetalTexture(resourceName: "data/mmd/" + body, ext: ext, mipmaped: false)
+            texture.loadTexture(device, flip: true)
+            return texture
+        }
     }
 
     /// ベース頂点を inflight buffer へコピーし、現在フレームの morph を上書き適用する。
