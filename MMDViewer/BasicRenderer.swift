@@ -47,6 +47,15 @@ class BasicRenderer: Renderer {
         return renderCommandEncoderStack.last
     }
 
+    func pushRenderCommandEncoder(_ encoder: MTLRenderCommandEncoder) {
+        renderCommandEncoderStack.append(encoder)
+    }
+
+    @discardableResult
+    func popRenderCommandEncoder() -> MTLRenderCommandEncoder? {
+        return renderCommandEncoderStack.popLast()
+    }
+
     private var device: MTLDevice?
     private var commandQueue: MTLCommandQueue?
     private var shaderLibrary: MTLLibrary?

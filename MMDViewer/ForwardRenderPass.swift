@@ -113,13 +113,13 @@ class ForwardRenderPass: RenderPass {
         let renderPassDescriptor = passRes.renderPassDescriptorForDrawable(context.drawable.texture)
         let renderEncoder = (context.commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor))!
 
-        var renderer = renderer
-        renderer.renderCommandEncoderStack.append(renderEncoder)
+        let renderer = renderer
+        renderer.pushRenderCommandEncoder(renderEncoder)
     }
 
     func end(_ renderer: Renderer) {
-        var renderer = renderer
-        if let renderEncoder = renderer.renderCommandEncoderStack.popLast() {
+        let renderer = renderer
+        if let renderEncoder = renderer.popRenderCommandEncoder() {
             renderEncoder.endEncoding()
         }
     }

@@ -81,7 +81,7 @@ class WireframePass: RenderPass {
             renderPipelineState = try! device.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
         }
 
-        var renderer = renderer
+        let renderer = renderer
         let encoder = renderer.commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
         if let encoder = encoder {
             encoder.pushDebugGroup("wireframe pass")
@@ -90,13 +90,13 @@ class WireframePass: RenderPass {
             encoder.setDepthStencilState(depthStencilState)
             encoder.setCullMode(.none)
             encoder.setTriangleFillMode(.lines)
-            renderer.renderCommandEncoderStack.append(encoder)
+            renderer.pushRenderCommandEncoder(encoder)
         }
     }
 
     func end(_ renderer: Renderer) {
-        var renderer = renderer
-        if let encoder = renderer.renderCommandEncoderStack.popLast() {
+        let renderer = renderer
+        if let encoder = renderer.popRenderCommandEncoder() {
             encoder.popDebugGroup()
             encoder.endEncoding()
         }

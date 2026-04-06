@@ -345,15 +345,15 @@ class GBufferPass: RenderPass {
 
         if let encoder = makeGBufferEncoder(renderer: renderer, descriptor: renderPassDescriptor) {
             configure(encoder)
-            renderer.renderCommandEncoderStack.append(encoder)
+            renderer.pushRenderCommandEncoder(encoder)
         }
     }
 
     /// geometry pass の直後に fullscreen quad で composition を流し込む。
     /// shadow map と G-buffer をまとめて参照するので、deferred path の境界としてここを明確に残す。
     func end(_ renderer: Renderer) {
-        var renderer = renderer
-        if let encoder = renderer.renderCommandEncoderStack.popLast() {
+        let renderer = renderer
+        if let encoder = renderer.popRenderCommandEncoder() {
             encodeCompositionPass(with: encoder)
             encoder.endEncoding()
 

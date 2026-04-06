@@ -17,6 +17,8 @@ protocol Renderer {
     var commandBuffer: MTLCommandBuffer? { get set }
     var renderCommandEncoderStack: [MTLRenderCommandEncoder] { get set }
     var renderCommandEncoder: MTLRenderCommandEncoder? { get }
+    func pushRenderCommandEncoder(_ encoder: MTLRenderCommandEncoder)
+    @discardableResult func popRenderCommandEncoder() -> MTLRenderCommandEncoder?
 
     /// 1 frame 分の GPU work の begin / end。
     func begin()

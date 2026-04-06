@@ -72,18 +72,18 @@ class ShadowPass: RenderPass {
     }
 
     func begin(_ renderer: Renderer) {
-        var renderer = renderer
+        let renderer = renderer
 
         if let encoder = makeRenderEncoder(with: renderer) {
             configure(encoder)
-            renderer.renderCommandEncoderStack.append(encoder)
+            renderer.pushRenderCommandEncoder(encoder)
         }
     }
 
     func end(_ renderer: Renderer) {
-        var renderer = renderer
+        let renderer = renderer
 
-        if let encoder = renderer.renderCommandEncoderStack.popLast() {
+        if let encoder = renderer.popRenderCommandEncoder() {
             encoder.popDebugGroup()
             encoder.endEncoding()
         }
