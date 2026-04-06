@@ -446,6 +446,53 @@ final class MatrixBridgingTests: XCTestCase {
         XCTAssertFalse(vmd.curveTies.isEmpty)
     }
 
+    func testPhysicsSolverPushesKinematicBodiesAndPullsDynamicBodies() {
+        // 物理 bridge は kinematic body だけを Bullet へ押し込み、
+        // simulation 後は dynamic body だけを posture へ戻す前提なので、その往復を固定する。
+        let kinematicBone = makeBone(name: "kinematic", position: GLKVector3Make(1, 2, 3))
+        let dynamicBone = makeBone(name: "dynamic", position: GLKVector3Make(4, 5, 6))
+        let postures = [Posture(bone: kinematicBone), Posture(bone: dynamicBone)]
+
+        postures[0].wm = GLKMatrix4.translation(10, 20, 30)
+            .multiply(GLKMatrix4.rotation(GLKQuaternionNormalize(
+                GLKQuaternionMakeWithAngleAndVector3Axis(.pi / 2, GLKVector3Make(0, 1, 0))
+            )))
+        postures[1].wm = GLKMatrix4Identity
+
+        let rigidBodies = [
+            makeRigidBody(name: "kinematic", boneIndex: 0, type: 0),
+            makeRigidBody(name: "dynamic", boneIndex: 1, type: 1),
+        ]
+        let expectedDynamicRotation = simd_quatf(angle: .pi / 3, axis: simd_normalize(simd_float3(0, 1, 1)))
+        let expectedDynamicPosition = simd_float3(7, 8, 9)
+        let solver = PhysicsSolvingSpy(
+            rigidBodies: rigidBodies,
+            returnedRotation: expectedDynamicRotation,
+            returnedPosition: expectedDynamicPosition
+        )
+
+        PhysicsSolver(postures, physicsSolving: solver)
+
+        XCTAssertEqual(solver.moves.count, 1)
+        XCTAssertEqual(solver.moves[0].boneIndex, 0)
+        XCTAssertEqual(solver.moves[0].position.x, postures[0].worldPos.x, accuracy: 1e-6)
+        XCTAssertEqual(solver.moves[0].position.y, postures[0].worldPos.y, accuracy: 1e-6)
+        XCTAssertEqual(solver.moves[0].position.z, postures[0].worldPos.z, accuracy: 1e-6)
+        XCTAssertEqual(solver.moves[0].rotation.vector.x, postures[0].worldRot.simdQuaternion.vector.x, accuracy: 1e-6)
+        XCTAssertEqual(solver.moves[0].rotation.vector.y, postures[0].worldRot.simdQuaternion.vector.y, accuracy: 1e-6)
+        XCTAssertEqual(solver.moves[0].rotation.vector.z, postures[0].worldRot.simdQuaternion.vector.z, accuracy: 1e-6)
+        XCTAssertEqual(solver.moves[0].rotation.vector.w, postures[0].worldRot.simdQuaternion.vector.w, accuracy: 1e-6)
+        XCTAssertEqual(solver.stepCallCount, 1)
+        XCTAssertEqual(solver.requestedBoneIndices, [1])
+
+        let expectedMatrix = GLKMatrix4.translation(expectedDynamicPosition.x, expectedDynamicPosition.y, expectedDynamicPosition.z).multiply(
+            GLKMatrix4.rotation(GLKQuaternion(simd: expectedDynamicRotation)).multiply(
+                GLKMatrix4.translation(-dynamicBone.pos.x, -dynamicBone.pos.y, -dynamicBone.pos.z)
+            )
+        )
+        assertEqualMatrix(postures[1].wm, expectedMatrix)
+    }
+
     private func fixtureData(at relativePath: String) -> Data? {
         let projectRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
@@ -470,6 +517,49 @@ final class MatrixBridgingTests: XCTestCase {
         }
 
         return key
+    }
+
+    private func makeBone(name: String, position: GLKVector3) -> Bone {
+        Bone(
+            name: name,
+            nameE: name,
+            pos: position,
+            parentBoneIndex: Int.max,
+            deformLayer: 0,
+            bitFlag: [],
+            childOffset: GLKVector3Make(0, 0, 0),
+            childBoneIndex: -1,
+            affectingParentBoneIndex: -1,
+            affectingRate: 0,
+            fixAxis: GLKVector3Make(0, 0, 0),
+            xAxis: GLKVector3Make(1, 0, 0),
+            zAxis: GLKVector3Make(0, 0, 1),
+            key: 0,
+            ikTargetBoneIndex: -1,
+            ikLoopCount: 0,
+            ikAngularLimit: 0,
+            ikLinks: []
+        )
+    }
+
+    private func makeRigidBody(name: String, boneIndex: Int, type: UInt8) -> RigidBody {
+        RigidBody(
+            name: name,
+            nameE: name,
+            boneIndex: boneIndex,
+            groupID: 0,
+            groupFlag: 0,
+            shapeType: 0,
+            size: GLKVector3Make(1, 1, 1),
+            pos: GLKVector3Make(0, 0, 0),
+            rot: GLKVector3Make(0, 0, 0),
+            mass: 1,
+            linearDamping: 0,
+            angularDamping: 0,
+            restitution: 0,
+            friction: 0,
+            type: type
+        )
     }
 
     private func assertEqualMatrix(_ lhs: GLKMatrix4, _ rhs: GLKMatrix4, accuracy: Float = 1e-5, file: StaticString = #filePath, line: UInt = #line) {
@@ -530,6 +620,17 @@ private final class RendererSpy: Renderer {
     var renderCommandEncoderStack = [MTLRenderCommandEncoder]()
     var renderCommandEncoder: MTLRenderCommandEncoder? { renderCommandEncoderStack.last }
 
+    func pushRenderCommandEncoder(_ encoder: MTLRenderCommandEncoder) {
+        events.add("pushRenderCommandEncoder")
+        renderCommandEncoderStack.append(encoder)
+    }
+
+    @discardableResult
+    func popRenderCommandEncoder() -> MTLRenderCommandEncoder? {
+        events.add("popRenderCommandEncoder")
+        return renderCommandEncoderStack.popLast()
+    }
+
     func begin() {
         events.add("renderer.begin")
     }
@@ -541,6 +642,47 @@ private final class RendererSpy: Renderer {
     func reshape(_ bounds: CGRect) {}
 
     func setEndHandler(_ handler: @escaping (Renderer) -> Void) {}
+}
+
+private final class PhysicsSolvingSpy: PhysicsSolving {
+    struct MoveCall {
+        let boneIndex: Int
+        let rotation: simd_quatf
+        let position: simd_float3
+    }
+
+    let rigidBodies: [RigidBody]
+    let constraints: [Constraint] = []
+    var moves: [MoveCall] = []
+    var stepCallCount = 0
+    var requestedBoneIndices: [Int] = []
+
+    private let returnedRotation: simd_quatf
+    private let returnedPosition: simd_float3
+
+    init(rigidBodies: [RigidBody], returnedRotation: simd_quatf, returnedPosition: simd_float3) {
+        self.rigidBodies = rigidBodies
+        self.returnedRotation = returnedRotation
+        self.returnedPosition = returnedPosition
+    }
+
+    func build(_ rigidBodies: [RigidBody], constraints: [Constraint], bones: [Bone]) {}
+
+    func move(_ boneIndex: Int, rotation: simd_quatf, position: simd_float3) {
+        moves.append(MoveCall(boneIndex: boneIndex, rotation: rotation, position: position))
+    }
+
+    func getTransform(_ boneIndex: Int,
+                      rotation: UnsafeMutablePointer<simd_quatf>,
+                      position: UnsafeMutablePointer<simd_float3>) {
+        requestedBoneIndices.append(boneIndex)
+        rotation.pointee = returnedRotation
+        position.pointee = returnedPosition
+    }
+
+    func step() {
+        stepCallCount += 1
+    }
 }
 
 private final class EventLog {
