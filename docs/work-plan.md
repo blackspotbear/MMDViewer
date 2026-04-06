@@ -244,6 +244,7 @@
 - `MetalView` の drawable 取得を helper に分離し、view 層の失敗点と責務をさらに追いやすくした
 - `ViewController` の再生状態同期と `AppDelegate` の scene 構成にコメント/ helper を追加し、UI 外周の責務を読みやすくした
 - `SceneDelegate` と `ViewController` のライフサイクル通知名を `Notification.Name` で共通化し、UI 外周の境界を型安全に揃えた
+- `ViewController` の lifecycle observer を `viewDidLoad` + `deinit` 管理へ寄せ、再表示時の重複登録リスクを減らした
 
 ## 次のイテレーション候補
 

@@ -10,12 +10,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         playPauseButton.accessibilityIdentifier = "playPauseButton"
-        updatePlayPauseButtonTitle()
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
         registerLifecycleNotifications()
+        updatePlayPauseButtonTitle()
     }
 
     private func registerLifecycleNotifications() {
@@ -31,6 +27,10 @@ class ViewController: UIViewController {
             name: .mmdViewerDidEnterBackground,
             object: nil
         )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     @objc func viewWillEnterForeground(_ notification: Notification?) {
