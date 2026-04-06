@@ -258,6 +258,10 @@ private struct PMXGeometryContext {
     let vertexBuffer: MTLBuffer
 }
 
+private struct PMXGeometryUpdateContext {
+    let geometry: PMXGeometryContext
+}
+
 private struct PMXRenderContext {
     let renderer: Renderer
     let transforms: PMXModelTransforms
@@ -480,7 +484,12 @@ class PMXObject {
     }
 
     private func updateGeometryState(_ context: PMXFrameContext) {
-        prepareVertexBufferForCurrentFrame(currentGeometryContext(tick: context.animation.tick))
+        prepareVertexBufferForCurrentFrame(currentGeometryUpdateContext(context).geometry)
+    }
+
+    private func currentGeometryUpdateContext(_ context: PMXFrameContext) -> PMXGeometryUpdateContext {
+        return PMXGeometryUpdateContext(
+            geometry: currentGeometryContext(tick: context.animation.tick))
     }
 
     private func currentGeometryContext(tick: PMXAnimationTick) -> PMXGeometryContext {
