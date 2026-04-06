@@ -62,6 +62,12 @@ extension GLKMatrix4: @retroactive CustomStringConvertible {
         GLKMatrix4(simd: simd_transpose(simd_float4x4(quaternion.simdQuaternion)))
     }
 
+    static func rotation(angle radians: Float, axis: GLKVector3) -> GLKMatrix4 {
+        let normalizedAxis = axis.normal()
+        let quaternion = simd_quatf(angle: radians, axis: normalizedAxis.simdValue)
+        return GLKMatrix4(simd: simd_transpose(simd_float4x4(quaternion)))
+    }
+
     static func lookAt(eye: GLKVector3, center: GLKVector3, up: GLKVector3) -> GLKMatrix4 {
         let forward = eye.sub(center).normal()
         let right = up.outer(forward).normal()
@@ -91,18 +97,17 @@ extension GLKMatrix4: @retroactive CustomStringConvertible {
     }
 
     func scale(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
-        return GLKMatrix4Scale(self, x, y, z)
+        multiply(GLKMatrix4.scale(x, y, z))
     }
 
     func rotateAroundX(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
-        let rx = GLKMatrix4Rotate(self, x, 1, 0, 0)
-        let ry = GLKMatrix4Rotate(rx, y, 0, 1, 0)
-        let rz = GLKMatrix4Rotate(ry, z, 0, 0, 1)
-        return rz
+        let rx = multiply(GLKMatrix4.rotation(angle: x, axis: GLKVector3Make(1, 0, 0)))
+        let ry = rx.multiply(GLKMatrix4.rotation(angle: y, axis: GLKVector3Make(0, 1, 0)))
+        return ry.multiply(GLKMatrix4.rotation(angle: z, axis: GLKVector3Make(0, 0, 1)))
     }
 
     func translate(_ x: Float, y: Float, z: Float) -> GLKMatrix4 {
-        return GLKMatrix4Translate(self, x, y, z)
+        multiply(GLKMatrix4.translation(x, y, z))
     }
 
     func multiply(_ other: GLKMatrix4) -> GLKMatrix4 {
