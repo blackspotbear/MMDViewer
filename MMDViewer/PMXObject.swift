@@ -241,8 +241,12 @@ private struct PMXAnimationTick {
 }
 
 private struct PMXFrameContext {
-    let renderer: Renderer
     let tick: PMXAnimationTick
+    let render: PMXRenderContext
+}
+
+private struct PMXRenderContext {
+    let renderer: Renderer
 }
 
 private struct PMXMorphFrameContext {
@@ -411,7 +415,9 @@ class PMXObject {
     }
 
     private func currentFrameContext(_ renderer: Renderer) -> PMXFrameContext {
-        return PMXFrameContext(renderer: renderer, tick: currentAnimationTick())
+        return PMXFrameContext(
+            tick: currentAnimationTick(),
+            render: PMXRenderContext(renderer: renderer))
     }
 
     private func currentAnimationTick() -> PMXAnimationTick {
@@ -657,7 +663,7 @@ class PMXObject {
 
     /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
     private func updateRenderBuffers(_ context: PMXFrameContext) {
-        let renderBuffers = makeFrameRenderBuffers(context.renderer)
+        let renderBuffers = makeFrameRenderBuffers(context.render.renderer)
         storeRenderBuffers(renderBuffers)
     }
 
