@@ -213,6 +213,7 @@
 - `Traverser`、`BasicRenderer`、回帰テストに、renderer 規約やテスト意図が分かるドキュメンテーションコメントを追加し始めた
 - `PMXObject` に、アニメーション更新、物理連携、morph、uniform / palette / material 転送の役割が追えるドキュメンテーションコメントを追加し始めた
 - `PMXObject` の GPU 転送まわりで、shadow 行列計算と palette / material 書き込みを helper へ切り出し、責務分離の最初の足がかりを作った
+- `PMXObject` の GPU 転送 helper を private encoder に集約し、描画用データ準備の責務境界を読み取りやすくした
 
 ## 次のイテレーション候補
 

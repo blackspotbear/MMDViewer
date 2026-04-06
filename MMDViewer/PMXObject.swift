@@ -214,47 +214,52 @@ private struct RenderMatrices {
     let shadowMatrixGB: GLKMatrix4
 }
 
-private func MakeRenderMatrices(_ renderer: Renderer,
-                                _ modelMatrix: GLKMatrix4) -> RenderMatrices {
-    let modelViewMatrix = renderer.viewMatrix.multiply(modelMatrix)
-    let sunMatrix = GLKMatrix4.lookAt(
-        eye: GLKVector3Make(-10, 12, 0),
-        center: GLKVector3Make(0, 12, 0),
-        up: GLKVector3Make(0, 1, 0)
-    ) // right-handed
-    let orthoMatrix = MakeOrthoOC(-12, 12, -12, 12, 1, 20)
-    let shadowMatrix = orthoMatrix.multiply(sunMatrix)
-    let shadowMatrixGB = GLKMatrix4MakeTranslation(0.5, 0.5, 0.0)
-        .multiply(GLKMatrix4MakeScale(0.5, -0.5, 1.0))
-        .multiply(shadowMatrix)
+/// `PMXObject` が shader 向けに送る生バイト列の準備を集約する。
+/// ここは still-legacy な `GLKMatrix4` 表現と `MTLBuffer` 書き込みが出会う境界で、
+/// 後で別型へ切り出す時も呼び出し側の流れを崩さずに移行できるようにしている。
+private enum PMXRenderDataEncoder {
+    static func makeRenderMatrices(_ renderer: Renderer,
+                                   _ modelMatrix: GLKMatrix4) -> RenderMatrices {
+        let modelViewMatrix = renderer.viewMatrix.multiply(modelMatrix)
+        let sunMatrix = GLKMatrix4.lookAt(
+            eye: GLKVector3Make(-10, 12, 0),
+            center: GLKVector3Make(0, 12, 0),
+            up: GLKVector3Make(0, 1, 0)
+        ) // right-handed
+        let orthoMatrix = MakeOrthoOC(-12, 12, -12, 12, 1, 20)
+        let shadowMatrix = orthoMatrix.multiply(sunMatrix)
+        let shadowMatrixGB = GLKMatrix4MakeTranslation(0.5, 0.5, 0.0)
+            .multiply(GLKMatrix4MakeScale(0.5, -0.5, 1.0))
+            .multiply(shadowMatrix)
 
-    return RenderMatrices(
-        modelViewMatrix: modelViewMatrix,
-        shadowMatrix: shadowMatrix,
-        shadowMatrixGB: shadowMatrixGB)
-}
-
-private func WriteMatrixPalette(_ buffer: MTLBuffer, _ postures: [Posture]) {
-    var dst = buffer.contents()
-
-    for posture in postures {
-        var worldMatrix = posture.wm
-        memcpy(dst, &worldMatrix, MemoryLayout<GLKMatrix4>.size)
-        dst = dst.advanced(by: MemoryLayout<GLKMatrix4>.stride)
+        return RenderMatrices(
+            modelViewMatrix: modelViewMatrix,
+            shadowMatrix: shadowMatrix,
+            shadowMatrixGB: shadowMatrixGB)
     }
-}
 
-private func WriteMaterials(_ buffer: MTLBuffer, _ materials: [Material]) {
-    var materialPointer = buffer.contents()
+    static func writeMatrixPalette(_ buffer: MTLBuffer, _ postures: [Posture]) {
+        var dst = buffer.contents()
 
-    for mat in materials {
-        var material = ShaderMaterial(
-            ambientColor: SIMD3(mat.ambient.r, mat.ambient.g, mat.ambient.b),
-            diffuseColor: SIMD3(mat.diffuse.r, mat.diffuse.g, mat.diffuse.b),
-            specularColor: SIMD3(mat.specular.r, mat.specular.g, mat.specular.b),
-            specularPower: mat.specularPower)
-        memcpy(materialPointer, &material, MemoryLayout<ShaderMaterial>.size)
-        materialPointer += MemoryLayout<ShaderMaterial>.stride
+        for posture in postures {
+            var worldMatrix = posture.wm
+            memcpy(dst, &worldMatrix, MemoryLayout<GLKMatrix4>.size)
+            dst = dst.advanced(by: MemoryLayout<GLKMatrix4>.stride)
+        }
+    }
+
+    static func writeMaterials(_ buffer: MTLBuffer, _ materials: [Material]) {
+        var materialPointer = buffer.contents()
+
+        for mat in materials {
+            var material = ShaderMaterial(
+                ambientColor: SIMD3(mat.ambient.r, mat.ambient.g, mat.ambient.b),
+                diffuseColor: SIMD3(mat.diffuse.r, mat.diffuse.g, mat.diffuse.b),
+                specularColor: SIMD3(mat.specular.r, mat.specular.g, mat.specular.b),
+                specularPower: mat.specularPower)
+            memcpy(materialPointer, &material, MemoryLayout<ShaderMaterial>.size)
+            materialPointer += MemoryLayout<ShaderMaterial>.stride
+        }
     }
 }
 
@@ -490,7 +495,7 @@ class PMXObject {
         //
         // see https://goo.gl/vgIYTf
 
-        let renderMatrices = MakeRenderMatrices(renderer, modelMatrix)
+        let renderMatrices = PMXRenderDataEncoder.makeRenderMatrices(renderer, modelMatrix)
 
         CopyMatrices(
             uniformBuffer,
@@ -504,11 +509,11 @@ class PMXObject {
         return uniformBuffer
     }
 
-    /// 各ボーンの world matrix を matrix palette buffer へ詰める。
+        /// 各ボーンの world matrix を matrix palette buffer へ詰める。
     /// shader 側の skinning はこの palette を前提にしている。
     private func sendMatrixPalette() -> MTLBuffer {
         let palette = self.mtrxBufferProvider.nextBuffer()
-        WriteMatrixPalette(palette, postures)
+        PMXRenderDataEncoder.writeMatrixPalette(palette, postures)
 
         return palette
     }
@@ -517,7 +522,7 @@ class PMXObject {
     /// texture index や sphere map などは別経路で扱うため、ここでは色だけ送る。
     private func sendMaterials() -> MTLBuffer {
         let materialBuffer = materialBufferProvider.nextBuffer()
-        WriteMaterials(materialBuffer, pmx.materials)
+        PMXRenderDataEncoder.writeMaterials(materialBuffer, pmx.materials)
 
         return materialBuffer
     }
