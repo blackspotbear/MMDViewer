@@ -5,6 +5,12 @@ import Metal
 
 let InitialCameraPosition = GLKVector3Make(0, 10, 20)
 
+private struct MMDSceneResources {
+    let pmx: PMX
+    let vmd: VMD
+    let pmxObject: PMXObject
+}
+
 /// `melt` のアプリ固有 view。
 /// Metal drawable の獲得は `MetalView` に任せ、この型は scene graph 構築と frame 駆動を束ねる。
 class MMDView: MetalView {
@@ -231,10 +237,23 @@ class MMDView: MetalView {
         return PMXObject(device: device!, pmx: pmx, vmd: vmd)
     }
 
+    private func makeSceneResources() -> MMDSceneResources {
+        let pmx = loadPMXResource()
+        let vmd = loadVMDResource()
+        return MMDSceneResources(
+            pmx: pmx,
+            vmd: vmd,
+            pmxObject: makePMXObject(pmx: pmx, vmd: vmd))
+    }
+
+    private func storeSceneResources(_ resources: MMDSceneResources) {
+        pmx = resources.pmx
+        vmd = resources.vmd
+        miku = resources.pmxObject
+    }
+
     private func loadSceneResources() {
-        pmx = loadPMXResource()
-        vmd = loadVMDResource()
-        miku = makePMXObject(pmx: pmx!, vmd: vmd)
+        storeSceneResources(makeSceneResources())
     }
 
     /// `MMDView` が window に乗ったタイミングで、描画レイヤーと scene graph の初期化を束ねる。
