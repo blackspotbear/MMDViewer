@@ -257,6 +257,64 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 また、クォータニオン変換・合成・ベクトル回転の回帰テストに加えて、`GLKMatrix4` <-> `simd_float4x4` の round-trip テスト、および実データの PMX / VMD fixture を読み込むローダ確認テストを追加し、`xcodebuild test -only-testing:MMDViewerTests` で 11 件の単体テスト成功を確認済みです。
 
+### 5.1 パフォーマンス改善候補と計測方針
+
+2026-04-06 時点では、最適化を始める前に「どこを測るか」を先に固定するのが妥当です。現状のコード構造から、優先候補は次の通りです。
+
+- 第 1 優先: `PMXObject` の CPU morph と GPU 転送
+  - `prepareVertexBufferForCurrentFrame()`
+  - morph 解決と `updateVertex`
+  - uniform / matrix palette / material buffer の毎フレーム更新
+  - モデル数や頂点数が増えると最も効きやすい候補で、CPU 時間もメモリ帯域も消費しやすい
+
+- 第 2 優先: render pass の attachment / drawable 更新
+  - `ForwardRenderPass`
+  - `GBufferPass`
+  - `ShadowPass`
+  - drawable size 変化時の depth / stencil / shadow texture 再確保は、frame 落ちや hitch の原因になりやすい
+
+- 第 3 優先: `Traverser` と draw call 発行
+  - node 数と material 数に応じて pass begin/end と `set*Buffer` / `drawIndexedPrimitives` が増える
+  - 複数モデル化や pass 増加を考えると、draw call 数と state change の増え方を一度測る価値がある
+
+- 第 4 優先: Bullet step と姿勢反映
+  - `PhysicsSolver`
+  - FK / IK 後の push、simulation 後の pull
+  - 現状 1 モデルでは支配的でない可能性もあるが、constraint 数や body 数が増えると効いてくる
+
+- 第 5 優先: frame pacing と present 周辺
+  - `CADisplayLink` 30fps 駆動
+  - `CAMetalLayer.nextDrawable()` と present / commit
+  - `MTKViewDelegate` へ移るべきかは、CPU/GPU 使用率よりも frame pacing の安定性を見て判断するのがよい
+
+計測の順番は次が安全です。
+
+1. Instruments の Time Profiler で CPU ホットパスを確認する
+2. Metal System Trace で drawable 待ち、encoder 実行、GPU 使用率を確認する
+3. Allocations で texture 再確保や一時オブジェクト増加を確認する
+4. 必要なら simulator ではなく実機でも同じシナリオを再計測する
+
+計測シナリオは次の 3 つを最低限そろえるのがよいです。
+
+- 起動直後に 10 秒放置
+- モーション再生中にカメラ操作を継続
+- 可能なら複数モデルや重いモーションを後から追加して再計測
+
+最適化候補としては、現時点では次が有力です。
+
+- CPU morph の GPU 側移行
+- matrix palette / material の更新頻度削減
+- texture / attachment 再確保条件の見直し
+- draw call / state change の削減
+- `CADisplayLink` 維持と `MTKViewDelegate` 移行の比較計測
+
+一方で、今すぐ最適化しない方がよい箇所は次です。
+
+- matrix-matrix multiply の GLKit 互換境界
+  - 互換性リスクに対して性能効果がまだ不明
+- drawable 寿命管理
+  - 直近で runtime 不具合を直したばかりで、まずは安定性を優先する
+
 ## Bullet 更新可否の調査結果
 
 ローカル実装の確認では、Bullet は prebuilt library ではなく、[`third-party/bullet3-2.83.7/`](/Users/kmi/devel/MMDViewer/third-party/bullet3-2.83.7) に同梱したソースを Xcode ターゲットへ直接追加して使っています。フォルダ名は `2.83.7` ですが、同梱された [`VERSION`](/Users/kmi/devel/MMDViewer/third-party/bullet3-2.83.7/VERSION) には `2.84` と記載されています。
