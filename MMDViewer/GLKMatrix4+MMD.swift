@@ -128,6 +128,8 @@ extension GLKMatrix4: @retroactive CustomStringConvertible {
     }
 
     func multiply(_ other: GLKMatrix4) -> GLKMatrix4 {
+        // `multiplyVector4` は row-vector 側へ合わせれば `simd` 化できるが、
+        // matrix-matrix multiply はまだ GLKit と完全一致しないため legacy 実装を維持する。
         GLKMatrix4Multiply(self, other)
     }
 
