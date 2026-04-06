@@ -241,6 +241,7 @@
 - `BasicRenderer` と `CameraUpdater` に renderer 状態管理と camera 更新の規約コメントを追加し、`melt` の view-renderer 境界を読み取りやすくした
 - `PMXUpdater` と `PhysicsSolving` に、アニメーション更新順序と物理ブリッジ境界のコメントを追加し、PMX 更新フローを追いやすくした
 - `PMXDrawer` / `PMXShadowDrawer` に描画責務コメントを追加し、shadow 側の未使用変数も除いて drawer 層を読みやすくした
+- `MetalView` の drawable 取得を helper に分離し、view 層の失敗点と責務をさらに追いやすくした
 
 ## 次のイテレーション候補
 

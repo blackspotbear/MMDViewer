@@ -10,11 +10,7 @@ class MetalView: UIView {
 
     var currentDrawable: CAMetalDrawable? {
         if _currentDrawable == nil {
-            if let metalLayer = metalLayer {
-                _currentDrawable = metalLayer.nextDrawable()
-            } else {
-                fatalError("failed to get a drawable")
-            }
+            _currentDrawable = nextDrawable()
         }
         return _currentDrawable
     }
@@ -54,6 +50,17 @@ class MetalView: UIView {
 
     override class var layerClass: AnyClass {
         return CAMetalLayer.self
+    }
+
+    /// drawable 取得失敗は render loop 全体の前提崩壊なので、ここで早めに止める。
+    private func nextDrawable() -> CAMetalDrawable {
+        guard let metalLayer = metalLayer else {
+            fatalError("failed to get a drawable")
+        }
+        guard let drawable = metalLayer.nextDrawable() else {
+            fatalError("failed to acquire next drawable")
+        }
+        return drawable
     }
 
     private final func initMetalLayer() {
