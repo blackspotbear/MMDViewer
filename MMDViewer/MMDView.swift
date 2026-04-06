@@ -27,6 +27,11 @@ private struct MMDWindowConfiguration {
     let preferredFramesPerSecond: Int
 }
 
+private struct MMDSceneApplication {
+    let resources: MMDSceneResources
+    let sceneGraph: MMDSceneGraphConfiguration
+}
+
 private struct MMDPreparedFrame {
     let elapsed: CFTimeInterval
 }
@@ -313,6 +318,16 @@ class MMDView: MetalView {
     }
 
     private func applyPreparedScene(_ scene: MMDPreparedScene) {
+        applyScene(makeSceneApplication(scene))
+    }
+
+    private func makeSceneApplication(_ scene: MMDPreparedScene) -> MMDSceneApplication {
+        return MMDSceneApplication(
+            resources: scene.resources,
+            sceneGraph: scene.sceneGraph)
+    }
+
+    private func applyScene(_ scene: MMDSceneApplication) {
         storeSceneResources(scene.resources)
         configureSceneGraph(scene.sceneGraph)
         configureMetalLayer(pixelFormat: scene.sceneGraph.pixelFormat)
