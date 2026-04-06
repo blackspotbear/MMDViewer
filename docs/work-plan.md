@@ -184,7 +184,7 @@
 - [x] 最終的なテスト不足領域を埋める
 - [x] Bullet 2 系の公式 release を基準に、vendor を丸ごと更新できるか調査する
 - [x] Bullet 2.89 を第一候補として、API 差分と移行コストを確認する
-- [ ] 丸ごと更新が重すぎる場合に備えて、target 依存面積の縮小を第 2 案として整理する
+- [x] 丸ごと更新が重すぎる場合に備えて、target 依存面積の縮小を第 2 案として整理する
 - [x] Bullet 2.89 更新後の描画、モーション、物理挙動をシミュレータで確認する
 
 ### 最終棚卸し
@@ -340,6 +340,8 @@
 - UIKit 維持と SwiftUI 移行の比較メモを追記し、当面は `UIKit + MTKView` 継続、将来は描画外 UI から SwiftUI 導入を検討する方針を明文化した
 - `PMXObject` の CPU morph / GPU 転送、render pass の attachment 再確保、`Traverser` の draw call 発行、Bullet step、frame pacing を性能計測の優先候補として整理し、Time Profiler / Metal System Trace / Allocations を使う順番を明文化した
 - formatter / lint 評価を行い、当面は `swift-format` を段階適用の第一候補、`SwiftLint` は最小ルールの補助用途に限る方針を明文化した
+- formatter / lint の実適用は最後まで保留し、差分を大きくする変更として最終イテレーションまで先送りする方針を明記した
+- Bullet target 縮小の第 2 案として、`BulletSoftBody` / `Vehicle` / `Character` / `MLCPSolvers` から段階的に外し、必要なら `Featherstone` / `Gimpact` を続けて見直す順番を整理した
 
 ## 追加テスト候補メモ
 

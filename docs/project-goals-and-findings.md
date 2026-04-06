@@ -424,6 +424,27 @@ Apple の公開資料では、OpenGL ES は iOS 12 で deprecated とされ、GL
 
 現時点の結論は、「Bullet 更新は検討価値が高く、まずは丸ごと更新を第一候補として試すべき」です。target 依存面積の縮小は有効な改善ですが、更新前の必須条件ではなく、更新が重すぎる場合の第 2 案として扱うのが合理的です。
 
+第 2 案として target 依存面積を縮小するなら、次の順で進めるのが安全です。
+
+1. `BulletSoftBody`、`BulletDynamics/Vehicle`、`BulletDynamics/Character`、`BulletDynamics/MLCPSolvers` を候補として外す
+2. `BulletDynamics/Featherstone` と `BulletCollision/Gimpact` を、リンクエラーや参照切れの有無を見ながら段階的に外す
+3. 最後に `BulletCollision/CollisionShapes` と `BulletCollision/CollisionDispatch` の未使用ファイルを削る
+
+この順を勧める理由は次の通りです。
+
+- `PhysicsSolver.mm` が直接使っているのは、剛体 world、基本 shape、6DoF spring constraint、broadphase / dispatcher / solver 周辺に限られる
+- soft body、vehicle、character、MLCP solver は現行コードから直接参照されていない
+- Featherstone や Gimpact は間接依存の可能性があるため、先に切るより後段の方が安全
+
+実施時の手順は次を推奨します。
+
+1. Xcode project から対象 module の `.cpp` 群だけを外す専用イテレーションを作る
+2. 各段階で `xcodebuild build` と `MMDViewerTests` を回す
+3. 物理付きモーションをシミュレータで確認する
+4. 問題が出た module はその段階で戻し、依存候補として記録する
+
+つまり、この第 2 案は「今すぐ実施する改善」ではなく、次に Bullet 更新や warning 増加で差分が重くなったときの退避策として保持するのが妥当です。
+
 実際に 2026-04-06 時点で、vendor ディレクトリの中身を Bullet 2.89 へ差し替え、Xcode project では以下の最小追従で simulator build と単体テスト成功まで確認できました。
 
 - 廃止された `btMultiSapBroadphase` の project 参照削除
