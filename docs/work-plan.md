@@ -190,7 +190,7 @@
 ### 最終棚卸し
 
 - [ ] 追加で近代化できる箇所が残っていないかを確認する
-- [ ] 追加でテスト化できる領域を洗い出す
+- [x] 追加でテスト化できる領域を洗い出す
 - [ ] パフォーマンス改善候補と計測方針を整理する
 - [ ] `SwiftLint` や `swift-format` の導入メリットとコストを評価する
 - [ ] formatter / lint の導入方針を決める
@@ -336,6 +336,25 @@
 - `PhysicsSolver` の kinematic push / dynamic pull を spy ベースの単体テストで固定し、物理ブリッジ境界の回帰を監視できるようにした
 - fixture を使った `PMXUpdater` の再生/停止/角速度減衰テストを追加し、再生状態と frame 進行の回帰を監視できるようにした
 - storyboard 実体を使う `ViewController` テストを追加し、lifecycle 通知と Play/Pause UI の同期を回帰テストで固定した
+- 追加テスト候補の棚卸しを行い、`MMDView` / render pass / `PMXObject` のうち純ロジック化しやすい箇所と、引き続きシミュレータ目視確認を主軸にすべき箇所を切り分けた
+
+## 追加テスト候補メモ
+
+- 自動テストを追加しやすい候補
+- `MMDView` の frame 準備 helper 群
+  - `MMDPreparedFrame` / `MMDDrawableLayout` / `MMDFrameTiming` の組み立ては純粋値にかなり近く、fixture や spy renderer を使った単体テストへ落とし込みやすい
+- `PMXObject` の morph 解決 helper 群
+  - `PMXMorphFrameContext` と `PMXMorphUpdates` 周辺は、PMX/VMD fixture を使って「どの morph がどの重みで選ばれるか」を固定できる
+- `Traverser` と renderer 契約の補助境界
+  - 既存 test を広げれば、wireframe / deferred path を含む pass begin/end 順序も spy で監視できる
+
+- 目視確認を主軸にすべき候補
+- `MTKView` substrate と drawable 寿命管理
+  - `CAMetalLayer.nextDrawable()` と present 順序は runtime 依存が強く、単体テストより simulator 実行の方が信頼できる
+- render pass の attachment / texture 再確保
+  - `ForwardRenderPass` / `GBufferPass` / `ShadowPass` は drawable size, pixel format, depth/stencil 制約に強く依存するため、最終確認は描画実機確認が必要
+- `PMXObject` の GPU 転送結果そのもの
+  - uniform / matrix palette / material buffer は byte layout の正しさより「実際に表示されるか」の方が重要で、ここは visual regression を優先する
 - `PMXObject` の morph 解決結果を `PMXMorphUpdates` として左右別の更新集合にまとめ、keyframe 解決と頂点更新適用の境界をさらに明確にした
 - `MMDView` の display link 起動では生成と設定を分け、window 構成から frame 駆動へ流れる段取りをより追いやすくした
 - `MMDPreparedFrame` が drawable layout も持つようにし、frame 準備結果を時間情報だけでなく描画前提込みの値として扱えるようにした
