@@ -10,20 +10,18 @@ extension Notification.Name {
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
-    private func notifyForegroundTransition() {
-        postLifecycleNotification(.mmdViewerWillEnterForeground)
-    }
-
-    private func notifyBackgroundTransition() {
-        postLifecycleNotification(.mmdViewerDidEnterBackground)
-    }
-
     func sceneWillEnterForeground(_ scene: UIScene) {
-        notifyForegroundTransition()
+        handleLifecycleTransition(.mmdViewerWillEnterForeground)
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
-        notifyBackgroundTransition()
+        handleLifecycleTransition(.mmdViewerDidEnterBackground)
+    }
+
+    /// Scene lifecycle の各イベントを、アプリ固有の notification へ写像する。
+    /// event ごとの処理が増えるまでは 1 箇所に寄せておき、ViewController 側の購読先を固定する。
+    private func handleLifecycleTransition(_ name: Notification.Name) {
+        postLifecycleNotification(name)
     }
 
     private func postLifecycleNotification(_ name: Notification.Name) {

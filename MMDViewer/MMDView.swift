@@ -91,7 +91,7 @@ class MMDView: MetalView {
 
     private func makeForwardPMXNode() -> Node {
         let node = Node()
-        pmxUpdater = PMXUpdater(pmxObj: miku)
+        pmxUpdater = makePMXUpdater()
         node.updater = pmxUpdater
         node.drawer = PMXDrawer(pmxObj: miku, device: device!)
         node.pass = ForwardRenderPass(view: self)
@@ -131,7 +131,7 @@ class MMDView: MetalView {
 
 
         let node = Node()
-        pmxUpdater = PMXUpdater(pmxObj: miku)
+        pmxUpdater = makePMXUpdater()
         node.updater = pmxUpdater
         node.children.append(shadowNode)
         node.children.append(gbufferNode)
@@ -192,6 +192,10 @@ class MMDView: MetalView {
     }
 
     // MARK: Loop
+
+    private func makePMXUpdater() -> PMXUpdater {
+        return PMXUpdater(pmxObj: miku)
+    }
 
     private func loadSceneResources() {
         pmx = LoadPMD("data/mmd/Alicia_solid")

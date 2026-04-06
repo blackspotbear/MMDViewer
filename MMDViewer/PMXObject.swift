@@ -364,8 +364,6 @@ class PMXObject {
         let resources = Self.makeResources(device: device, pmx: pmx)
         let animationState = Self.makeAnimationState(pmx: pmx, vmd: vmd)
         vertexData = resources.vertexData
-        self.curveTies = animationState.curveTies
-        self.postures = animationState.postures
         vertexBufferProvider = resources.vertexBufferProvider
         indexBuffer = resources.indexBuffer
         self.uniformBufferProvider = resources.uniformBufferProvider
@@ -373,6 +371,8 @@ class PMXObject {
         self.materialBufferProvider = resources.materialBufferProvider
         self.textures = resources.textures
 
+        self.curveTies = animationState.curveTies
+        self.postures = animationState.postures
         counter = animationState.counter
         solver = animationState.solver
     }
