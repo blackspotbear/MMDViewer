@@ -7,12 +7,16 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    /// SceneDelegate + Main.storyboard の組み合わせを明示し、
-    /// 古い単一 AppDelegate 構成から scene 構成へ移した意図を固定する。
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
-        let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    private func makeSceneConfiguration(for sessionRole: UISceneSession.Role) -> UISceneConfiguration {
+        let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: sessionRole)
         configuration.delegateClass = SceneDelegate.self
         configuration.storyboard = UIStoryboard(name: "Main", bundle: nil)
         return configuration
+    }
+
+    /// SceneDelegate + Main.storyboard の組み合わせを明示し、
+    /// 古い単一 AppDelegate 構成から scene 構成へ移した意図を固定する。
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        return makeSceneConfiguration(for: connectingSceneSession.role)
     }
 }

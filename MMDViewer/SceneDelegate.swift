@@ -10,12 +10,20 @@ extension Notification.Name {
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
-    func sceneWillEnterForeground(_ scene: UIScene) {
+    private func notifyForegroundTransition() {
         postLifecycleNotification(.mmdViewerWillEnterForeground)
     }
 
-    func sceneDidEnterBackground(_ scene: UIScene) {
+    private func notifyBackgroundTransition() {
         postLifecycleNotification(.mmdViewerDidEnterBackground)
+    }
+
+    func sceneWillEnterForeground(_ scene: UIScene) {
+        notifyForegroundTransition()
+    }
+
+    func sceneDidEnterBackground(_ scene: UIScene) {
+        notifyBackgroundTransition()
     }
 
     private func postLifecycleNotification(_ name: Notification.Name) {
