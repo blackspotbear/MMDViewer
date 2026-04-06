@@ -288,6 +288,7 @@
 - `PMXObject` が個別に抱えていた 4 種類の `BufferProvider` を `PMXBufferProviders` に束ね、描画バッファ所有境界を 1 つのまとまりとして扱えるようにした
 - `MMDView` の scene graph 構築を `MMDSceneGraphConfiguration` と適用処理に分け、構成値と root node 反映を別段にした
 - `SceneDelegate` と `ViewController` の lifecycle / playback 状態を enum で持ち上げ、通知名や再生状態の分岐を外周専用の型へ寄せた
+- `MMDView` の display link 入口を `prepareCurrentFrame` と描画実行に分け、frame 準備と draw 実行の境界を明確にした
 
 ## 次のイテレーション候補
 

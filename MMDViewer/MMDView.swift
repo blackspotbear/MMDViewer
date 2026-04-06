@@ -358,12 +358,20 @@ class MMDView: MetalView {
         traverser.draw(root)
     }
 
-    @objc func mainLoop(_ displayLink: CADisplayLink) {
+    private func prepareCurrentFrame(_ displayLink: CADisplayLink) -> CFTimeInterval? {
         let elapsed = elapsedTime(since: displayLink)
 
         updateDrawableSizeIfNeeded()
 
         guard isReadyToDrawCurrentFrame() else {
+            return nil
+        }
+
+        return elapsed
+    }
+
+    @objc func mainLoop(_ displayLink: CADisplayLink) {
+        guard let elapsed = prepareCurrentFrame(displayLink) else {
             return
         }
 
