@@ -344,6 +344,7 @@
 - `MMDView` の frame 完了も current completion session 経由にし、`PMXObject` の animation / geometry 更新でも更新セッションを明示して、1 フレーム更新の各段を同じ書き味にそろえた
 - `PMXObject` の morph 適用でも結合済み更新集合の application session を導入し、`MMDView` の forward scene graph 構築でも updater と node を同じセッションで扱うようにした
 - `PMXObject` の render buffer 組み立てでは uniform / palette / material の 3 要素も component session としてまとめ、GPU 更新の組み立て段をさらに段階化した
+- `PMXObject` の uniform buffer 更新でも、buffer 確保と shadow 用行列計算を `PMXUniformBufferSession` にまとめ、行列準備と生書き込みの境界をさらに明確にした
 
 ## 次のイテレーション候補
 

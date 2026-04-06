@@ -358,6 +358,11 @@ private struct PMXRenderBufferComponentSession {
     let materials: MTLBuffer
 }
 
+private struct PMXUniformBufferSession {
+    let buffer: MTLBuffer
+    let renderMatrices: RenderMatrices
+}
+
 private struct PMXRenderBufferUpdateSession {
     let assembly: PMXFrameRenderBufferAssembly
 }
@@ -849,8 +854,21 @@ class PMXObject {
     /// 描画に必要な camera / shadow 行列をまとめて uniform buffer へ転送する。
     /// shadowMatrixGB は Metal のテクスチャ座標系に合わせて Y 反転込みで作っている。
     private func makeUniformBuffer(_ context: PMXRenderContext) -> MTLBuffer {
-        let uniformBuffer = withNextBuffer(bufferProviders.uniforms)
+        let session = makeUniformBufferSession(context)
 
+        CopyMatrices(
+            session.buffer,
+            context.transforms.modelMatrix,
+            session.renderMatrices.modelViewMatrix,
+            context.renderer.projectionMatrix,
+            context.transforms.normalMatrix,
+            session.renderMatrices.shadowMatrix,
+            session.renderMatrices.shadowMatrixGB)
+
+        return session.buffer
+    }
+
+    private func makeUniformBufferSession(_ context: PMXRenderContext) -> PMXUniformBufferSession {
         // "Metal Shading Language Guide" says:
         // In Metal, the origin of the pixel coordinate system of a texture is
         // defined at the top-left corner.
@@ -858,21 +876,11 @@ class PMXObject {
         // So shadowMatrixGB's Y scale value is negative.
         //
         // see https://goo.gl/vgIYTf
-
-        let renderMatrices = PMXRenderDataEncoder.makeRenderMatrices(
-            context.renderer,
-            context.transforms.modelMatrix)
-
-        CopyMatrices(
-            uniformBuffer,
-            context.transforms.modelMatrix,
-            renderMatrices.modelViewMatrix,
-            context.renderer.projectionMatrix,
-            context.transforms.normalMatrix,
-            renderMatrices.shadowMatrix,
-            renderMatrices.shadowMatrixGB)
-
-        return uniformBuffer
+        return PMXUniformBufferSession(
+            buffer: withNextBuffer(bufferProviders.uniforms),
+            renderMatrices: PMXRenderDataEncoder.makeRenderMatrices(
+                context.renderer,
+                context.transforms.modelMatrix))
     }
 
     /// 各ボーンの world matrix を matrix palette buffer へ詰める。
