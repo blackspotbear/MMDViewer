@@ -388,9 +388,7 @@ class PMXObject {
     func calc(_ renderer: Renderer) {
 //        FKSolver(postures, vmd: vmd, frameNum: counter.currentFrame())
         updatePosturesForCurrentFrame()
-
-        PhysicsSolver(postures, physicsSolving: solver)
-
+        runPhysicsStep()
         prepareVertexBufferForCurrentFrame()
         updateRenderBuffers(renderer)
     }
@@ -405,6 +403,11 @@ class PMXObject {
         for posture in postures {
             posture.updateTransformMatrix(postures)
         }
+    }
+
+    /// FK/IK 後の姿勢を Bullet へ渡し、dynamic body の結果を posture へ戻す。
+    private func runPhysicsStep() {
+        PhysicsSolver(postures, physicsSolving: solver)
     }
 
     /// ベース頂点を inflight buffer へコピーし、現在フレームの morph を上書き適用する。
