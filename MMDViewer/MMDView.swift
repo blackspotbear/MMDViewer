@@ -202,12 +202,19 @@ class MMDView: MetalView {
     /// `MMDView` が window に乗ったタイミングで、描画レイヤーと scene graph の初期化を束ねる。
     /// UIKit lifecycle の入り口を 1 箇所へ寄せ、後で scene 再構成や `MTKView` 置換を試しやすくする。
     private func configureForWindow(_ window: UIWindow) {
-        contentScaleFactor = window.screen.nativeScale
-
-        loadSceneResources()
+        configureDisplayScale(for: window)
         configureRendererEndHandler()
-        configureMetalLayer(pixelFormat: setupSceneGraph())
+        configureMetalLayer(pixelFormat: prepareScene())
         startDisplayLink()
+    }
+
+    private func configureDisplayScale(for window: UIWindow) {
+        contentScaleFactor = window.screen.nativeScale
+    }
+
+    private func prepareScene() -> MTLPixelFormat {
+        loadSceneResources()
+        return setupSceneGraph()
     }
 
     private func configureMetalLayer(pixelFormat: MTLPixelFormat) {

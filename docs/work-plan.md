@@ -272,6 +272,7 @@
 - `Renderer.setEndHandler` の責務コメントを補強し、`MMDView` と renderer の frame 完了境界を読み取りやすくした
 - `PMXObject` の index buffer / physics solver 生成と 1 frame 更新入口を helper 化し、初期化と毎フレーム更新の段取りをそろえた
 - `PMXObject` の curve tie / posture / counter / solver 初期化を `PMXObjectAnimationState` にまとめ、`PMXUpdater` でも角速度減衰と frame 進行を helper に分離して更新入口の段取りをそろえた
+- `MMDView` の window 参加時処理で display scale 設定と scene 準備を helper に分け、UIKit lifecycle 入口の段取りをさらに読みやすくした
 
 ## 次のイテレーション候補
 
