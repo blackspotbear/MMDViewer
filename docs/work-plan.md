@@ -178,6 +178,9 @@
 - [x] 責務分離の優先順位を決める
 - [x] `PMXObject` の初期化と毎フレーム更新を段階的に分離する
 - [x] `MMDView` の scene 準備と frame 実行を段階的に分離する
+- [x] `MMDView` の主要 session が入口で直接消費される形にそろう
+- [x] `PMXObject` の主要 session が入口で直接消費される形にそろう
+- [x] session / context / apply / storage の命名と役割が `MMDView` と `PMXObject` で一貫する
 - [ ] 最終的なテスト不足領域を埋める
 - [x] Bullet 2 系の公式 release を基準に、vendor を丸ごと更新できるか調査する
 - [x] Bullet 2.89 を第一候補として、API 差分と移行コストを確認する
@@ -226,6 +229,7 @@
 - `PMXObject` の uniform / matrix palette / material buffer 生成でも session から buffer を取り出す helper をそろえ、GPU 転送準備段の書き味を統一した
 - `MMDView` の window configuration / setup でも session をそのまま消費する helper に寄せ、window 参加時の入口の書き味を統一した
 - `PMXObject` の morph pipeline / render buffer storage でも session から更新集合や保存値を取り出す helper をそろえ、更新段の書き味を統一した
+- `MMDView` / `PMXObject` の主要 session について、入口が session を直接消費する形と naming をそろえ、今回の内部整理の区切り条件を満たした
 - `GLKVector2` と VMD の Bezier 補間計算も `simd` ベースの内部実装へ寄せ、補間ロジックを描画非依存のまま近代化した
 - `BasicRenderer` の model matrix stack 参照バグを修正し、あわせて `GLKMathDegreesToRadians` 依存を外した
 - 無効化されたまま残っていた lint 用 build phase を削除し、毎回出ていた `Run Script` 警告を解消した

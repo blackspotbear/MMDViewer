@@ -216,8 +216,8 @@ class MMDView: MetalView {
 
     private func makeSceneGraphConfiguration(pmxObject: PMXObject) -> MMDSceneGraphConfiguration {
         let session = makeForwardSceneGraphSession(pmxObject: pmxObject)
-        pmxUpdater = session.updater
-        return session.configuration
+        pmxUpdater = forwardSceneUpdater(session)
+        return sceneGraphConfiguration(session)
     }
 
     private func makeForwardSceneGraphSession(pmxObject: PMXObject) -> MMDForwardSceneGraphSession {
@@ -231,6 +231,14 @@ class MMDView: MetalView {
             configuration: MMDSceneGraphConfiguration(
                 children: [node],
                 pixelFormat: .bgra8Unorm))
+    }
+
+    private func forwardSceneUpdater(_ session: MMDForwardSceneGraphSession) -> PMXUpdater {
+        return session.updater
+    }
+
+    private func sceneGraphConfiguration(_ session: MMDForwardSceneGraphSession) -> MMDSceneGraphConfiguration {
+        return session.configuration
     }
 
     #else // deferred rendering
@@ -417,8 +425,9 @@ class MMDView: MetalView {
     }
 
     private func applyWindowSetup(_ session: MMDWindowConfigurationSession) {
-        applyScene(session.setup.scene)
-        startDisplayLink(configuration: session.setup.displayLink)
+        let setup = windowSetup(session)
+        applyScene(sceneApplicationSession(setup))
+        startDisplayLink(configuration: displayLinkConfiguration(setup))
     }
 
     private func prepareScene() -> MMDPreparedScene {
@@ -451,14 +460,47 @@ class MMDView: MetalView {
 
     private func makeSceneApplicationStepSession(_ session: MMDSceneApplicationSession) -> MMDSceneApplicationStepSession {
         return MMDSceneApplicationStepSession(
-            resources: session.scene.resources,
-            sceneGraph: session.scene.sceneGraph)
+            resources: sceneResources(sceneApplication(session)),
+            sceneGraph: sceneGraphConfiguration(sceneApplication(session)))
     }
 
     private func applySceneStep(_ step: MMDSceneApplicationStepSession) {
-        storeSceneResources(step.resources)
-        configureSceneGraph(step.sceneGraph)
-        configureMetalLayer(pixelFormat: step.sceneGraph.pixelFormat)
+        storeSceneResources(sceneResources(step))
+        let configuration = sceneGraphConfiguration(step)
+        configureSceneGraph(configuration)
+        configureMetalLayer(pixelFormat: configuration.pixelFormat)
+    }
+
+    private func windowSetup(_ session: MMDWindowConfigurationSession) -> MMDWindowSetupSession {
+        return session.setup
+    }
+
+    private func sceneApplicationSession(_ session: MMDWindowSetupSession) -> MMDSceneApplicationSession {
+        return session.scene
+    }
+
+    private func displayLinkConfiguration(_ session: MMDWindowSetupSession) -> MMDDisplayLinkConfiguration {
+        return session.displayLink
+    }
+
+    private func sceneApplication(_ session: MMDSceneApplicationSession) -> MMDSceneApplication {
+        return session.scene
+    }
+
+    private func sceneResources(_ session: MMDSceneApplicationStepSession) -> MMDSceneResources {
+        return session.resources
+    }
+
+    private func sceneGraphConfiguration(_ session: MMDSceneApplicationStepSession) -> MMDSceneGraphConfiguration {
+        return session.sceneGraph
+    }
+
+    private func sceneResources(_ application: MMDSceneApplication) -> MMDSceneResources {
+        return application.resources
+    }
+
+    private func sceneGraphConfiguration(_ application: MMDSceneApplication) -> MMDSceneGraphConfiguration {
+        return application.sceneGraph
     }
 
     private func configureSceneGraph(_ sceneGraph: MMDSceneGraphConfiguration) {
@@ -503,7 +545,7 @@ class MMDView: MetalView {
     }
 
     private func currentFrameCompletion(renderer: Renderer) -> MMDFrameCompletion? {
-        guard let presentation = currentFramePresentationSession(renderer: renderer)?.presentation else {
+        guard let presentation = currentFramePresentation(renderer: renderer) else {
             return nil
         }
 
@@ -522,17 +564,35 @@ class MMDView: MetalView {
                 commandBuffer: commandBuffer))
     }
 
+    private func currentFramePresentation(renderer: Renderer) -> MMDFramePresentation? {
+        guard let session = currentFramePresentationSession(renderer: renderer) else {
+            return nil
+        }
+
+        return framePresentation(session)
+    }
+
+    private func framePresentation(_ session: MMDFramePresentationSession) -> MMDFramePresentation {
+        return session.presentation
+    }
+
     private func completeFrame(_ session: MMDFrameCompletionSession) {
-        session.completion.presentation.commandBuffer.present(session.completion.presentation.drawable)
-        session.completion.presentation.commandBuffer.commit()
+        let completion = frameCompletion(session)
+        completion.presentation.commandBuffer.present(completion.presentation.drawable)
+        completion.presentation.commandBuffer.commit()
+    }
+
+    private func frameCompletion(_ session: MMDFrameCompletionSession) -> MMDFrameCompletion {
+        return session.completion
     }
 
     private func startDisplayLink(configuration: MMDDisplayLinkConfiguration) {
         let displayLink = makeDisplayLink()
         configureDisplayLink(displayLink, configuration: configuration)
         let session = makeDisplayLinkSession(displayLink)
-        session.displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
-        timer = session.displayLink
+        let link = sessionDisplayLink(session)
+        link.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
+        timer = link
     }
 
     private func makeDisplayLink() -> CADisplayLink {
@@ -541,6 +601,10 @@ class MMDView: MetalView {
 
     private func makeDisplayLinkSession(_ displayLink: CADisplayLink) -> MMDDisplayLinkSession {
         return MMDDisplayLinkSession(displayLink: displayLink)
+    }
+
+    private func sessionDisplayLink(_ session: MMDDisplayLinkSession) -> CADisplayLink {
+        return session.displayLink
     }
 
     private func makeDisplayLinkConfiguration(window configuration: MMDWindowConfiguration) -> MMDDisplayLinkConfiguration {
@@ -603,7 +667,7 @@ class MMDView: MetalView {
 
     private func drawPreparedFrame(_ frame: MMDPreparedFrame) {
         let session = makeFrameDrawingSession(frame)
-        traverser.update(session.execution.timing.elapsed, node: root)
+        traverser.update(frameExecution(session).timing.elapsed, node: root)
         traverser.draw(root)
     }
 
@@ -613,6 +677,10 @@ class MMDView: MetalView {
 
     private func makeFrameDrawingSession(_ frame: MMDPreparedFrame) -> MMDFrameDrawingSession {
         return MMDFrameDrawingSession(execution: makeFrameExecution(frame))
+    }
+
+    private func frameExecution(_ session: MMDFrameDrawingSession) -> MMDFrameExecution {
+        return session.execution
     }
 
     private func prepareCurrentFrame(_ displayLink: CADisplayLink) -> MMDPreparedFrame? {
@@ -660,6 +728,10 @@ class MMDView: MetalView {
     }
 
     private func drawFrameLoop(_ session: MMDFrameLoopSession) {
-        drawPreparedFrame(session.frame)
+        drawPreparedFrame(loopFrame(session))
+    }
+
+    private func loopFrame(_ session: MMDFrameLoopSession) -> MMDPreparedFrame {
+        return session.frame
     }
 }

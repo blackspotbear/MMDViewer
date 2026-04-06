@@ -549,9 +549,10 @@ class PMXObject {
     }
 
     private func updateFrame(_ session: PMXFramePipelineSession) {
-        updateAnimationState(makeAnimationUpdateSession(session.update.animation))
-        updateGeometryState(makeGeometryUpdateSession(session.update.geometry))
-        updateRenderBuffers(session.update.render)
+        let update = frameUpdate(session)
+        updateAnimationState(makeAnimationUpdateSession(animationUpdateContext(update)))
+        updateGeometryState(makeGeometryUpdateSession(geometryUpdateContext(update)))
+        updateRenderBuffers(renderUpdateContext(update))
     }
 
     private func makeFrameUpdateSession(_ context: PMXFrameContext) -> PMXFrameUpdateSession {
@@ -569,7 +570,7 @@ class PMXObject {
     }
 
     private func updateAnimationState(_ session: PMXAnimationUpdateSession) {
-        updatePosturesForCurrentFrame(tick: session.context.animation.tick)
+        updatePosturesForCurrentFrame(tick: animationTick(animationUpdateContext(session)))
         runPhysicsStep()
     }
 
@@ -582,7 +583,7 @@ class PMXObject {
     }
 
     private func updateGeometryState(_ session: PMXGeometryUpdateSession) {
-        prepareVertexBufferForCurrentFrame(session.context.geometry)
+        prepareVertexBufferForCurrentFrame(geometryContext(session))
     }
 
     private func currentGeometryUpdateContext(_ context: PMXFrameContext) -> PMXGeometryUpdateContext {
@@ -766,7 +767,7 @@ class PMXObject {
             return
         }
 
-        applyMorphUpdates(morphUpdates(session.application))
+        applyMorphUpdates(morphUpdates(morphApplication(session)))
     }
 
     private func currentMorphApplicationContext(tick: PMXAnimationTick) -> PMXMorphApplicationContext? {
@@ -779,7 +780,7 @@ class PMXObject {
 
     private func makeMorphResolutionSession(_ context: PMXMorphApplicationContext) -> PMXMorphResolutionSession {
         return PMXMorphResolutionSession(
-            updates: morphUpdates(makeMorphFrameResolutionSession(context.frame)))
+            updates: morphUpdates(makeMorphFrameResolutionSession(morphFrame(context))))
     }
 
     private func makeMorphFrameResolutionSession(_ frame: PMXMorphFrameContext) -> PMXMorphFrameResolutionSession {
@@ -812,6 +813,14 @@ class PMXObject {
 
         return PMXMorphPipelineSession(
             application: makeMorphApplicationSession(context))
+    }
+
+    private func morphApplication(_ session: PMXMorphPipelineSession) -> PMXMorphApplicationSession {
+        return session.application
+    }
+
+    private func morphFrame(_ context: PMXMorphApplicationContext) -> PMXMorphFrameContext {
+        return context.frame
     }
 
     private func resolveMorphUpdates(_ context: PMXMorphFrameContext) -> PMXMorphUpdates {
@@ -887,7 +896,7 @@ class PMXObject {
     }
 
     private func makeRenderBufferApplySession(_ session: PMXRenderBufferUpdateSession) -> PMXRenderBufferApplySession {
-        return PMXRenderBufferApplySession(buffers: session.assembly.buffers)
+        return PMXRenderBufferApplySession(buffers: renderBuffers(renderBufferAssembly(session)))
     }
 
     private func makeRenderBufferComponentSession(_ context: PMXRenderContext) -> PMXRenderBufferComponentSession {
@@ -917,7 +926,47 @@ class PMXObject {
 
     private func makeRenderBufferStorageApplySession(_ session: PMXRenderBufferApplySession) -> PMXRenderBufferStorageApplySession {
         return PMXRenderBufferStorageApplySession(
-            storage: storedRenderBuffers(makeRenderBufferStorageSession(session.buffers)))
+            storage: storedRenderBuffers(makeRenderBufferStorageSession(renderBuffers(session))))
+    }
+
+    private func frameUpdate(_ session: PMXFramePipelineSession) -> PMXFrameUpdateSession {
+        return session.update
+    }
+
+    private func animationUpdateContext(_ session: PMXFrameUpdateSession) -> PMXAnimationUpdateContext {
+        return session.animation
+    }
+
+    private func geometryUpdateContext(_ session: PMXFrameUpdateSession) -> PMXGeometryUpdateContext {
+        return session.geometry
+    }
+
+    private func renderUpdateContext(_ session: PMXFrameUpdateSession) -> PMXRenderUpdateContext {
+        return session.render
+    }
+
+    private func animationUpdateContext(_ session: PMXAnimationUpdateSession) -> PMXAnimationUpdateContext {
+        return session.context
+    }
+
+    private func animationTick(_ context: PMXAnimationUpdateContext) -> PMXAnimationTick {
+        return context.animation.tick
+    }
+
+    private func geometryContext(_ session: PMXGeometryUpdateSession) -> PMXGeometryContext {
+        return session.context.geometry
+    }
+
+    private func renderBufferAssembly(_ session: PMXRenderBufferUpdateSession) -> PMXFrameRenderBufferAssembly {
+        return session.assembly
+    }
+
+    private func renderBuffers(_ session: PMXRenderBufferApplySession) -> PMXFrameRenderBuffers {
+        return session.buffers
+    }
+
+    private func renderBuffers(_ assembly: PMXFrameRenderBufferAssembly) -> PMXFrameRenderBuffers {
+        return assembly.buffers
     }
 
     private func storedRenderBuffers(_ session: PMXRenderBufferStorageSession) -> PMXStoredRenderBuffers {
