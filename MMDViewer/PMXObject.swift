@@ -392,11 +392,7 @@ class PMXObject {
         PhysicsSolver(postures, physicsSolving: solver)
 
         prepareVertexBufferForCurrentFrame()
-
-        let renderBuffers = makeFrameRenderBuffers(renderer)
-        uniformBuffer = renderBuffers.uniforms
-        matrixPalette = renderBuffers.matrixPalette
-        materialBuffer = renderBuffers.materials
+        updateRenderBuffers(renderer)
     }
 
     /// FK / IK / Grant 解決後に、全ボーンの world matrix を現在フレームへ揃える。
@@ -484,6 +480,14 @@ class PMXObject {
             uniforms: sendUniforms(renderer),
             matrixPalette: sendMatrixPalette(),
             materials: sendMaterials())
+    }
+
+    /// 現在フレームの draw が参照する uniform / palette / material buffer を更新する。
+    private func updateRenderBuffers(_ renderer: Renderer) {
+        let renderBuffers = makeFrameRenderBuffers(renderer)
+        uniformBuffer = renderBuffers.uniforms
+        matrixPalette = renderBuffers.matrixPalette
+        materialBuffer = renderBuffers.materials
     }
 
     /// 描画に必要な camera / shadow 行列をまとめて uniform buffer へ転送する。
