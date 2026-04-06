@@ -346,6 +346,7 @@
 - `PMXObject` の render buffer 組み立てでは uniform / palette / material の 3 要素も component session としてまとめ、GPU 更新の組み立て段をさらに段階化した
 - `PMXObject` の uniform buffer 更新でも、buffer 確保と shadow 用行列計算を `PMXUniformBufferSession` にまとめ、行列準備と生書き込みの境界をさらに明確にした
 - active な forward path では updater と scene graph 構成全体も `MMDForwardSceneGraphSession` にまとめ、scene 準備の単位を node 単体から graph 構成単位へそろえた
+- `MMDView` の scene 準備も `MMDScenePreparationSession` を介す形にし、`PMXObject` の morph 解決でも frame 単位の resolution session を導入して、準備段の書き味をさらにそろえた
 
 ## 次のイテレーション候補
 

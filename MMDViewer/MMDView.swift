@@ -93,6 +93,10 @@ private struct MMDSceneResourceLoadingSession {
     let resources: MMDSceneResources
 }
 
+private struct MMDScenePreparationSession {
+    let scene: MMDPreparedScene
+}
+
 private struct MMDFramePreparationSession {
     let frame: MMDPreparedFrame
 }
@@ -386,9 +390,14 @@ class MMDView: MetalView {
 
     private func prepareScene() -> MMDPreparedScene {
         let resources = makeSceneResources()
-        return MMDPreparedScene(
-            resources: resources,
-            sceneGraph: makeSceneGraphConfiguration(pmxObject: resources.pmxObject))
+        return makeScenePreparationSession(resources).scene
+    }
+
+    private func makeScenePreparationSession(_ resources: MMDSceneResources) -> MMDScenePreparationSession {
+        return MMDScenePreparationSession(
+            scene: MMDPreparedScene(
+                resources: resources,
+                sceneGraph: makeSceneGraphConfiguration(pmxObject: resources.pmxObject)))
     }
 
     private func makeSceneApplicationSession(_ scene: MMDPreparedScene) -> MMDSceneApplicationSession {

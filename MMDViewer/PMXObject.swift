@@ -303,6 +303,11 @@ private struct PMXMorphResolutionSession {
     let updates: PMXMorphUpdates
 }
 
+private struct PMXMorphFrameResolutionSession {
+    let frame: PMXMorphFrameContext
+    let updates: PMXMorphUpdates
+}
+
 private struct PMXMorphApplicationSession {
     let updates: [MorphUpdate]
 }
@@ -742,7 +747,14 @@ class PMXObject {
     }
 
     private func makeMorphResolutionSession(_ context: PMXMorphApplicationContext) -> PMXMorphResolutionSession {
-        return PMXMorphResolutionSession(updates: resolveMorphUpdates(context.frame))
+        return PMXMorphResolutionSession(
+            updates: makeMorphFrameResolutionSession(context.frame).updates)
+    }
+
+    private func makeMorphFrameResolutionSession(_ frame: PMXMorphFrameContext) -> PMXMorphFrameResolutionSession {
+        return PMXMorphFrameResolutionSession(
+            frame: frame,
+            updates: resolveMorphUpdates(frame))
     }
 
     private func makeMorphApplicationSession(_ context: PMXMorphApplicationContext) -> PMXMorphApplicationSession {
